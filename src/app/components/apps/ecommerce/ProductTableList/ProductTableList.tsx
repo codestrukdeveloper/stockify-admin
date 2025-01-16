@@ -51,6 +51,7 @@ function getComparator<Key extends keyof any>(
 }
 
 function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
+  console.log("array",array);
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
@@ -76,7 +77,7 @@ const headCells: readonly HeadCell[] = [
     id: 'name',
     numeric: false,
     disablePadding: false,
-    label: 'Products',
+    label: 'Companies',
   },
   {
     id: 'pname',
@@ -180,7 +181,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
       }}
     >
       {numSelected > 0 ? (
-        <Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="subtitle2" component="div">
+        <Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="subname2" component="div">
           {numSelected} selected
         </Typography>
       ) : (
@@ -202,13 +203,13 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
+        <Tooltip name="Delete">
           <IconButton>
             <IconTrash width="18" />
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
+        <Tooltip name="Filter list">
           <IconButton>
             <IconFilter size="1.2rem" />
           </IconButton>
@@ -244,7 +245,7 @@ const ProductTableList = () => {
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const filteredRows: ProductType[] = getProducts.filter((row) => {
-      return row.title.toLowerCase().includes(event.target.value);
+      return row.name.toLowerCase().includes(event.target.value);
     });
     setSearch(event.target.value);
     setRows(filteredRows);
@@ -260,7 +261,7 @@ const ProductTableList = () => {
   // This is for select all the row
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n: any) => n.title);
+      const newSelecteds = rows.map((n: any) => n.name);
       setSelected(newSelecteds);
 
       return;
@@ -322,7 +323,7 @@ const ProductTableList = () => {
           <TableContainer>
             <Table
               sx={{ minWidth: 750 }}
-              aria-labelledby="tableTitle"
+              aria-labelledby="tablename"
               size={dense ? 'small' : 'medium'}
             >
               <EnhancedTableHead
@@ -337,17 +338,17 @@ const ProductTableList = () => {
                 {stableSort(rows, getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row: any, index) => {
-                    const isItemSelected = isSelected(row.title);
+                    const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
 
                     return (
                       <TableRow
                         hover
-                        onClick={(event) => handleClick(event, row.title)}
+                        onClick={(event) => handleClick(event, row.name)}
                         role="checkbox"
                         aria-checked={isItemSelected}
                         tabIndex={-1}
-                        key={row.title}
+                        key={row.name}
                         selected={isItemSelected}
                       >
                         <TableCell padding="checkbox">
@@ -369,16 +370,16 @@ const ProductTableList = () => {
                               }}
                             >
                               <Typography variant="h6" fontWeight="600">
-                                {row.title}
+                                {row.name}
                               </Typography>
-                              <Typography color="textSecondary" variant="subtitle2">
+                              <Typography color="textSecondary" variant="subname2">
                                 {row.category}
                               </Typography>
                             </Box>
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Typography>{format(new Date(row.created), 'E, MMM d yyyy')}</Typography>
+                          <Typography>{format(new Date(row.createdAt), 'E, MMM d yyyy')}</Typography>
                         </TableCell>
 
                         <TableCell>
@@ -395,7 +396,7 @@ const ProductTableList = () => {
                             />
                             <Typography
                               color="textSecondary"
-                              variant="subtitle2"
+                              variant="subname2"
                               sx={{
                                 ml: 1,
                               }}
@@ -411,7 +412,7 @@ const ProductTableList = () => {
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Tooltip title="Edit">
+                          <Tooltip name="Edit">
                             <IconButton size="small">
                               <IconDotsVertical size="1.1rem" />
                             </IconButton>

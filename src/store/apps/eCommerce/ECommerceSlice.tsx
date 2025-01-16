@@ -3,7 +3,7 @@ import { filter, map } from 'lodash';
 import { createSlice } from '@reduxjs/toolkit';
 import { AppDispatch } from '../../store';
 
-const API_URL = '/api/data/eCommerce/ProductsData';
+const API_URL = 'http://localhost:3001/api/v1/admin/company/';
 
 interface StateType {
   products: any[];
@@ -11,6 +11,7 @@ interface StateType {
   sortBy: string;
   cart: any[];
   total: number;
+  totalPage: number;
   filters: {
     category: string;
     color: string;
@@ -27,6 +28,7 @@ const initialState = {
   sortBy: 'newest',
   cart: [],
   total: 0,
+  totalPage: 0,
   filters: {
     category: 'All',
     color: 'All',
@@ -49,7 +51,9 @@ export const EcommerceSlice = createSlice({
 
     // GET PRODUCTS
     getProducts: (state, action) => {
-      state.products = action.payload;
+      state.products = action.payload.data;
+      state.total = action.payload.totalPage;
+
     },
     SearchProduct: (state, action) => {
       state.productSearch = action.payload;
@@ -155,7 +159,8 @@ export const {
 export const fetchProducts = () => async (dispatch: AppDispatch) => {
   try {
     const response = await axios.get(`${API_URL}`);
-    dispatch(getProducts(response.data));
+    console.log("RESPONSE",response.data.data);
+    dispatch(getProducts(response.data.data));
   } catch (error) {
     dispatch(hasError(error));
   }

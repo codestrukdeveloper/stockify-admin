@@ -84,9 +84,9 @@ const Menuitems: MenuitemsType[] = [
   },
   {
     id: uniqueId(),
-    title: "eCommerce",
+    title: "company",
     icon: IconShoppingCart,
-    href: "/dashboards/ecommerce",
+    href: "/dashboards/company",
   },
   {
     id: uniqueId(),
@@ -173,46 +173,36 @@ const Menuitems: MenuitemsType[] = [
   },
   {
     id: uniqueId(),
-    title: "Ecommerce",
+    title: "Companies",
     icon: IconBasket,
-    href: "/apps/ecommerce/",
+    href: "/apps/company/",
     children: [
-      {
-        id: uniqueId(),
-        title: "Shop",
-        icon: IconPoint,
-        href: "/apps/ecommerce/shop",
-      },
+     
       {
         id: uniqueId(),
         title: "Detail",
         icon: IconPoint,
-        href: "/apps/ecommerce/detail/1",
+        href: "/apps/company/detail/1",
       },
       {
         id: uniqueId(),
         title: "List",
         icon: IconPoint,
-        href: "/apps/ecommerce/list",
+        href: "/apps/company/list",
       },
+  
       {
         id: uniqueId(),
-        title: "Checkout",
+        title: "Add Company",
         icon: IconPoint,
-        href: "/apps/ecommerce/checkout",
+        href: "/apps/company/add-company",
       },
-      {
-        id: uniqueId(),
-        title: "Add Product",
-        icon: IconPoint,
-        href: "/apps/ecommerce/add-product",
-      },
-      {
-        id: uniqueId(),
-        title: "Edit Product",
-        icon: IconPoint,
-        href: "/apps/ecommerce/edit-product",
-      },
+      // {
+      //   id: uniqueId(),
+      //   title: "Edit Product",
+      //   icon: IconPoint,
+      //   href: "/apps/company/edit-product",
+      // },
     ],
   },
   {
