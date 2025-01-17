@@ -1,4 +1,5 @@
 
+"use client"
 import { Box, Button, Grid, Stack } from "@mui/material";
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/components/container/PageContainer";
@@ -10,6 +11,8 @@ import BalanceSheet from "@/app/components/apps/ecommerce/productAdd/BalanceShee
 import ProfitLossSummary from "@/app/components/apps/ecommerce/productAdd/ProfitLossSummary";
 import AboutTheCompany from "@/app/components/apps/ecommerce/productAdd/AboutTheCompany";
 import PricingTrend from "@/app/components/apps/ecommerce/productAdd/PricingTrend";
+import { useState } from "react";
+import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/company";
 
 const BCrumb = [
   {
@@ -21,24 +24,72 @@ const BCrumb = [
   },
 ];
 
-const stockData = {
-  dates: ['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04', '2024-01-05', '2024-01-06', '2024-01-07', '2024-01-08'],
-  prices: [150, 153, 157, 160, 162, 161, 164, 167],
-};
-
-
 const AddCompany = () => {
+  const [formData, setFormData] = useState<ICompanyFull>({
+    company: {
+      name: "",
+      ticker: "",
+      isin: "",
+      location: "",
+      rating: undefined,
+      price: undefined,
+      qty: undefined,
+      minQty: undefined,
+      maxQty: undefined,
+      lot: undefined,
+      email: "",
+      phone: "",
+      website: "",
+      aboutus: "",
+      categoryId: "",
+      industryId: "",
+      sectorId: "",
+      performanceId: "",
+      depositsId: [],
+      dhrpId: "",
+    },
+    sector: { _id: "", name: "", },
+    industry: { _id: "", name: "" },
+    performance: { _id: "", name: "" },
+    category: { _id: "", name: "", },
+    deposits: [],
+    dhrp: { _id: "", name: "" },
+    profitLoss: [],
+    priceTrend: [],
+    keyIndicators: [],
+    balanceSheet: [],
+    cashFlow: [],
+  });
+
+  const handleInputChange = (key: keyof ICompanyFull, value: any) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
   return (
     <PageContainer title="Add Product" description="this is Add Product">
-      {/* breadcrumb */}
-      {/* <Breadcrumb title="Add Product" items={BCrumb} /> */}
+      <Breadcrumb title="Add Product" items={BCrumb} />
       <form>
-        <CompanyLogoAndNameCard />
+        {/* Example for updating sections */}
+        <CompanyLogoAndNameCard
+          data={formData.company}
+          onChange={(updatedCompany) =>
+            handleInputChange("company", updatedCompany)
+          }
+        />
 
+        <KeyIndicators
+          data={formData.keyIndicators}
+          onChange={(updatedIndicators) =>
+            handleInputChange("keyIndicators", updatedIndicators)
+          }
+        />
 
-        <KeyIndicators />
-
-        <AboutTheCompany />
+        <AboutTheCompany
+          data={formData.company.aboutus}
+          onChange={(about) =>
+            handleInputChange("company", { ...formData.company, aboutus: about })
+          }
+        />
 
         <PricingTrend
           data={{
@@ -56,16 +107,35 @@ const AddCompany = () => {
               },
             ],
           }}
+          onChange={(updatedTrend) =>
+            handleInputChange("priceTrend", updatedTrend)
+          }
         />
 
+        <ProfitLossSummary
+          data={formData.profitLoss}
+          onChange={(updatedProfitLoss) =>
+            handleInputChange("profitLoss", updatedProfitLoss)
+          }
+        />
 
+        <BalanceSheet
+          data={formData.balanceSheet}
+          onChange={(updatedBalanceSheet) =>
+            handleInputChange("balanceSheet", updatedBalanceSheet)
+          }
+        />
 
-        <ProfitLossSummary />
+        <CashFlowSummary
+          data={formData.cashFlow}
+          onChange={(updatedCashFlow) =>
+            handleInputChange("cashFlow", updatedCashFlow)
+          }
+        />
 
-        <BalanceSheet />
-        <CashFlowSummary />
-
-
+        <Button variant="contained" color="primary" type="submit">
+          Submit
+        </Button>
       </form>
     </PageContainer>
   );

@@ -4,7 +4,7 @@ import { IBalanceSheet } from "./IBalanceSheet";
 import { ICashflowSum } from "./ICashflowSum";
 import { IDhrp } from "./IDhrp";
 import { IKeyIndicators } from "./IKeyIndicators";
-import { Industry } from "./industry";
+import { IndustryList } from "./industry";
 import { IPriceTrend } from "./IPricingTrend.interface";
 import { IProfitLosses } from "./IProfitLoss";
 import { IPerformance } from "./peformance";
@@ -50,7 +50,7 @@ export interface ICompany  {
 export interface ICompanyFull {
     company:ICompany,
     sector:ISector,
-    industry:Industry
+    industry:IndustryList,
     performance:IPerformance,
     category:ICategory,
     deposits:IDeposit[],

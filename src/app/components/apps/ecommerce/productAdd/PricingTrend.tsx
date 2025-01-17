@@ -163,7 +163,7 @@ const PricingTrend: React.FC<PricingTrendProps> = ({ data }) => {
                 variant="h1"
                 fontWeight={"bold"}
             >
-                PRICING{" "}
+            PRICING{" "}
                 <Typography
                     component="span"
                     sx={{

@@ -5,13 +5,11 @@ import React, { useState } from 'react';
 import CompanyImage from './CompanyImage';
 import { Common } from '@/app/(DashboardLayout)/types/apps/common';
 import CustomMultiSelect from './Select';
+import { ICompany } from '@/app/(DashboardLayout)/types/apps/company';
 
 interface CompanyLogoAndNameCardProps {
-    logo?: string | StaticImageData;
-    name?: string;
-    sector?: string;
-    industry?: string;
-    deposits?: string[];
+    company?: Partial<ICompany>
+    onChange:()=>void
 };
 
 const selectData: Common[] = [
@@ -38,7 +36,7 @@ const CustomSelect: React.FC<SelectProps> = ({ options, name, onChange }) => {
     const handleChange = (event: SelectChangeEvent) => {
         const value = event.target.value;
         setSelectedValue(value);
-        // onChange(value);
+        onChange(value);
     };
 
     return (
@@ -90,7 +88,7 @@ const CompanyLogoAndNameCard: React.FC<CompanyLogoAndNameCardProps> = (data: Com
                             <CustomSelect name='Sector' options={selectData} />
                         </Grid>
                         <Grid item xs={12} md={4}>
-                            <CustomSelect name='Industry' options={selectData} />
+                            <CustomSelect name='Industry' onChange={data.onChange} options={selectData} />
                         </Grid>
                         <Grid item xs={12} md={4}>
                             <CustomMultiSelect name='Deposits' options={selectData} />

@@ -2,16 +2,21 @@ import axios from '../../../utils/axios';
 import { filter, map } from 'lodash';
 import { createSlice } from '@reduxjs/toolkit';
 import { AppDispatch } from '../../store';
+import { ICompany, ICompanyFull } from '@/app/(DashboardLayout)/types/apps/company';
 
 const API_URL = 'http://localhost:3001/api/v1/admin/company/';
 
 interface StateType {
-    Companys: any[];
+    Companies: ICompany[];
+    Company: ICompanyFull | null;
+    AddCompany: ICompanyFull | null;
     CompanySearch: string;
     sortBy: string;
     cart: any[];
     total: number;
     totalPage: number;
+    limit: number;
+
     filters: {
         category: string;
         color: string;
@@ -22,12 +27,16 @@ interface StateType {
     error: string;
 }
 
-const initialState = {
-    Companys: [],
+const initialState: StateType = {
+    Companies: [],
+    Company: null,
+    AddCompany: null,
+
     CompanySearch: '',
     sortBy: 'newest',
     cart: [],
     total: 0,
+    limit: 0,
     totalPage: 0,
     filters: {
         category: 'All',
@@ -45,16 +54,25 @@ export const CompanySlice = createSlice({
     reducers: {
         // HAS ERROR
 
-        hasError(state: StateType, action) {
+        hasError(state, action) {
             state.error = action.payload;
         },
 
         // GET CompanyS
-        getCompanys: (state, action) => {
-            state.Companys = action.payload.data;
+        getCompanies: (state, action) => {
+            state.Companies = action.payload.data;
             state.total = action.payload.totalPage;
 
         },
+
+        getCompanyById: (state, action) => {
+            state.Company = action.payload.data;
+        },
+
+        createCompany: (state, action) => {
+            state.AddCompany = action.payload.data;
+        },
+
         SearchCompany: (state, action) => {
             state.CompanySearch = action.payload;
         },
@@ -64,11 +82,7 @@ export const CompanySlice = createSlice({
             state.sortBy = action.payload;
         },
 
-     
 
-       
-
-        //  SORT  By Color
         sortByPrice(state, action) {
             state.filters.price = action.payload.price;
         },
@@ -85,55 +99,17 @@ export const CompanySlice = createSlice({
             state.sortBy = 'newest';
         },
 
-        increment(state: StateType, action) {
-            const CompanyId = action.payload;
-            const updateCart = map(state.cart, (Company) => {
-                if (Company.id === CompanyId) {
-                    return {
-                        ...Company,
-                        qty: Company.qty + 1,
-                    };
-                }
 
-                return Company;
-            });
-
-            state.cart = updateCart;
-        },
-
-        // qty decrement
-        decrement(state: StateType, action) {
-            const CompanyId = action.payload;
-            const updateCart = map(state.cart, (Company) => {
-                if (Company.id === CompanyId) {
-                    return {
-                        ...Company,
-                        qty: Company.qty - 1,
-                    };
-                }
-
-                return Company;
-            });
-
-            state.cart = updateCart;
-        },
-
-        // delete Cart
-        deleteCart(state: StateType, action) {
-            const updateCart = filter(state.cart, (item) => item.id !== action.payload);
-            state.cart = updateCart;
-        },
     },
 });
 export const {
     hasError,
-    getCompanys,
+    getCompanies,
+    getCompanyById,
+    createCompany,
     SearchCompany,
     sortByCompanys,
     filterCompanys,
-    increment,
-    deleteCart,
-    decrement,
     sortByPrice,
     filterReset,
 } = CompanySlice.actions;
@@ -142,10 +118,38 @@ export const fetchCompanys = () => async (dispatch: AppDispatch) => {
     try {
         const response = await axios.get(`${API_URL}`);
         console.log("RESPONSE", response.data.data);
-        dispatch(getCompanys(response.data.data));
-    } catch (error) {
+        dispatch(getCompanies(response.data.data));
+    } catch (error: any) {
+        console.log("ERROR", error?.response)
+
         dispatch(hasError(error));
     }
 };
+
+
+
+export const fetchCompanyById = () => async (dispatch: AppDispatch) => {
+    try {
+        const response = await axios.get(`${API_URL}`);
+        console.log("RESPONSE", response.data.data);
+        dispatch(getCompanyById(response.data.data));
+    } catch (error: any) {
+        console.log("ERROR", error?.response)
+
+        dispatch(hasError(error));
+    }
+};
+
+export const AddCompany = () => async (dispatch: AppDispatch) => {
+    try {
+        const response = await axios.get(`${API_URL}`);
+        console.log("RESPONSE", response.data.data);
+        dispatch(createCompany(response.data.data));
+    } catch (error: any) {
+        console.log("ERROR", error?.response)
+        dispatch(hasError(error));
+    }
+};
+
 
 export default CompanySlice.reducer;

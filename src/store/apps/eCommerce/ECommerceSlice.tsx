@@ -2,20 +2,20 @@ import axios from '../../../utils/axios';
 import { filter, map } from 'lodash';
 import { createSlice } from '@reduxjs/toolkit';
 import { AppDispatch } from '../../store';
+import { ICompanyFull } from '@/app/(DashboardLayout)/types/apps/company';
 
 const API_URL = 'http://localhost:3001/api/v1/admin/company/';
 
 interface StateType {
-  products: any[];
+  products: ICompanyFull[];
   productSearch: string;
   sortBy: string;
   cart: any[];
   total: number;
   totalPage: number;
+  limit: number;
   filters: {
     category: string;
-    color: string;
-    gender: string;
     price: string;
     rating: string;
   };
@@ -29,10 +29,9 @@ const initialState = {
   cart: [],
   total: 0,
   totalPage: 0,
+  limit:50,
   filters: {
     category: 'All',
-    color: 'All',
-    gender: 'All',
     price: 'All',
     rating: '',
   },
@@ -65,14 +64,8 @@ export const EcommerceSlice = createSlice({
     },
 
     //  SORT  PRODUCTS
-    sortByGender(state, action) {
-      state.filters.gender = action.payload.gender;
-    },
 
     //  SORT  By Color
-    sortByColor(state, action) {
-      state.filters.color = action.payload.color;
-    },
 
     //  SORT  By Color
     sortByPrice(state, action) {
@@ -87,8 +80,6 @@ export const EcommerceSlice = createSlice({
     //  FILTER Reset
     filterReset(state) {
       state.filters.category = 'All';
-      state.filters.color = 'All';
-      state.filters.gender = 'All';
       state.filters.price = 'All';
       state.sortBy = 'newest';
     },
@@ -146,17 +137,36 @@ export const {
   SearchProduct,
   sortByProducts,
   filterProducts,
-  sortByGender,
   increment,
   deleteCart,
   decrement,
   addToCart,
   sortByPrice,
   filterReset,
-  sortByColor,
 } = EcommerceSlice.actions;
 
 export const fetchProducts = () => async (dispatch: AppDispatch) => {
+  try {
+    const response = await axios.get(`${API_URL}`);
+    console.log("RESPONSE",response.data.data);
+    dispatch(getProducts(response.data.data));
+  } catch (error) {
+    dispatch(hasError(error));
+  }
+};
+
+
+export const fetchCompanyById = () => async (dispatch: AppDispatch) => {
+  try {
+    const response = await axios.get(`${API_URL}`);
+    console.log("RESPONSE",response.data.data);
+    dispatch(getProducts(response.data.data));
+  } catch (error) {
+    dispatch(hasError(error));
+  }
+};
+
+export const createCompany = () => async (dispatch: AppDispatch) => {
   try {
     const response = await axios.get(`${API_URL}`);
     console.log("RESPONSE",response.data.data);
