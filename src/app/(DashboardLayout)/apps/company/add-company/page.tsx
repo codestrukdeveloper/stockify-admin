@@ -1,16 +1,15 @@
+
 import { Box, Button, Grid, Stack } from "@mui/material";
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/components/container/PageContainer";
 
-import GeneralCard from "@/app/components/apps/ecommerce/productAdd/GeneralCard";
-import MediaCard from "@/app/components/apps/ecommerce/productAdd/Media";
-import VariationCard from "@/app/components/apps/ecommerce/productAdd/VariationCard";
-import PricingCard from "@/app/components/apps/ecommerce/productAdd/Pricing";
-import Thumbnail from "@/app/components/apps/ecommerce/productAdd/Thumbnail";
-import StatusCard from "@/app/components/apps/ecommerce/productAdd/Status";
-import ProductDetails from "@/app/components/apps/ecommerce/productAdd/ProductDetails";
-import ProductTemplate from "@/app/components/apps/ecommerce/productAdd/ProductTemplate";
-import BlankCard from "@/app/components/shared/BlankCard";
+import CompanyLogoAndNameCard from "@/app/components/apps/ecommerce/productAdd/CompanyLogoAndNameCard";
+import KeyIndicators from "@/app/components/apps/ecommerce/productAdd/KeyIndicators";
+import CashFlowSummary from "@/app/components/apps/ecommerce/productAdd/CashFlowSummary";
+import BalanceSheet from "@/app/components/apps/ecommerce/productAdd/BalanceSheet";
+import ProfitLossSummary from "@/app/components/apps/ecommerce/productAdd/ProfitLossSummary";
+import AboutTheCompany from "@/app/components/apps/ecommerce/productAdd/AboutTheCompany";
+import PricingTrend from "@/app/components/apps/ecommerce/productAdd/PricingTrend";
 
 const BCrumb = [
   {
@@ -22,65 +21,54 @@ const BCrumb = [
   },
 ];
 
-const EcommerceAddProduct = () => {
+const stockData = {
+  dates: ['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04', '2024-01-05', '2024-01-06', '2024-01-07', '2024-01-08'],
+  prices: [150, 153, 157, 160, 162, 161, 164, 167],
+};
+
+
+const AddCompany = () => {
   return (
     <PageContainer title="Add Product" description="this is Add Product">
       {/* breadcrumb */}
-      <Breadcrumb title="Add Product" items={BCrumb} />
+      {/* <Breadcrumb title="Add Product" items={BCrumb} /> */}
       <form>
-        <Grid container spacing={3}>
-          <Grid item lg={8}>
-            <Stack spacing={3}>
-              <BlankCard>
-                <GeneralCard />
-              </BlankCard>
+        <CompanyLogoAndNameCard />
 
-              <BlankCard>
-                <MediaCard />
-              </BlankCard>
 
-              <BlankCard>
-                <VariationCard />
-              </BlankCard>
+        <KeyIndicators />
 
-              <BlankCard>
-                <PricingCard />
-              </BlankCard>
-            </Stack>
-          </Grid>
+        <AboutTheCompany />
 
-          <Grid item lg={4}>
-            <Stack spacing={3}>
-              <BlankCard>
-                <Thumbnail />
-              </BlankCard>
+        <PricingTrend
+          data={{
+            labels: ["Nov 23", "Dec 23", "Jan 24"],
+            datasets: [
+              {
+                label: "Price",
+                data: [9000, 9500, 8000],
+                borderColor: "#4caf50",
+                backgroundColor: "#4caf50",
+                pointRadius: 5,
+                pointBackgroundColor: "#4caf50",
+                fill: false,
+                tension: 0.4,
+              },
+            ],
+          }}
+        />
 
-              <BlankCard>
-                <StatusCard />
-              </BlankCard>
 
-              <BlankCard>
-                <ProductDetails />
-              </BlankCard>
 
-              <BlankCard>
-                <ProductTemplate />
-              </BlankCard>
-            </Stack>
-          </Grid>
-        </Grid>
+        <ProfitLossSummary />
 
-        <Stack direction="row" spacing={2} mt={3}>
-          <Button variant="contained" color="primary">
-            Save Changes
-          </Button>
-          <Button variant="outlined" color="error">
-            Cancel
-          </Button>
-        </Stack>
+        <BalanceSheet />
+        <CashFlowSummary />
+
+
       </form>
     </PageContainer>
   );
 };
 
-export default EcommerceAddProduct;
+export default AddCompany;
