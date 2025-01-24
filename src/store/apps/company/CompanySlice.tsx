@@ -7,8 +7,8 @@ import { ICompany, ICompanyFull } from '@/app/(DashboardLayout)/types/apps/compa
 const API_URL = 'http://localhost:3001/api/v1/admin/company/';
 
 interface StateType {
-    Companies: ICompany[];
-    Company: ICompanyFull | null;
+    companies: ICompany[];
+    company: ICompanyFull | null;
     AddCompany: ICompanyFull | null;
     CompanySearch: string;
     sortBy: string;
@@ -28,8 +28,8 @@ interface StateType {
 }
 
 const initialState: StateType = {
-    Companies: [],
-    Company: null,
+    companies: [],
+    company: null,
     AddCompany: null,
 
     CompanySearch: '',
@@ -60,13 +60,13 @@ export const CompanySlice = createSlice({
 
         // GET CompanyS
         getCompanies: (state, action) => {
-            state.Companies = action.payload.data;
+            state.companies = action.payload.data;
             state.total = action.payload.totalPage;
 
         },
 
         getCompanyById: (state, action) => {
-            state.Company = action.payload.data;
+            state.company = action.payload.data;
         },
 
         createCompany: (state, action) => {
@@ -114,42 +114,6 @@ export const {
     filterReset,
 } = CompanySlice.actions;
 
-export const fetchCompanys = () => async (dispatch: AppDispatch) => {
-    try {
-        const response = await axios.get(`${API_URL}`);
-        console.log("RESPONSE", response.data.data);
-        dispatch(getCompanies(response.data.data));
-    } catch (error: any) {
-        console.log("ERROR", error?.response)
-
-        dispatch(hasError(error));
-    }
-};
-
-
-
-export const fetchCompanyById = () => async (dispatch: AppDispatch) => {
-    try {
-        const response = await axios.get(`${API_URL}`);
-        console.log("RESPONSE", response.data.data);
-        dispatch(getCompanyById(response.data.data));
-    } catch (error: any) {
-        console.log("ERROR", error?.response)
-
-        dispatch(hasError(error));
-    }
-};
-
-export const AddCompany = () => async (dispatch: AppDispatch) => {
-    try {
-        const response = await axios.get(`${API_URL}`);
-        console.log("RESPONSE", response.data.data);
-        dispatch(createCompany(response.data.data));
-    } catch (error: any) {
-        console.log("ERROR", error?.response)
-        dispatch(hasError(error));
-    }
-};
 
 
 export default CompanySlice.reducer;

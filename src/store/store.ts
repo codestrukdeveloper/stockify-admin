@@ -3,18 +3,17 @@ import { combineReducers } from "redux";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
-import counterReducer from "./counter/counterSlice";
 import CustomizerReducer from "./customizer/CustomizerSlice";
-import EcommerceReducer from "./apps/eCommerce/ECommerceSlice";
-import ChatsReducer from "./apps/chat/ChatSlice";
-import NotesReducer from "./apps/notes/NotesSlice";
-import EmailReducer from "./apps/email/EmailSlice";
-import TicketReducer from "./apps/tickets/TicketSlice";
-import ContactsReducer from "./apps/contacts/ContactSlice";
 import UserProfileReducer from "./apps/userProfile/UserProfileSlice";
 import BlogReducer from "./apps/blog/BlogSlice";
-import IndustryReducer from "./apps/industry/IndustrySlice";
 import AuthReducer from "./apps/auth/AuthSlice";
+import SectorReducer from "./apps/sector/SectorSlice";
+import IndustryReducer from "./apps/industry/IndustrySlice";
+import DepositsReducer from "./apps/deposits/DepositsSlice";
+import DhrpsReducer from "./apps/dhrps/DhrpSlice";
+import  CompanyReducer from "./apps/company/CompanySlice";
+
+
 
 
 const persistConfig = {
@@ -24,17 +23,14 @@ const persistConfig = {
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
     customizer: persistReducer<any>(persistConfig, CustomizerReducer),
-    ecommerceReducer: EcommerceReducer,
-    chatReducer: ChatsReducer,
-    emailReducer: EmailReducer,
-    notesReducer: NotesReducer,
-    contactsReducer: ContactsReducer,
-    ticketReducer: TicketReducer,
     userpostsReducer: UserProfileReducer,
+    companyReducer: CompanyReducer,
     blogReducer: BlogReducer,
     industryReducer:IndustryReducer,
+    sectorReducer:SectorReducer,
+    depositsReducer:DepositsReducer,
+    dhrpsReducer:DhrpsReducer,
     authReducer:AuthReducer
   },
   devTools: process.env.NODE_ENV !== "production",
@@ -43,18 +39,15 @@ export const store = configureStore({
 });
 
 const rootReducer = combineReducers({
-  counter: counterReducer,
   customizer: CustomizerReducer,
-  ecommerceReducer: EcommerceReducer,
-  chatReducer: ChatsReducer,
-  emailReducer: EmailReducer,
-  notesReducer: NotesReducer,
-  contactsReducer: ContactsReducer,
-  ticketReducer: TicketReducer,
   userpostsReducer: UserProfileReducer,
   blogReducer: BlogReducer,
   industryReducer: IndustryReducer,
-  authReducer:AuthReducer
+  authReducer:AuthReducer,
+  depositsReducer:DepositsReducer,
+  dhrpsReducer:DhrpsReducer,
+  sectorReducer:SectorReducer,
+  companyReducer: CompanyReducer,
 
 });
 

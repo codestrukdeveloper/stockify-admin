@@ -1,21 +1,21 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { DepositList } from '@/app/(DashboardLayout)/types/apps/industry';
+import { IDeposit } from '@/app/(DashboardLayout)/types/apps/industry';
 import axios from '@/utils/axios';
 
 interface DepositContextType {
-    deposits: DepositList[];
+    deposits: IDeposit[];
     loading: boolean;
     error: Error | null;
     deleteEmail: () => {},
-    addDeposit: (newDeposit: DepositList) => void;
-    updateDeposit: (updatedDeposit: DepositList) => void;
+    addDeposit: (newDeposit: IDeposit) => void;
+    updateDeposit: (updatedDeposit: IDeposit) => void;
 }
 
 export const DepositContext = createContext<DepositContextType | any>(undefined);
 
 export const DepositProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [deposits, setDeposits] = useState<DepositList[]>([]);
+    const [deposits, setDeposits] = useState<IDeposit[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
@@ -46,7 +46,7 @@ export const DepositProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
     };
 
-    const addDeposit = async (newDeposit: DepositList) => {
+    const addDeposit = async (newDeposit: IDeposit) => {
         try {
             const response = await axios.post('/api/data/depositdata/adddeposit', newDeposit);
             const addedDeposit = response.data;
@@ -57,7 +57,7 @@ export const DepositProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
 
     //  Function to update an deposit
-    const updateDeposit = async (updatedDeposit: DepositList) => {
+    const updateDeposit = async (updatedDeposit: IDeposit) => {
         try {
             const response = await axios.put('/api/data/depositdata/updatedeposit', updatedDeposit);
             const updated = response.data;

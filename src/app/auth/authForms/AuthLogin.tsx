@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -18,13 +18,18 @@ import CustomTextField from "@/app/components/forms/theme-elements/CustomTextFie
 import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
 import AuthSocialButtons from "./AuthSocialButtons";
 import { AppDispatch, RootState } from "@/store/store";
-import { login } from "@/store/apps/auth/AuthSlice";
 import ErrorMessage from '@/app/components/shared/ErrorMessage';
+import { useRouter } from "next/navigation";
+import { useLogin } from '@/hooks/useAuth';
+import { login } from '@/store/apps/auth/auth-action';
 
 
 const AuthLogin = ({ title, subtitle, subtext }: { title?: string; subtitle?: JSX.Element; subtext?: JSX.Element }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.authReducer);
+  const router = useRouter();
+  const { data, isSuccess, } = useLogin();
+
+  const { loading, error, isAuthenticated } = useSelector((state: RootState) => state.authReducer);
 
   const [formData, setFormData] = useState({
     email: 'aakash@gmail.com',
@@ -43,16 +48,29 @@ const AuthLogin = ({ title, subtitle, subtext }: { title?: string; subtitle?: JS
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if(!formData.email||formData.email===""){
+    if (!formData.email || formData.email === "") {
       setFormError((prev) => ({ ...prev, email: "Invalid Email" }));
 
     }
-    if(!formData.password||formData.password===""){
+    if (!formData.password || formData.password === "") {
       setFormError((prev) => ({ ...prev, password: "Invalid Password" }));;
       return
 
     }
     dispatch(login(formData.email, formData.password));
+
+  };
+
+
+  useEffect(() => {
+
+    if (isAuthenticated) {
+      loginSuccessRedirect();
+    }
+
+  }, [isAuthenticated]);
+  const loginSuccessRedirect = () => {
+    router.push('/');
   };
 
   return (
@@ -108,7 +126,7 @@ const AuthLogin = ({ title, subtitle, subtext }: { title?: string; subtitle?: JS
               onChange={handleChange}
               error={!!formError?.password}
               helperText={formError?.password}
-            
+
             />
           </Box>
           <Stack
@@ -149,7 +167,11 @@ const AuthLogin = ({ title, subtitle, subtext }: { title?: string; subtitle?: JS
           </Button>
         </Box>
       </form>
-      <ErrorMessage  error={error} />
+
+      {
+        error &&
+        <ErrorMessage error={error} />
+      }
       {subtitle}
     </>
   );

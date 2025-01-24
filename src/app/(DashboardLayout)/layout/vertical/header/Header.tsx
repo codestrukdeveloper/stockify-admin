@@ -13,7 +13,7 @@ import {
 import { IconMenu2, IconMoon, IconSun } from "@tabler/icons-react";
 import Notifications from "./Notification";
 import Profile from "./Profile";
-import Cart from "./Cart";
+// import Cart from "./Cart";
 import Search from "./Search";
 import Language from "./Language";
 import { AppState } from "@/store/store";
@@ -76,7 +76,7 @@ const Header = () => {
           {/* ------------------------------------------- */}
           {/* Ecommerce Dropdown */}
           {/* ------------------------------------------- */}
-          <Cart />
+          {/* <Cart /> */}
           {/* ------------------------------------------- */}
           {/* End Ecommerce Dropdown */}
           {/* ------------------------------------------- */}

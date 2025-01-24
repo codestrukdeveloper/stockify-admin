@@ -4,14 +4,16 @@ import { IBalanceSheet } from "./IBalanceSheet";
 import { ICashflowSum } from "./ICashflowSum";
 import { IDhrp } from "./IDhrp";
 import { IKeyIndicators } from "./IKeyIndicators";
-import { IndustryList } from "./industry";
+import { IManagement } from "./IManagement";
+import { IIndustry } from "./industry";
 import { IPriceTrend } from "./IPricingTrend.interface";
 import { IProfitLosses } from "./IProfitLoss";
+import { IShareholder } from "./IShareholder";
 import { IPerformance } from "./peformance";
 import { ISector } from "./sector";
 
-export interface ICompany  {
-    _id?:string;
+export interface ICompany {
+    _id?: string;
     name: string;
     ticker: string;
     isin: string;
@@ -27,12 +29,12 @@ export interface ICompany  {
     phone?: string;
     website?: string;
     videoLink?: string;
-    shareholderFile?: string;
+    shareHolders?: IShareholder[];
     dhrpLink?: string;
     aboutus?: string;
     categoryId?: string;
     depositsId?: string[];
-
+    management: IManagement[]
     industryId?: string;
     sectorId?: string;
     dhrpId?: string;
@@ -40,24 +42,25 @@ export interface ICompany  {
     slug?: string;
     logo?: string;
     status?: boolean;
-    createdAt?: Date;
-    updatedAt?: Date;
-    isDeleted?:boolean;
+    createdAt?: string;
+    updatedAt?: string;
+    isDeleted?: boolean;
     deletedAt?: Date;
+    financialResulsts: {
+        period: string;
+        document: string
+    }[]
 };
 
 
+
 export interface ICompanyFull {
-    company:ICompany,
-    sector:ISector,
-    industry:IndustryList,
-    performance:IPerformance,
-    category:ICategory,
-    deposits:IDeposit[],
-    dhrp:IDhrp,
-    profitLoss:IProfitLosses[],
-    priceTrend:IPriceTrend[],
-    keyIndicators:IKeyIndicators[],
-    balanceSheet:IBalanceSheet[],
-    cashFlow?:ICashflowSum[],
+    company: ICompany,
+    profitLoss: IProfitLosses[],
+    priceTrend: IPriceTrend[],
+    keyIndicators: IKeyIndicators[],
+    balanceSheet: IBalanceSheet[],
+    cashFlow: ICashflowSum[],
 }
+
+export type FILE_FOR = "pricing_trend" | "profit_loss" | "key_indicators" | "share_holder" | "cash_Flow" | "balanceSheet"

@@ -41,7 +41,7 @@ import {
 } from "@tabler/icons-react";
 import CustomCheckbox from "@/app/components/forms/theme-elements/CustomCheckbox";
 
-function CategoryList() {
+function ICategory() {
   const { categories, deleteCategory } = useContext(CategoryContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("All");
@@ -283,4 +283,4 @@ function CategoryList() {
     </Box >
   );
 }
-export default CategoryList;
+export default ICategory;

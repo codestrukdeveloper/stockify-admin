@@ -1,21 +1,21 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { DhrpsList } from '@/app/(DashboardLayout)/types/apps/industry';
+import { IDhrps } from '@/app/(DashboardLayout)/types/apps/industry';
 import axios from '@/utils/axios';
 
 interface DhrpsContextType {
-    dhrpss: DhrpsList[];
+    dhrpss: IDhrps[];
     loading: boolean;
     error: Error | null;
     deleteEmail: () => {},
-    addDhrps: (newDhrps: DhrpsList) => void;
-    updateDhrps: (updatedDhrps: DhrpsList) => void;
+    addDhrps: (newDhrps: IDhrps) => void;
+    updateDhrps: (updatedDhrps: IDhrps) => void;
 }
 
 export const DhrpsContext = createContext<DhrpsContextType | any>(undefined);
 
 export const DhrpsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [dhrpss, setDhrps] = useState<DhrpsList[]>([]);
+    const [dhrpss, setDhrps] = useState<IDhrps[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
@@ -46,7 +46,7 @@ export const DhrpsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
     };
 
-    const addDhrps = async (newDhrps: DhrpsList) => {
+    const addDhrps = async (newDhrps: IDhrps) => {
         try {
             const response = await axios.post('/api/data/dhrpsdata/adddhrps', newDhrps);
             const addedDhrps = response.data;
@@ -57,7 +57,7 @@ export const DhrpsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     //  Function to update an dhrps
-    const updateDhrps = async (updatedDhrps: DhrpsList) => {
+    const updateDhrps = async (updatedDhrps: IDhrps) => {
         try {
             const response = await axios.put('/api/data/dhrpsdata/updatedhrps', updatedDhrps);
             const updated = response.data;

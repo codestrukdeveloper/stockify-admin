@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 
 interface SelectProps {
     options: Common[];
-    name: string;
-    onChange: (selected: string[]) => void; // handle multiple selections
+    name: "depositsId";
+    onChange: (key:string,selected: string[]) => void; 
 }
 
 const CustomMultiSelect: React.FC<SelectProps> = ({ options, name, onChange }) => {
@@ -16,7 +16,7 @@ const CustomMultiSelect: React.FC<SelectProps> = ({ options, name, onChange }) =
     const handleChange = (event: SelectChangeEvent<string[]>) => {
         const value = event.target.value as string[];
         setSelectedValues(value);
-        onChange(value); // Call the parent onChange with selected values
+        onChange(name,value); 
     };
 
     // Toggle the open/close state

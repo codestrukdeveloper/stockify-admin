@@ -41,7 +41,7 @@ import {
 } from "@tabler/icons-react";
 import CustomCheckbox from "@/app/components/forms/theme-elements/CustomCheckbox";
 
-function DepositList() {
+function IDeposit() {
   const { deposits, deleteDeposit } = useContext(DepositContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("All");
@@ -283,4 +283,4 @@ function DepositList() {
     </Box >
   );
 }
-export default DepositList;
+export default IDeposit;

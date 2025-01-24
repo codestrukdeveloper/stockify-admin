@@ -14,7 +14,6 @@ import {
 } from "@/store/customizer/CustomizerSlice";
 import { IconMenu2, IconMoon, IconSun } from "@tabler/icons-react";
 import Notifications from "../../vertical/header/Notification";
-import Cart from "../../vertical/header/Cart";
 import Profile from "../../vertical/header/Profile";
 import Search from "../../vertical/header/Search";
 import Language from "../../vertical/header/Language";
@@ -84,7 +83,7 @@ const Header = () => {
           {/* ------------------------------------------- */}
           {/* Ecommerce Dropdown */}
           {/* ------------------------------------------- */}
-          <Cart />
+          {/* <Cart /> */}
           <IconButton size="large" color="inherit">
             {customizer.activeMode === "light" ? (
               <IconMoon

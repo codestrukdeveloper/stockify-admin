@@ -20,6 +20,7 @@ import {
   Typography,
   Stack,
   InputAdornment,
+  TablePagination,
 } from "@mui/material";
 import Link from "next/link";
 import {
@@ -30,12 +31,20 @@ import {
 } from "@tabler/icons-react";
 import CustomCheckbox from "@/app/components/forms/theme-elements/CustomCheckbox";
 import { useDispatch, useSelector } from "@/store/hooks";
-import { deleteIndustry, fetchIndustry } from "@/store/apps/industry/IndustrySlice";
 import { orderBy } from "lodash";
-import { IndustryList as IndustryListType } from "@/app/(DashboardLayout)/types/apps/industry";
+import { IIndustry as IIndustryType } from "@/app/(DashboardLayout)/types/apps/industry";
+import { deleteIndustryAction, fetchIndustries, fetchIndustry } from "@/utils/api/industry-api";
+import { RootState } from "@/store/store";
+import Loading from "@/app/loading";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
 
-function IndustryList() {
+function IIndustry() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [pageNo, setPageNo] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const { loading,total,totalPage, error} = useSelector((state: RootState) => state.industryReducer);
+
+  
   const [activeTab, setActiveTab] = useState("All");
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -43,8 +52,8 @@ function IndustryList() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchIndustry());
-  }, [dispatch]);
+    dispatch(fetchIndustries(pageNo,limit));
+  }, [dispatch,pageNo,limit]);
 
   const tabItem = ["All", "Shipped", "Delivered", "Pending"];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -55,10 +64,10 @@ function IndustryList() {
   };
 
   const getVisibleProduct = (
-    industries: IndustryListType[],
+    industries: IIndustryType[],
     sortBy: string,
     search: string
-  ): IndustryListType[] => {
+  ): IIndustryType[] => {
     let filteredIndustries = industries;
 
     if (sortBy === "newest") {
@@ -88,7 +97,7 @@ function IndustryList() {
     const selectAllValue = !selectAll;
     setSelectAll(selectAllValue);
     if (selectAllValue) {
-      setSelectedProducts(industries.map((industry: IndustryListType) => industry._id!));
+      setSelectedProducts(industries.map((industry: IIndustryType) => industry._id!));
     } else {
       setSelectedProducts([]);
     }
@@ -109,7 +118,7 @@ function IndustryList() {
   const handleConfirmDelete = async () => {
     for (const productId of selectedProducts) {
       // Assume deleteIndustry is an API call to delete an industry
-      await deleteIndustry(productId);
+     dispatch(deleteIndustryAction(productId));
     }
     setSelectedProducts([]);
     setSelectAll(false);
@@ -119,6 +128,24 @@ function IndustryList() {
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
   };
+
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPageNo(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLimit(parseInt(event.target.value));
+    setPageNo(1);
+  };
+  if(loading){
+    return <Loading/>
+  }
+  
+  console.log("INdustries",industries);
+  console.log("total",total);
+  console.log("totalPage",totalPage);
+
 
   return (
     <Box>
@@ -194,7 +221,7 @@ function IndustryList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {industries.map((industry: IndustryListType) => (
+            {industries.map((industry: IIndustryType) => (
               <TableRow key={industry._id}>
                 <TableCell padding="checkbox">
                   <CustomCheckbox
@@ -247,6 +274,20 @@ function IndustryList() {
             ))}
           </TableBody>
         </Table>
+        {
+          error&&
+        <ErrorMessage error={error}/>
+        }
+         <TablePagination
+            rowsPerPageOptions={[10, 25,50,100]}
+            component="div"
+            count={totalPage}
+            rowsPerPage={1}
+            page={pageNo}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+
       </Box>
       <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirm Delete</DialogTitle>
@@ -270,4 +311,4 @@ function IndustryList() {
   );
 }
 
-export default IndustryList;
+export default IIndustry;

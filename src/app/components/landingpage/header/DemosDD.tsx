@@ -27,17 +27,17 @@ interface DemoTypes {
 
 const demos: DemoTypes[] = [
   {
-    link: "https://modernize-nextjs.adminmart.com/landingpage",
+    link: "https://Stockify-nextjs.adminmart.com/landingpage",
     img: mainDemo,
     title: "Main",
   },
   {
-    link: "https://modernize-nextjs-dark.vercel.app/",
+    link: "https://Stockify-nextjs-dark.vercel.app/",
     img: darkDemo,
     title: "Dark",
   },
   {
-    link: "https://modernize-nextjs-horizontal.vercel.app/",
+    link: "https://Stockify-nextjs-horizontal.vercel.app/",
     img: horizontalDemo,
     title: "Horizontal",
   },
@@ -50,27 +50,27 @@ const demos: DemoTypes[] = [
 
 const apps: DemoTypes[] = [
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/calendar",
+    link: "https://Stockify-nextjs.adminmart.com/apps/calendar",
     img: app1,
     title: "Calendar",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/chats",
+    link: "https://Stockify-nextjs.adminmart.com/apps/chats",
     img: app2,
     title: "Chat",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/contacts",
+    link: "https://Stockify-nextjs.adminmart.com/apps/contacts",
     img: app3,
     title: "Contact",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/email",
+    link: "https://Stockify-nextjs.adminmart.com/apps/email",
     img: app4,
     title: "Email",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/notes",
+    link: "https://Stockify-nextjs.adminmart.com/apps/notes",
     img: app5,
     title: "Note",
   },

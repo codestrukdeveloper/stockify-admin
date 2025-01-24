@@ -1,21 +1,21 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { CategoryList } from '@/app/(DashboardLayout)/types/apps/industry';
+import { ICategory } from '@/app/(DashboardLayout)/types/apps/industry';
 import axios from '@/utils/axios';
 
 interface CategoryContextType {
-    categories: CategoryList[];
+    categories: ICategory[];
     loading: boolean;
     error: Error | null;
     deleteEmail: () => {},
-    addCategory: (newCategory: CategoryList) => void;
-    updateCategory: (updatedCategory: CategoryList) => void;
+    addCategory: (newCategory: ICategory) => void;
+    updateCategory: (updatedCategory: ICategory) => void;
 }
 
 export const CategoryContext = createContext<CategoryContextType | any>(undefined);
 
 export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [categories, setCategories] = useState<CategoryList[]>([]);
+    const [categories, setCategories] = useState<ICategory[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
@@ -46,7 +46,7 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
     };
 
-    const addCategory = async (newCategory: CategoryList) => {
+    const addCategory = async (newCategory: ICategory) => {
         try {
             const response = await axios.post('/api/data/categorydata/addcategory', newCategory);
             const addedCategory = response.data;
@@ -57,7 +57,7 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     //  Function to update an category
-    const updateCategory = async (updatedCategory: CategoryList) => {
+    const updateCategory = async (updatedCategory: ICategory) => {
         try {
             const response = await axios.put('/api/data/categorydata/updatecategory', updatedCategory);
             const updated = response.data;

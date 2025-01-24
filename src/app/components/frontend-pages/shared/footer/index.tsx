@@ -23,32 +23,32 @@ const footerLinks = [
           {
               title: false,
               titleText: 'Kanban',
-              link: 'https://modernize-nextjs.adminmart.com/apps/kanban',
+              link: 'https://Stockify-nextjs.adminmart.com/apps/kanban',
           },
           {
               title: false,
               titleText: 'Invoice List',
-              link: 'https://modernize-nextjs.adminmart.com/apps/invoice/list',
+              link: 'https://Stockify-nextjs.adminmart.com/apps/invoice/list',
           },
           {
               title: false,
               titleText: 'eCommerce',
-              link: 'https://modernize-nextjs.adminmart.com/apps/ecommerce/shop',
+              link: 'https://Stockify-nextjs.adminmart.com/apps/ecommerce/shop',
           },
           {
               title: false,
               titleText: 'Chat',
-              link: 'https://modernize-nextjs.adminmart.com/apps/chats',
+              link: 'https://Stockify-nextjs.adminmart.com/apps/chats',
           },
           {
               title: false,
               titleText: 'Tickets',
-              link: 'https://modernize-nextjs.adminmart.com/apps/tickets',
+              link: 'https://Stockify-nextjs.adminmart.com/apps/tickets',
           },
           {
               title: false,
               titleText: 'Blog',
-              link: 'https://modernize-nextjs.adminmart.com/apps/blog/posts',
+              link: 'https://Stockify-nextjs.adminmart.com/apps/blog/posts',
           },
       ],
   },
@@ -62,27 +62,27 @@ const footerLinks = [
           {
               title: false,
               titleText: 'Form Layout',
-              link: 'https://modernize-nextjs.adminmart.com/forms/form-layouts',
+              link: 'https://Stockify-nextjs.adminmart.com/forms/form-layouts',
           },
           {
               title: false,
               titleText: 'Form Horizontal',
-              link: 'https://modernize-nextjs.adminmart.com/forms/form-horizontal',
+              link: 'https://Stockify-nextjs.adminmart.com/forms/form-horizontal',
           },
           {
               title: false,
               titleText: 'Form Wizard',
-              link: 'https://modernize-nextjs.adminmart.com/forms/form-wizard',
+              link: 'https://Stockify-nextjs.adminmart.com/forms/form-wizard',
           },
           {
               title: false,
               titleText: 'Form Validation',
-              link: 'https://modernize-nextjs.adminmart.com/forms/form-validation',
+              link: 'https://Stockify-nextjs.adminmart.com/forms/form-validation',
           },
           {
               title: false,
               titleText: 'Quill Editor',
-              link: 'https://modernize-nextjs.adminmart.com/forms/quill-editor',
+              link: 'https://Stockify-nextjs.adminmart.com/forms/quill-editor',
           },
       ],
   },
@@ -96,32 +96,32 @@ const footerLinks = [
           {
               title: false,
               titleText: 'Basic Table',
-              link: 'https://modernize-nextjs.adminmart.com/tables/basic',
+              link: 'https://Stockify-nextjs.adminmart.com/tables/basic',
           },
           {
               title: false,
               titleText: 'Fixed Header',
-              link: 'https://modernize-nextjs.adminmart.com/tables/fixed-header',
+              link: 'https://Stockify-nextjs.adminmart.com/tables/fixed-header',
           },
           {
               title: false,
               titleText: 'Pagination Table',
-              link: 'https://modernize-nextjs.adminmart.com/tables/pagination',
+              link: 'https://Stockify-nextjs.adminmart.com/tables/pagination',
           },
           {
               title: false,
               titleText: 'React Dense Table',
-              link: 'https://modernize-nextjs.adminmart.com/react-tables/dense',
+              link: 'https://Stockify-nextjs.adminmart.com/react-tables/dense',
           },
           {
               title: false,
               titleText: 'Row Selection Table',
-              link: 'https://modernize-nextjs.adminmart.com/react-tables/row-selection',
+              link: 'https://Stockify-nextjs.adminmart.com/react-tables/row-selection',
           },
           {
               title: false,
               titleText: 'Drag n Drop Table',
-              link: 'https://modernize-nextjs.adminmart.com/react-tables/drag-drop',
+              link: 'https://Stockify-nextjs.adminmart.com/react-tables/drag-drop',
           },
       ],
   },
@@ -226,7 +226,7 @@ const Footer = () => {
               alt="logo"
             />
             <Typography variant="body1" fontSize="15px">
-              All rights reserved by Modernize.{" "}
+              All rights reserved by Stockify.{" "}
             </Typography>
           </Stack>
           <Typography variant="body1" fontSize="15px">

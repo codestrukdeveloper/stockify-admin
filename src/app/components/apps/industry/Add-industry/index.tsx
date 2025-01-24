@@ -57,6 +57,7 @@ const CreateIndustry = () => {
  
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
+    console.log("name",name,value)
     setFormData((prevData) => {
       const newFormData = { ...prevData, [name]: value };
       return {
@@ -141,7 +142,7 @@ const CreateIndustry = () => {
                 Name
               </CustomFormLabel>
               <CustomTextField
-                name="Name"
+                name="name"
                 value={formData.name}
                 onChange={handleChange}
                 fullWidth

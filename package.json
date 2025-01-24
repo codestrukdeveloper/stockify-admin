@@ -1,5 +1,5 @@
 {
-  "name": "modernize",
+  "name": "Stockify",
   "version": "6.0.0",
   "private": true,
   "scripts": {
@@ -27,9 +27,11 @@
     "@mui/x-tree-view": "^6.17.0",
     "@reduxjs/toolkit": "^1.9.7",
     "@tabler/icons-react": "^2.39.0",
+    "@tanstack/react-query": "^5.64.2",
     "@tanstack/react-table": "^8.20.1",
     "@types/react": "18.2.28",
     "@types/react-dom": "18.2.13",
+    "@types/sharp": "^0.32.0",
     "apexcharts": "3.43.0",
     "axios": "^1.5.1",
     "axios-mock-adapter": "^1.22.0",

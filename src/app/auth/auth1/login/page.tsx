@@ -88,7 +88,7 @@ export default function Login() {
               //       variant="h6"
               //       fontWeight="500"
               //     >
-              //       New to Modernize?
+              //       New to Stockify?
               //     </Typography>
               //     <Typography
               //       component={Link}

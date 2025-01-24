@@ -5,8 +5,8 @@ import "./global.css";
 
 
 export const metadata = {
-  title: "Modernize Main Demo",
-  description: "Modernize Main kit",
+  title: "Stockify Main Demo",
+  description: "Stockify Main kit",
 };
 
 export default function RootLayout({

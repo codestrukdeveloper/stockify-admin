@@ -6,10 +6,10 @@ export interface BaseEntity {
   deletedAt?: Date;
 }
 
-export type IndustryList = BaseEntity;
-export type SectorList = BaseEntity;
+export type IIndustry = BaseEntity;
+export type ISector = BaseEntity;
 export type GenderList = BaseEntity;
-export type DhrpsList = BaseEntity;
-export type DepositList = BaseEntity;
-export type PerformanceList = BaseEntity;
-export type CategoryList = BaseEntity;
+export type IDhrps = BaseEntity;
+export type IDeposit = BaseEntity;
+export type IPerformance = BaseEntity;
+export type ICategory = BaseEntity;

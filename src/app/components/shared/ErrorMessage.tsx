@@ -2,12 +2,10 @@
 
 import React from 'react';
 import { Alert, Box, Typography } from '@mui/material';
+import { IError } from '@/app/(DashboardLayout)/types/apps/error';
 
 interface ErrorMessageProps {
-  error: {
-    message: string;
-    errors?:string;
-  } | null;
+  error: IError;
 }
 
 const ErrorMessage: React.FC<ErrorMessageProps> = ({ error }) => {

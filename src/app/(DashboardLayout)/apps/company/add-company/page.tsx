@@ -1,144 +1,63 @@
+import AddCompanyClient from "@/app/components/apps/ecommerce/productAdd/AddCompany";
+import { fetchSectors } from "../../sector/action";
+import { fetchIndustries } from "../../industry/action";
+import { fetchPerformances } from "../../performance/action";
+import { fetchCategories } from "@/app/components/apps/category/action";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
+import { fetchDeposits } from "../../deposit/action";
+import { IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
 
-"use client"
-import { Box, Button, Grid, Stack } from "@mui/material";
-import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
-import PageContainer from "@/app/components/container/PageContainer";
+export default async function AddCompany() {
+  // Fetch data for sectors, industries, deposits, performances, and categories
+  const sectorsResponse = await fetchSectors(1, 6);
+  const industriesResponse = await fetchIndustries(1, 1);
+  const depositsResponse = await fetchDeposits(1, 5);
+  const performancesResponse = await fetchPerformances(1, 3);
+  const categoriesResponse = await fetchCategories(1, 5);
+  console.log("industriesResponse", industriesResponse);
+  console.log("depositsResponse", depositsResponse);
+  console.log("performancesResponse", performancesResponse);
+  console.log("categoriesResponse", categoriesResponse);
 
-import CompanyLogoAndNameCard from "@/app/components/apps/ecommerce/productAdd/CompanyLogoAndNameCard";
-import KeyIndicators from "@/app/components/apps/ecommerce/productAdd/KeyIndicators";
-import CashFlowSummary from "@/app/components/apps/ecommerce/productAdd/CashFlowSummary";
-import BalanceSheet from "@/app/components/apps/ecommerce/productAdd/BalanceSheet";
-import ProfitLossSummary from "@/app/components/apps/ecommerce/productAdd/ProfitLossSummary";
-import AboutTheCompany from "@/app/components/apps/ecommerce/productAdd/AboutTheCompany";
-import PricingTrend from "@/app/components/apps/ecommerce/productAdd/PricingTrend";
-import { useState } from "react";
-import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/company";
+  if (isServerError(categoriesResponse)) {
+    console.log("categoriesResponse", categoriesResponse)
+    return <ErrorMessage error={categoriesResponse.error} />
+  }
 
-const BCrumb = [
-  {
-    to: "/",
-    title: "Home",
-  },
-  {
-    title: "Add Product",
-  },
-];
+  if (isServerError(performancesResponse)) {
 
-const AddCompany = () => {
-  const [formData, setFormData] = useState<ICompanyFull>({
-    company: {
-      name: "",
-      ticker: "",
-      isin: "",
-      location: "",
-      rating: undefined,
-      price: undefined,
-      qty: undefined,
-      minQty: undefined,
-      maxQty: undefined,
-      lot: undefined,
-      email: "",
-      phone: "",
-      website: "",
-      aboutus: "",
-      categoryId: "",
-      industryId: "",
-      sectorId: "",
-      performanceId: "",
-      depositsId: [],
-      dhrpId: "",
-    },
-    sector: { _id: "", name: "", },
-    industry: { _id: "", name: "" },
-    performance: { _id: "", name: "" },
-    category: { _id: "", name: "", },
-    deposits: [],
-    dhrp: { _id: "", name: "" },
-    profitLoss: [],
-    priceTrend: [],
-    keyIndicators: [],
-    balanceSheet: [],
-    cashFlow: [],
-  });
+    return <ErrorMessage error={performancesResponse.error} />
+  }
 
-  const handleInputChange = (key: keyof ICompanyFull, value: any) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+  if (isServerError(depositsResponse)) {
+    return <ErrorMessage error={depositsResponse.error} />
   };
+  if (isServerError(industriesResponse)) {
+
+    return <ErrorMessage error={industriesResponse.error} />
+  }
+
+  if (isServerError(sectorsResponse)) {
+
+    return <ErrorMessage error={sectorsResponse.error} />
+  }
+
+
+
+ 
+  // console.log("SUBD",industriesResponse);
+
+
+
 
   return (
-    <PageContainer title="Add Product" description="this is Add Product">
-      <Breadcrumb title="Add Product" items={BCrumb} />
-      <form>
-        {/* Example for updating sections */}
-        <CompanyLogoAndNameCard
-          data={formData.company}
-          onChange={(updatedCompany) =>
-            handleInputChange("company", updatedCompany)
-          }
-        />
-
-        <KeyIndicators
-          data={formData.keyIndicators}
-          onChange={(updatedIndicators) =>
-            handleInputChange("keyIndicators", updatedIndicators)
-          }
-        />
-
-        <AboutTheCompany
-          data={formData.company.aboutus}
-          onChange={(about) =>
-            handleInputChange("company", { ...formData.company, aboutus: about })
-          }
-        />
-
-        <PricingTrend
-          data={{
-            labels: ["Nov 23", "Dec 23", "Jan 24"],
-            datasets: [
-              {
-                label: "Price",
-                data: [9000, 9500, 8000],
-                borderColor: "#4caf50",
-                backgroundColor: "#4caf50",
-                pointRadius: 5,
-                pointBackgroundColor: "#4caf50",
-                fill: false,
-                tension: 0.4,
-              },
-            ],
-          }}
-          onChange={(updatedTrend) =>
-            handleInputChange("priceTrend", updatedTrend)
-          }
-        />
-
-        <ProfitLossSummary
-          data={formData.profitLoss}
-          onChange={(updatedProfitLoss) =>
-            handleInputChange("profitLoss", updatedProfitLoss)
-          }
-        />
-
-        <BalanceSheet
-          data={formData.balanceSheet}
-          onChange={(updatedBalanceSheet) =>
-            handleInputChange("balanceSheet", updatedBalanceSheet)
-          }
-        />
-
-        <CashFlowSummary
-          data={formData.cashFlow}
-          onChange={(updatedCashFlow) =>
-            handleInputChange("cashFlow", updatedCashFlow)
-          }
-        />
-
-        <Button variant="contained" color="primary" type="submit">
-          Submit
-        </Button>
-      </form>
-    </PageContainer>
+    <AddCompanyClient
+      sectors={sectorsResponse.data}
+      deposits={depositsResponse.data}
+      performances={performancesResponse.data}
+      categories={categoriesResponse.data}
+      industries={industriesResponse.data}
+    />
   );
-};
-
-export default AddCompany;
+}

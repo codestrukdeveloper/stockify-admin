@@ -2,7 +2,7 @@
 export interface IDhrp {
     _id?:string
     name:string;
-    createdAt: Date;
+    createdAt?: Date;
     updatedAt?: Date;
     deletedAt?:Date;
 }

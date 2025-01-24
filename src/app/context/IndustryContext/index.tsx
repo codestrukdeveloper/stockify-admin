@@ -1,21 +1,21 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { IndustryList } from '@/app/(DashboardLayout)/types/apps/industry';
+import { IIndustry } from '@/app/(DashboardLayout)/types/apps/industry';
 import axios from '@/utils/axios';
 
 interface IndustryContextType {
-    industries: IndustryList[];
+    industries: IIndustry[];
     loading: boolean;
     error: Error | null;
     deleteEmail: () => {},
-    addIndustry: (newIndustry: IndustryList) => void;
-    updateIndustry: (updatedIndustry: IndustryList) => void;
+    addIndustry: (newIndustry: IIndustry) => void;
+    updateIndustry: (updatedIndustry: IIndustry) => void;
 }
 
 export const IndustryContext = createContext<IndustryContextType | any>(undefined);
 
 export const IndustryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [industries, setIndustries] = useState<IndustryList[]>([]);
+    const [industries, setIndustries] = useState<IIndustry[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
@@ -46,7 +46,7 @@ export const IndustryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
     };
 
-    const addIndustry = async (newIndustry: IndustryList) => {
+    const addIndustry = async (newIndustry: IIndustry) => {
         try {
             const response = await axios.post('/api/data/industrydata/addindustry', newIndustry);
             const addedIndustry = response.data;
@@ -57,7 +57,7 @@ export const IndustryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     //  Function to update an industry
-    const updateIndustry = async (updatedIndustry: IndustryList) => {
+    const updateIndustry = async (updatedIndustry: IIndustry) => {
         try {
             const response = await axios.put('/api/data/industrydata/updateindustry', updatedIndustry);
             const updated = response.data;

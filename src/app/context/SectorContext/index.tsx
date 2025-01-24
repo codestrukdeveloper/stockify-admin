@@ -1,21 +1,21 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { SectorList } from '@/app/(DashboardLayout)/types/apps/industry';
+import { ISector } from '@/app/(DashboardLayout)/types/apps/industry';
 import axios from '@/utils/axios';
 
 interface SectorContextType {
-    sectors: SectorList[];
+    sectors: ISector[];
     loading: boolean;
     error: Error | null;
     deleteEmail: () => {},
-    addSector: (newSector: SectorList) => void;
-    updateSector: (updatedSector: SectorList) => void;
+    addSector: (newSector: ISector) => void;
+    updateSector: (updatedSector: ISector) => void;
 }
 
 export const SectorContext = createContext<SectorContextType | any>(undefined);
 
 export const SectorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [sectors, setIndustries] = useState<SectorList[]>([]);
+    const [sectors, setIndustries] = useState<ISector[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
@@ -46,7 +46,7 @@ export const SectorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
     };
 
-    const addSector = async (newSector: SectorList) => {
+    const addSector = async (newSector: ISector) => {
         try {
             const response = await axios.post('/api/data/sectordata/addsector', newSector);
             const addedSector = response.data;
@@ -57,7 +57,7 @@ export const SectorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     //  Function to update an sector
-    const updateSector = async (updatedSector: SectorList) => {
+    const updateSector = async (updatedSector: ISector) => {
         try {
             const response = await axios.put('/api/data/sectordata/updatesector', updatedSector);
             const updated = response.data;

@@ -1,21 +1,21 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { PerformanceList } from '@/app/(DashboardLayout)/types/apps/industry';
+import { IPerformance } from '@/app/(DashboardLayout)/types/apps/industry';
 import axios from '@/utils/axios';
 
 interface PerformanceContextType {
-    performances: PerformanceList[];
+    performances: IPerformance[];
     loading: boolean;
     error: Error | null;
     deleteEmail: () => {},
-    addPerformance: (newPerformance: PerformanceList) => void;
-    updatePerformance: (updatedPerformance: PerformanceList) => void;
+    addPerformance: (newPerformance: IPerformance) => void;
+    updatePerformance: (updatedPerformance: IPerformance) => void;
 }
 
 export const PerformanceContext = createContext<PerformanceContextType | any>(undefined);
 
 export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [performances, setPerformance] = useState<PerformanceList[]>([]);
+    const [performances, setPerformance] = useState<IPerformance[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
@@ -46,7 +46,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
     };
 
-    const addPerformance = async (newPerformance: PerformanceList) => {
+    const addPerformance = async (newPerformance: IPerformance) => {
         try {
             const response = await axios.post('/api/data/performancedata/addperformance', newPerformance);
             const addedPerformance = response.data;
@@ -57,7 +57,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
 
     //  Function to update an performance
-    const updatePerformance = async (updatedPerformance: PerformanceList) => {
+    const updatePerformance = async (updatedPerformance: IPerformance) => {
         try {
             const response = await axios.put('/api/data/performancedata/updateperformance', updatedPerformance);
             const updated = response.data;

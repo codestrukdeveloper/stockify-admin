@@ -2,13 +2,14 @@ import axios from '../../../utils/axios';
 import { filter, map } from 'lodash';
 import { createSlice } from '@reduxjs/toolkit';
 import { AppDispatch } from '../../store';
-import { IndustryList } from '@/app/(DashboardLayout)/types/apps/industry';
+import { IIndustry } from '@/app/(DashboardLayout)/types/apps/industry';
+import { IError } from '@/app/(DashboardLayout)/types/apps/error';
 
 const API_URL = 'http://localhost:3001/api/v1/admin/Industry/';
 
 interface StateType {
-  industries: IndustryList[];
-  industry: IndustryList|null;
+  industries: IIndustry[];
+  industry: IIndustry|null;
   search: string;
   loading:boolean,
   sortBy: string;
@@ -19,7 +20,7 @@ interface StateType {
     category: string;
     rating: string;
   };
-  error: string;
+  error: IError;
 }
 
 const initialState:StateType = {
@@ -35,7 +36,10 @@ const initialState:StateType = {
     category: 'All',
     rating: '',
   },
-  error: '',
+  error: {
+    errors:[],
+    message:''
+  },
 };
 
 export const IndustrySlice = createSlice({
@@ -50,15 +54,22 @@ export const IndustrySlice = createSlice({
       state.loading = false;
     },
     hasError(state: StateType, action) {
-      state.error = action.payload;
+      console.log("Action",action.payload);
+      state.error = {
+        message: action.payload?.message || 'An unexpected error occurred. Please try again.',
+        errors: action.payload?.errors || {},
+      };
       state.loading = false;
 
     },
 
     // GET Industry
     getIndustry: (state, action) => {
+
       state.industries = action.payload.data;
-      state.total = action.payload.totalPage;
+      state.total = action.payload.total;
+      state.totalPage = action.payload.totalPage;
+
       state.loading = false;
 
 
@@ -75,9 +86,13 @@ export const IndustrySlice = createSlice({
     createIndustry: (state, action) => {
       state.industry = action.payload.data;
       state.loading = false;
-
-
     },
+
+    updateIndustry: (state, action) => {
+      state.industry = action.payload.data;
+      state.loading = false;
+    },
+
     SearchIndustry: (state, action) => {
       state.industries = action.payload.data;
       state.total = action.payload.totalPage;
@@ -117,57 +132,9 @@ export const {
   createIndustry,
   filterIndustry,
   filterReset,
+  updateIndustry,
+  deleteIndustryById
 } = IndustrySlice.actions;
 
-
-export const fetchIndustry = () => async (dispatch: AppDispatch) => {
-  dispatch(startLoading());
-
-  try {
-    const response = await axios.get(`${API_URL}`);
-    console.log("fetchIndustry",response.data.data);
-    dispatch(getIndustry(response.data.data));
-  } catch (error) {
-    dispatch(hasError(error));
-  }
-};
-
-
-export const fetchIndustryById = (id:string) => async (dispatch: AppDispatch) => {
-  dispatch(startLoading());
-
-  try {
-    const response = await axios.get(`${API_URL}`);
-    console.log("fetchIndustryById",response.data.data);
-    dispatch(getIndustryById(response.data.data));
-  } catch (error) {
-    dispatch(hasError(error));
-  }
-};
-
-export const AddIndustry = () => async (dispatch: AppDispatch) => {
-  dispatch(startLoading());
-
-  try {
-    const response = await axios.post(`${API_URL}`);
-    console.log("RESPONSE",response.data.data);
-    dispatch(createIndustry(response.data.data));
-  } catch (error) {
-    dispatch(hasError(error));
-  }
-};
-
-
-export const deleteIndustry = (id:string) => async (dispatch: AppDispatch) => {
-  dispatch(startLoading());
-
-  try {
-    const response = await axios.post(`${API_URL}`);
-    console.log("RESPONSE",response.data.data);
-    dispatch(createIndustry(response.data.data));
-  } catch (error) {
-    dispatch(hasError(error));
-  }
-};
 
 export default IndustrySlice.reducer;

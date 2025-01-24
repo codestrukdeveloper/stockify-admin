@@ -41,7 +41,7 @@ import {
 } from "@tabler/icons-react";
 import CustomCheckbox from "@/app/components/forms/theme-elements/CustomCheckbox";
 
-function DhrpsList() {
+function IDhrps() {
   const { dhrps, deleteDhrps } = useContext(DhrpsContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("All");
@@ -270,4 +270,4 @@ function DhrpsList() {
     </Box >
   );
 }
-export default DhrpsList;
+export default IDhrps;

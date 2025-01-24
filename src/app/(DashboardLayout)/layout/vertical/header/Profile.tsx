@@ -84,7 +84,7 @@ const Profile = () => {
               gap={1}
             >
               <IconMail width={15} height={15} />
-              info@modernize.com
+              info@Stockify.com
             </Typography>
           </Box>
         </Stack>

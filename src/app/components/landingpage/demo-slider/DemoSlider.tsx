@@ -49,17 +49,17 @@ interface DemoTypes {
 
 const demos: DemoTypes[] = [
   {
-    link: "https://modernize-nextjs.adminmart.com/dashboards/modern",
+    link: "https://Stockify-nextjs.adminmart.com/dashboards/modern",
     img: mainDemo,
     title: "Main",
   },
   {
-    link: "https://modernize-nextjs-dark.vercel.app/dashboards/ecommerce",
+    link: "https://Stockify-nextjs-dark.vercel.app/dashboards/ecommerce",
     img: darkDemo,
     title: "Dark",
   },
   {
-    link: "https://modernize-nextjs-horizontal.vercel.app/dashboards/modern",
+    link: "https://Stockify-nextjs-horizontal.vercel.app/dashboards/modern",
     img: horizontalDemo,
     title: "Horizontal",
   },
@@ -72,22 +72,22 @@ const demos: DemoTypes[] = [
 
 const pages: DemoTypes[] = [
   {
-    link: "https://modernize-nextjs.adminmart.com/frontend-pages/homepage",
+    link: "https://Stockify-nextjs.adminmart.com/frontend-pages/homepage",
     img: Page1,
     title: "Homepage",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/frontend-pages/about",
+    link: "https://Stockify-nextjs.adminmart.com/frontend-pages/about",
     img: Page2,
     title: "About us",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/frontend-pages/portfolio",
+    link: "https://Stockify-nextjs.adminmart.com/frontend-pages/portfolio",
     img: Page3,
     title: "Portfolio",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/frontend-pages/pricing",
+    link: "https://Stockify-nextjs.adminmart.com/frontend-pages/pricing",
     img: Page4,
     title: "Pricing",
   },
@@ -95,69 +95,69 @@ const pages: DemoTypes[] = [
 
 const apps: DemoTypes[] = [
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/kanban",
+    link: "https://Stockify-nextjs.adminmart.com/apps/kanban",
     img: App13,
     hot: true,
     title: "Kanban App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/invoice/list",
+    link: "https://Stockify-nextjs.adminmart.com/apps/invoice/list",
     img: App14,
     hot: true,
     title: "Invoice App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/calendar",
+    link: "https://Stockify-nextjs.adminmart.com/apps/calendar",
     img: app1,
     title: "Calendar App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/chats",
+    link: "https://Stockify-nextjs.adminmart.com/apps/chats",
     img: app2,
     title: "Chat App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/contacts",
+    link: "https://Stockify-nextjs.adminmart.com/apps/contacts",
     img: app3,
     title: "Contact App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/email",
+    link: "https://Stockify-nextjs.adminmart.com/apps/email",
     img: app4,
     title: "Email App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/notes",
+    link: "https://Stockify-nextjs.adminmart.com/apps/notes",
     img: app5,
     title: "Note App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/user-profile/profile",
+    link: "https://Stockify-nextjs.adminmart.com/apps/user-profile/profile",
     img: app6,
     title: "User Profile App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/blog/post",
+    link: "https://Stockify-nextjs.adminmart.com/apps/blog/post",
     img: app7,
     title: "Blog App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/tickets",
+    link: "https://Stockify-nextjs.adminmart.com/apps/tickets",
     img: app8,
     title: "Ticket App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/ecommerce/shop",
+    link: "https://Stockify-nextjs.adminmart.com/apps/ecommerce/shop",
     img: app9,
     title: "eCommerce Shop App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/ecommerce/checkout",
+    link: "https://Stockify-nextjs.adminmart.com/apps/ecommerce/checkout",
     img: app11,
     title: "eCommerce Checkout App",
   },
   {
-    link: "https://modernize-nextjs.adminmart.com/apps/ecommerce/list",
+    link: "https://Stockify-nextjs.adminmart.com/apps/ecommerce/list",
     img: app12,
     title: "eCommerce List App",
   },

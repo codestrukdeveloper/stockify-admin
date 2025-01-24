@@ -1,99 +1,127 @@
 'use client';
 
-import { Box, TextField, Button, Typography, Grid, useTheme } from '@mui/material';
 import React, { useState } from 'react';
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Grid,
+  useTheme,
+} from '@mui/material';
 
 interface AboutTheCompanyProps {
-    description: string;
-    youtubeLink: string;
-    onDescriptionChange: (newDescription: string) => void;
-    onYoutubeLinkChange: (newLink: string) => void;
+  aboutus?: string;
+  videoLink?: string;
+  onAboutChange: (newDescription: string) => void;
+  onVideoLinkChange: (newLink: string) => void;
 }
 
-const AboutTheCompany: React.FC<AboutTheCompanyProps> = ({ description, youtubeLink, onDescriptionChange, onYoutubeLinkChange }) => {
-    const theme = useTheme();
-    const [localDescription, setLocalDescription] = useState(description);
-    const [localYoutubeLink, setLocalYoutubeLink] = useState(youtubeLink);
+const AboutTheCompany: React.FC<AboutTheCompanyProps> = ({
+  aboutus,
+  videoLink,
+  onAboutChange,
+  onVideoLinkChange,
+}) => {
+  const theme = useTheme();
+  const [localDescription, setLocalDescription] = useState(aboutus);
+  const [localVideoLink, setLocalVideoLink] = useState(videoLink);
 
-    const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setLocalDescription(event.target.value);
-        onDescriptionChange(event.target.value);
-    };
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newDescription = event.target.value;
+    setLocalDescription(newDescription);
+    onAboutChange(newDescription);
+  };
 
-    const handleYoutubeLinkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setLocalYoutubeLink(event.target.value);
-        onYoutubeLinkChange(event.target.value);
-    };
+  const handleVideoLinkChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newLink = event.target.value;
+    setLocalVideoLink(newLink);
+    onVideoLinkChange(newLink);
+  };
 
-    return (
-        <Box sx={{ padding: 3, backgroundColor: "transparent", borderRadius: 2 }}>
-            <Typography variant="h4" gutterBottom>About the Company</Typography>
-            <Grid container spacing={2} mt={3}>
-                {/* Editable Description */}
-                <Grid item xs={12} md={6}>
-                    <TextField
-                        fullWidth
-                        label="Company Description"
-                        multiline
-                        minRows={10}
-                        variant="outlined"
-                        value={localDescription}
-                        onChange={handleDescriptionChange}
-                        sx={{ marginBottom: 2 }}
-                    />
-                </Grid>
+  const extractYouTubeEmbedLink = (link: string) => {
+    const videoId = link.split('v=')[1]?.split('&')[0];
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
+  };
 
-                {/* Editable YouTube Link */}
-                <Grid item xs={12} md={6}>
-                    <Box>
-                        {localYoutubeLink ? (
-                            <Box sx={{paddingBottom: '0%', height:"300px", overflow: 'hidden' }}>
-                                <iframe
-                                    title="Company Video"
-                                    src={`https://www.youtube.com/embed/${localYoutubeLink.split('v=')[1]}`}
-                                    style={{  width: '100%', height: '250px' }}
-                                    frameBorder="0"
-                                    allowFullScreen
-                                ></iframe>
-                            </Box>
-                        ) : (
-                            <Box
-                                sx={{
-                                    backgroundColor: theme.palette.primary.light,
-                                    color: theme.palette.primary.main,
-                                    textAlign: "center",
-                                    border: "1px dashed",
-                                    // padding: "30px",
-                                    height: "250px",
-                                    width: "100%",
-                                    borderColor: theme.palette.primary.main,
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
+  return (
+    <Box sx={{ padding: 3, backgroundColor: 'transparent', borderRadius: 2 }}>
+      <Typography variant="h4" gutterBottom>
+        About the Company
+      </Typography>
+      <Grid container spacing={3} mt={2}>
+        {/* Editable Description */}
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            label="Company Description"
+            multiline
+            minRows={10}
+            variant="outlined"
+            value={localDescription}
+            onChange={handleDescriptionChange}
+            sx={{ marginBottom: 2 }}
+          />
+        </Grid>
 
-                                }}
-                            >
-                                <Typography  variant="body2" marginBottom={2} className="m-auto">
-                                    Add a YouTube video link
-                                </Typography>
-                            </Box>
-                        )}
+        {/* Editable YouTube Link */}
+        <Grid item xs={12} md={6}>
+          <Box>
+            {localVideoLink && extractYouTubeEmbedLink(localVideoLink) ? (
+              <Box
+                sx={{
+                  paddingBottom: '0%',
+                  height: '300px',
+                  overflow: 'hidden',
+                }}
+              >
+                <iframe
+                  title="Company Video"
+                  src={extractYouTubeEmbedLink(localVideoLink)}
+                  style={{ width: '100%', height: '250px' }}
+                  frameBorder="0"
+                  allowFullScreen
+                ></iframe>
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  backgroundColor: theme.palette.primary.light,
+                  color: theme.palette.primary.main,
+                  textAlign: 'center',
+                  border: '1px dashed',
+                  height: '250px',
+                  width: '100%',
+                  borderColor: theme.palette.primary.main,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography variant="body2" className="m-auto">
+                  Add a YouTube video link
+                </Typography>
+              </Box>
+            )}
 
-                        <TextField
-                            fullWidth
-                            label="YouTube Video Link"
-                            variant="outlined"
-                            value={localYoutubeLink}
-                            onChange={handleYoutubeLinkChange}
-                            sx={{ marginBottom: 2,marginTop:1 }}
-                        />
-                    </Box>
-                </Grid>
-            </Grid>
-
-        </Box>
-    );
+            <TextField
+              fullWidth
+              label="YouTube Video Link"
+              variant="outlined"
+              value={localVideoLink}
+              onChange={handleVideoLinkChange}
+              sx={{ marginTop: 2 }}
+            />
+          </Box>
+        </Grid>
+      </Grid>
+    </Box>
+  );
 };
 
 export default AboutTheCompany;

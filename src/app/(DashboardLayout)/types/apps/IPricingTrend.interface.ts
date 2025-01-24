@@ -1,10 +1,10 @@
 
 export interface IPriceTrend  {
     _id?:string;
-    price: number;
+    price: string;
     label: string;
-    period: Date;
-    companyId: string;
+    period: string;
+    companyId?: string;
     createdAt?: Date;
     updatedAt?: Date;
     deletedAt?: Date;

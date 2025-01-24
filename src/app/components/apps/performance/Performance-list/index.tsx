@@ -41,7 +41,7 @@ import {
 } from "@tabler/icons-react";
 import CustomCheckbox from "@/app/components/forms/theme-elements/CustomCheckbox";
 
-function PerformanceList() {
+function IPerformance() {
   const { performances, deletePerformance } = useContext(PerformanceContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("All");
@@ -283,4 +283,4 @@ function PerformanceList() {
     </Box >
   );
 }
-export default PerformanceList;
+export default IPerformance;

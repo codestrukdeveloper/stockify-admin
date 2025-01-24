@@ -22,11 +22,15 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { visuallyHidden } from '@mui/utils';
 import { useSelector, useDispatch } from '@/store/hooks';
-import { fetchProducts } from '@/store/apps/eCommerce/ECommerceSlice';
 import CustomCheckbox from '../../../forms/theme-elements/CustomCheckbox';
 import CustomSwitch from '../../../forms/theme-elements/CustomSwitch';
 import { IconDotsVertical, IconFilter, IconSearch, IconTrash } from '@tabler/icons-react';
 import { ProductType } from '../../../../(DashboardLayout)/types/apps/eCommerce';
+import { RootState } from '@/store/store';
+import { ICompany } from '@/app/(DashboardLayout)/types/apps/company';
+import { fetchCompanys, searchCompanies } from '@/utils/api/company-action';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getDaysAgo } from '@/utils/utils';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -51,8 +55,8 @@ function getComparator<Key extends keyof any>(
 }
 
 function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
-  console.log("array",array);
-  const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
+  console.log("array", array);
+  const stabilizedThis = array?.map((el, index) => [el, index] as [T, number]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) {
@@ -80,23 +84,16 @@ const headCells: readonly HeadCell[] = [
     label: 'Companies',
   },
   {
-    id: 'pname',
+    id: 'ticker',
     numeric: false,
     disablePadding: false,
-    label: 'Date',
-  },
-
-  {
-    id: 'status',
-    numeric: false,
-    disablePadding: false,
-    label: 'Status',
+    label: 'Ticker',
   },
   {
-    id: 'price',
+    id: 'lastUpdated',
     numeric: false,
     disablePadding: false,
-    label: 'Price',
+    label: 'Last Updated',
   },
   {
     id: 'action',
@@ -181,7 +178,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
       }}
     >
       {numSelected > 0 ? (
-        <Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="subname2" component="div">
+        <Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="subtitle2" component="div">
           {numSelected} selected
         </Typography>
       ) : (
@@ -203,13 +200,13 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
       )}
 
       {numSelected > 0 ? (
-        <Tooltip name="Delete">
+        <Tooltip title="Delete">
           <IconButton>
             <IconTrash width="18" />
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip name="Filter list">
+        <Tooltip title="Filter list">
           <IconButton>
             <IconFilter size="1.2rem" />
           </IconButton>
@@ -219,36 +216,49 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   );
 };
 
-const ProductTableList = () => {
+
+interface Props {
+  initialCompanies: ICompany[];
+  initialPage: number;
+  initialSearch: string;
+}
+
+export default function ProductTableList({ initialCompanies, initialPage, initialSearch }: Props) {
+  const [companies, setCompanies] = React.useState<ICompany[]>(initialCompanies);
+  const [search, setSearch] = React.useState(initialSearch);
+  const [page, setPage] = React.useState(initialPage);
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<any>('calories');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
-  const [page, setPage] = React.useState(0);
+
   const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(20);
 
   const dispatch = useDispatch();
 
   //Fetch Products
   React.useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    dispatch(searchCompanies(page, rowsPerPage, search))
+  }, [page, rowsPerPage, search]);
 
-  const getProducts: ProductType[] = useSelector((state) => state.ecommerceReducer.products);
+  const { } = useSelector((state: RootState) => state.companyReducer);
 
-  const [rows, setRows] = React.useState<any>(getProducts);
-  const [search, setSearch] = React.useState('');
-
-  React.useEffect(() => {
-    setRows(getProducts);
-  }, [getProducts]);
+  const [rows, setRows] = React.useState<any>(fetchCompanys);
+  console.log("initialCompanies", initialCompanies)
+  // React.useEffect(() => {
+  //   setRows(fetchCompanys);
+  // }, [fetchCompanys]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const filteredRows: ProductType[] = getProducts.filter((row) => {
-      return row.name.toLowerCase().includes(event.target.value);
-    });
+    console.log("search", event.target.value)
+    // const filteredRows: ProductType[] = .filter((row:ICompany) => {
+    //   return row.name.toLowerCase().includes(event.target.value);
+    // });
+
     setSearch(event.target.value);
-    setRows(filteredRows);
+    // setRows(filteredRows);
   };
 
   // This is for the sorting
@@ -291,6 +301,7 @@ const ProductTableList = () => {
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
+    router.push(`/apps/company/list?page=${newPage}&&limit=${rowsPerPage}`)
     setPage(newPage);
   };
 
@@ -335,16 +346,13 @@ const ProductTableList = () => {
                 rowCount={rows.length}
               />
               <TableBody>
-                {stableSort(rows, getComparator(order, orderBy))
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row: any, index) => {
+                {Array.isArray(companies) && companies?.map((row: ICompany, index) => {
                     const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
-
                     return (
                       <TableRow
                         hover
-                        onClick={(event) => handleClick(event, row.name)}
+                        onClick={(event) => handleClick(event, row._id!)}
                         role="checkbox"
                         aria-checked={isItemSelected}
                         tabIndex={-1}
@@ -363,7 +371,7 @@ const ProductTableList = () => {
 
                         <TableCell>
                           <Box display="flex" alignItems="center">
-                            <Avatar src={row.photo} alt="product" sx={{ width: 56, height: 56 }} />
+                            <Avatar src={row.logo} alt="product" sx={{ width: 56, height: 56 }} />
                             <Box
                               sx={{
                                 ml: 2,
@@ -372,47 +380,24 @@ const ProductTableList = () => {
                               <Typography variant="h6" fontWeight="600">
                                 {row.name}
                               </Typography>
-                              <Typography color="textSecondary" variant="subname2">
-                                {row.category}
+                              <Typography color="textSecondary" variant="subtitle1">
+                                {row.name}
                               </Typography>
                             </Box>
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Typography>{format(new Date(row.createdAt), 'E, MMM d yyyy')}</Typography>
+                          <Typography>{row?.ticker}</Typography>
                         </TableCell>
 
-                        <TableCell>
-                          <Box display="flex" alignItems="center">
-                            <Box
-                              sx={{
-                                backgroundColor: row.stock
-                                  ? (theme) => theme.palette.success.main
-                                  : (theme) => theme.palette.error.main,
-                                borderRadius: '100%',
-                                height: '10px',
-                                width: '10px',
-                              }}
-                            />
-                            <Typography
-                              color="textSecondary"
-                              variant="subname2"
-                              sx={{
-                                ml: 1,
-                              }}
-                            >
-                              {row.stock ? 'InStock' : 'Out of Stock'}
-                            </Typography>
-                          </Box>
-                        </TableCell>
 
                         <TableCell>
                           <Typography fontWeight={600} variant="h6">
-                            ${row.price}
+                            {row.updatedAt && getDaysAgo(row.updatedAt)}
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Tooltip name="Edit">
+                          <Tooltip title='action'>
                             <IconButton size="small">
                               <IconDotsVertical size="1.1rem" />
                             </IconButton>
@@ -454,4 +439,3 @@ const ProductTableList = () => {
   );
 };
 
-export default ProductTableList;

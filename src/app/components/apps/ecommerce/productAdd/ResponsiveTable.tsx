@@ -23,6 +23,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { Cancel } from "@mui/icons-material";
+import FileUpload from "./FileUpload";
+import { FILE_FOR } from "@/app/(DashboardLayout)/types/apps/company";
 
 export interface DataTableProps {
   year: string[];
@@ -32,9 +34,11 @@ export interface DataTableProps {
 
 interface ResponsiveTableProps {
   initialData: DataTableProps;
+  handleFileUpload: (data: any) => void;
+  fileFor:FILE_FOR
 }
 
-const ResponsiveTable: React.FC<ResponsiveTableProps> = ({ initialData }) => {
+const ResponsiveTable: React.FC<ResponsiveTableProps> = ({ initialData,fileFor,handleFileUpload }) => {
   const [tableData, setTableData] = useState<DataTableProps>(initialData);
   const [isEditable, setIsEditable] = useState(false);
 
@@ -63,40 +67,16 @@ const ResponsiveTable: React.FC<ResponsiveTableProps> = ({ initialData }) => {
     setTableData({ ...tableData, data: updatedData });
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-        const years = jsonData[0].slice(1).map(String);
-        const dataObj: { [key: string]: string[] } = {};
-
-        jsonData.slice(1).forEach((row) => {
-          const key = row[0];
-          if (key) {
-            dataObj[key] = row.slice(1).map((val: any) => (val ? val.toString() : "0"));
-          }
-        });
-
-        setTableData({ year: years, data: dataObj });
-      };
-      reader.readAsArrayBuffer(file);
-    }
-  };
 
   return (
     <Box p={3}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Button variant="outlined" startIcon={<UploadFileIcon />} component="label" sx={{ marginRight: 2 }}>
-          Upload File
-          <input type="file" hidden accept=".xlsx, .xls" onChange={handleFileUpload} />
-        </Button>
+
+        <FileUpload
+          onFileUpload={handleFileUpload}
+          title="Upload Key Indicators Excel"
+        />
+
         <Box display="flex" gap={5} justifyContent="space-between" alignItems="center" mb={3}>
           <Button variant="contained" color={isEditable ? "success" : "primary"} startIcon={isEditable ? <SaveIcon /> : <EditIcon />} onClick={() => setIsEditable(!isEditable)}>
             {isEditable ? "Save" : "Edit"}
