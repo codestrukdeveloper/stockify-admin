@@ -1,4 +1,4 @@
-import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/ICompany";
+import { ICompany, ICompanyFull } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { IServerError, IServerResponse } from "@/app/(DashboardLayout)/types/apps/error";
 import { companyService } from "@/utils/api/company-service";
 const API_URL = + "/admin/company";
@@ -39,7 +39,7 @@ export async function searchCompanies(
     search: string
 ): Promise<
     IServerResponse<{
-        data: ICompanyFull[];
+        data: ICompany[];
         totalPage: number;
     }>
 > {
