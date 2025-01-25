@@ -20,4 +20,5 @@ export interface IBlog {
     status: string;
     publishedAt: Date;
     relatedStocks?: string[];
+    updatedAt?: Date;
   }

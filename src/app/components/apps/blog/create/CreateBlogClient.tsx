@@ -163,18 +163,11 @@ const CreateBlogClient: React.FC = () => {
 
                 // Upload featured image if it exists
                 if (featuredImage) {
-                    const uploadResponse = await uploadImages('blogs', [featuredImage]);
+                    const uploadResponse = await uploadImages('stocks', [featuredImage]);
 
-                    // Check if the upload was successful
-                    if (isServerError(uploadResponse)) {
-                         // Handle API errors
-                        setSnackbarMessage(uploadResponse.error.message || 'An error occurred');
-                        setSnackbarSeverity('error');
-                        setOpenSnackbar(true);
+                    if (!isServerError(uploadResponse)) {
+                       return uploadedImageUrl = uploadResponse.data[0];
                     }
-console.log(uploadResponse);
-                    // Use the first uploaded image URL
-                 //   uploadedImageUrl = uploadResponse;
                 }
 
                 // Prepare the final blog data with the uploaded image URL
@@ -183,7 +176,7 @@ console.log(uploadResponse);
                     featuredImage: uploadedImageUrl || result.data.featuredImage // Fallback to the original value if no image was uploaded
                 };
                 // Call the API to create the blog
-                const response = await createBlogAction(result.data as unknown as IBlog);
+                const response = await createBlogAction(finalBlogData as unknown as IBlog);
 
                 if (isServerError(response)) {
                     // Handle API errors
