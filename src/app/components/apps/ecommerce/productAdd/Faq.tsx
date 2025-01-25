@@ -11,6 +11,7 @@ interface FaqComponentProps {
   faqs: IFaq[];
   onFaqChange: (faqs: IFaq[]) => void;
   validationErrors: Record<string, string>;
+  id:string
 }
 
 const FaqComponent: React.FC<FaqComponentProps> = ({ faqs, onFaqChange, validationErrors }) => {

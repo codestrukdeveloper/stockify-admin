@@ -24,12 +24,15 @@ interface FinancialResultUploaderProps {
     onUpload: (data: IFinancialResultsWithFile) => void;
     onRemove: (index: number) => void;
     financialResults: IFinancialResultsWithFile[];
+    id:string;
+
 }
 
 const FinancialResultUploader: React.FC<FinancialResultUploaderProps> = ({
     onUpload,
     onRemove,
     financialResults,
+    id
 }) => {
     const [financialResultsLocal, setFinancialResultsLocal] = useState<IFinancialResultsWithFile[]>([]);
     const [title, setTitle] = useState<string>("");
@@ -77,7 +80,8 @@ const FinancialResultUploader: React.FC<FinancialResultUploaderProps> = ({
     };
 
     return (
-        <Box sx={{ padding: 2, border: "1px solid #ccc", borderRadius: "8px" }}>
+        <div id={id}>
+        <Box   sx={{ padding: 2, border: "1px solid #ccc", borderRadius: "8px" }}>
             <Typography variant="h6" gutterBottom>
                 Upload Financial Results
             </Typography>
@@ -167,6 +171,8 @@ const FinancialResultUploader: React.FC<FinancialResultUploaderProps> = ({
                 </Box>
             )}
         </Box>
+        </div>
+
     );
 };
 

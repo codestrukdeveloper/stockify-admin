@@ -23,13 +23,15 @@ import { IProfitLosses } from '@/app/(DashboardLayout)/types/apps/IProfitLoss';
 interface EditableProfitLossSummaryProps {
   data: IProfitLosses[];
   onChange: (updatedProfitLoss: IProfitLosses[]) => void;
-  validationErrors?: Record<string, string>; // Prop to pass validation errors
+  validationErrors?: Record<string, string>;
+  id: string
 }
 
 const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({
   data,
   onChange,
-  validationErrors
+  validationErrors,
+  id
 }) => {
   const [profitLosses, setProfitLosses] = useState<IProfitLosses[]>(data.length > 0 ? data : [
     {
@@ -140,146 +142,149 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({
   };
 
   return (
-    <Box mt={3}>
-      <Typography textAlign="center" textTransform="uppercase" variant="h1" fontWeight="bold">
-        Profit & Loss{" "}
-        <Typography
-          component="span"
-          sx={{
-            color: "#2AA500",
-            fontWeight: "inherit",
-            fontSize: "inherit",
-            lineHeight: "inherit",
-          }}
-        >
-          Summary
+    <div id={id} >
+
+      <Box mt={3}>
+        <Typography textAlign="center" textTransform="uppercase" variant="h1" fontWeight="bold">
+          Profit & Loss{" "}
+          <Typography
+            component="span"
+            sx={{
+              color: "#2AA500",
+              fontWeight: "inherit",
+              fontSize: "inherit",
+              lineHeight: "inherit",
+            }}
+          >
+            Summary
+          </Typography>
         </Typography>
-      </Typography>
 
-      <Box display="flex" justifyContent="flex-end" mb={2} mt={2}>
-        <Button
-          variant="contained"
-          color={isEditable ? "success" : "primary"}
-          startIcon={isEditable ? <SaveIcon /> : <EditIcon />}
-          onClick={() => setIsEditable(!isEditable)}
-        >
-          {isEditable ? "Save" : "Edit"}
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddCircleIcon />}
-          onClick={handleAddYear}
-          sx={{ ml: 2 }}
-        >
-          Add Year
-        </Button>
-      </Box>
+        <Box display="flex" justifyContent="flex-end" mb={2} mt={2}>
+          <Button
+            variant="contained"
+            color={isEditable ? "success" : "primary"}
+            startIcon={isEditable ? <SaveIcon /> : <EditIcon />}
+            onClick={() => setIsEditable(!isEditable)}
+          >
+            {isEditable ? "Save" : "Edit"}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddCircleIcon />}
+            onClick={handleAddYear}
+            sx={{ ml: 2 }}
+          >
+            Add Year
+          </Button>
+        </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell align="left" sx={{ fontWeight: "bold", backgroundColor: "black", color: "white" }}>
-                PROFIT & LOSS
-              </TableCell>
-              {profitLosses.map((profitLoss, index) => (
-                <TableCell
-                  key={index}
-                  align="center"
-                  sx={{
-                    backgroundColor: "black",
-                    color: "white",
-                    position: "relative"
-                  }}
-                >
-                  {isEditable && editMode[index] ? (
-                    <TextField
-                      value={profitLoss.period}
-                      variant="standard"
-                      type="number"
-                      InputProps={{
-                        style: {
-                          color: 'white',
-                          textAlign: "center"
-                        },
-                        inputProps: { min: 2000 }
-                      }}
-                      onChange={(e) => {
-                        // Update period without losing edit mode
-                        const newProfitLosses = [...profitLosses];
-                        newProfitLosses[index] = {
-                          ...newProfitLosses[index],
-                          period: e.target.value
-                        };
-                        setProfitLosses(newProfitLosses);
-                      }}
-                      onBlur={() => handleEditPeriod(index, profitLoss.period || "")}
-                      autoFocus
-                      error={!!validationErrors?.[`profitLoss[${index}].period`]} // Display error for period
-                      helperText={validationErrors?.[`profitLoss[${index}].period`]} // Error message for period
-                    />
-                  ) : (
-                    <span
-                      onClick={isEditable ? () => setEditMode(prev => ({ ...prev, [index]: true })) : undefined}
-                      style={{ cursor: isEditable ? 'pointer' : 'default' }}
-                    >
-                      {profitLoss.period}
-                    </span>
-                  )}
-
-                  {isEditable && (
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleDeleteYear(index)}
-                      sx={{ position: "absolute", top: 5, right: 5 }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  )}
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell align="left" sx={{ fontWeight: "bold", backgroundColor: "black", color: "white" }}>
+                  PROFIT & LOSS
                 </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.keys(PROFIT_LOSS_LABELS).map((key) => (
-              <TableRow key={key}>
-                <TableCell align="left" sx={{ fontWeight: "bold" }}>
-                  {PROFIT_LOSS_LABELS[key as keyof IProfitLosses]}
-                </TableCell>
-                {profitLosses.map((profitLoss, periodIndex) => (
-                  <TableCell key={periodIndex} align="center">
-                    {isEditable ? (
+                {profitLosses.map((profitLoss, index) => (
+                  <TableCell
+                    key={index}
+                    align="center"
+                    sx={{
+                      backgroundColor: "black",
+                      color: "white",
+                      position: "relative"
+                    }}
+                  >
+                    {isEditable && editMode[index] ? (
                       <TextField
-                        value={profitLoss[key as keyof IProfitLosses] || "0"}
+                        value={profitLoss.period}
                         variant="standard"
                         type="number"
-                        onChange={(e) => handleEditIndicator(
-                          periodIndex,
-                          key as keyof IProfitLosses,
-                          e.target.value
-                        )}
                         InputProps={{
-                          style: { textAlign: "center" },
-                          inputProps: { min: 0 }
+                          style: {
+                            color: 'white',
+                            textAlign: "center"
+                          },
+                          inputProps: { min: 2000 }
                         }}
-                        fullWidth
-                        error={!!validationErrors?.[`profitLoss[${periodIndex}].${key}`]} // Display error for the field
-                        helperText={validationErrors?.[`profitLoss[${periodIndex}].${key}`]} // Error message for the field
+                        onChange={(e) => {
+                          // Update period without losing edit mode
+                          const newProfitLosses = [...profitLosses];
+                          newProfitLosses[index] = {
+                            ...newProfitLosses[index],
+                            period: e.target.value
+                          };
+                          setProfitLosses(newProfitLosses);
+                        }}
+                        onBlur={() => handleEditPeriod(index, profitLoss.period || "")}
+                        autoFocus
+                        error={!!validationErrors?.[`profitLoss[${index}].period`]} // Display error for period
+                        helperText={validationErrors?.[`profitLoss[${index}].period`]} // Error message for period
                       />
                     ) : (
-                      profitLoss[key as keyof IProfitLosses] || "0"
+                      <span
+                        onClick={isEditable ? () => setEditMode(prev => ({ ...prev, [index]: true })) : undefined}
+                        style={{ cursor: isEditable ? 'pointer' : 'default' }}
+                      >
+                        {profitLoss.period}
+                      </span>
+                    )}
+
+                    {isEditable && (
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteYear(index)}
+                        sx={{ position: "absolute", top: 5, right: 5 }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                     )}
                   </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
-  );
+            </TableHead>
+            <TableBody>
+              {Object.keys(PROFIT_LOSS_LABELS).map((key) => (
+                <TableRow key={key}>
+                  <TableCell align="left" sx={{ fontWeight: "bold" }}>
+                    {PROFIT_LOSS_LABELS[key as keyof IProfitLosses]}
+                  </TableCell>
+                  {profitLosses.map((profitLoss, periodIndex) => (
+                    <TableCell key={periodIndex} align="center">
+                      {isEditable ? (
+                        <TextField
+                          value={profitLoss[key as keyof IProfitLosses] || "0"}
+                          variant="standard"
+                          type="number"
+                          onChange={(e) => handleEditIndicator(
+                            periodIndex,
+                            key as keyof IProfitLosses,
+                            e.target.value
+                          )}
+                          InputProps={{
+                            style: { textAlign: "center" },
+                            inputProps: { min: 0 }
+                          }}
+                          fullWidth
+                          error={!!validationErrors?.[`profitLoss[${periodIndex}].${key}`]} // Display error for the field
+                          helperText={validationErrors?.[`profitLoss[${periodIndex}].${key}`]} // Error message for the field
+                        />
+                      ) : (
+                        profitLoss[key as keyof IProfitLosses] || "0"
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+
+    </div>);
 };
 
 export default EditableProfitLossSummary;

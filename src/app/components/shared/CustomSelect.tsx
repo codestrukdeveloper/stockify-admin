@@ -1,51 +1,65 @@
 import { Common } from "@/app/(DashboardLayout)/types/apps/common";
-import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, FormHelperText } from "@mui/material";
+import { Box, FormControl, InputLabel, TextField, Autocomplete, FormHelperText } from "@mui/material";
 
 export interface SelectProps {
     options: Common[];
-    name: "categoryId" | "depositsId" | "sectorId"|"dhrpId" | "industryId" | "performanceId";
+    name: "categoryId" | "depositsId" | "sectorId" | "dhrpId" | "industryId" | "performanceId"|"relatbleStocks";
     onChange: (value: string) => void;
     value?: string;
     error?: boolean; // Prop to indicate if there's an error
-    helperText?: string; // Prop to display the error message
+    helperText?: string;
+    id: string
+    // Prop to display the error message
 }
 
-export const CustomSelect: React.FC<SelectProps> = ({ 
-    name, 
-    options, 
-    value = '', 
-    onChange, 
-    error = false, 
-    helperText = '' 
+export const CustomSelect: React.FC<SelectProps> = ({
+    name,
+    options,
+    value = '',
+    onChange,
+    error = false,
+    helperText = '',
+    id
 }) => {
-    const handleChange = (event: SelectChangeEvent) => {
-        const selectedValue = event.target.value;
-        onChange(selectedValue);
+    // Find the selected option based on the value
+    const selectedOption = options.find((option) => option._id === value) || null;
+
+    const handleChange = (event: React.SyntheticEvent, newValue: Common | null) => {
+        onChange(newValue?._id || ''); // Pass the selected value's ID to the parent
     };
 
     return (
-        <Box>
-            <FormControl fullWidth variant="filled" error={error}>
-                <InputLabel>{name}</InputLabel>
-                <Select
-                    sx={{
-                        height: "64px"
-                    }}
-                    id={`company.${name}`}
-                    value={value}
-                    onChange={handleChange}
-                    label={name}
-                    displayEmpty
-                >
-                    {options.map((option) => (
-                        <MenuItem key={option._id} value={option._id}>
-                            {option.name}
-                        </MenuItem>
-                    ))}
-                </Select>
-                {/* Display error message if error is true */}
-                {error && <FormHelperText>{helperText}</FormHelperText>}
-            </FormControl>
-        </Box>
+        <div id={id}>
+
+            <Box>
+                <FormControl fullWidth variant="filled" error={error}>
+                    <InputLabel shrink>{name}</InputLabel>
+                    <Autocomplete
+                        id={`company.${name}`}
+                        options={options}
+                        getOptionLabel={(option) => option.name} // Display the name of the option
+                        value={selectedOption} // Set the selected value
+                        onChange={handleChange}
+
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                variant="filled"
+                                placeholder={`Select ${name}`}
+                                error={error}
+                            // helperText={helperText}
+                            />
+                        )}
+                        sx={{
+                            "& .MuiFilledInput-root": {
+                                paddingTop: "33px", // Adjust padding for better alignment
+                            },
+                        }}
+                    />
+                    {/* Display error message if error is true */}
+                    {error && <FormHelperText>{helperText}</FormHelperText>}
+                </FormControl>
+            </Box>
+        </div>
     );
 };

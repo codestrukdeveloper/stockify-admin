@@ -10,9 +10,10 @@ interface EditableKeyIndicatorsProps {
   data: IKeyIndicators[];
   onChange: (updatedIndicators: IKeyIndicators[]) => void;
   validationErrors?: Record<string, string>;
+  id: string
 }
 
-const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data, onChange, validationErrors }) => {
+const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data,id, onChange, validationErrors }) => {
   const [indicators, setIndicators] = useState<IKeyIndicators[]>(data);
   const [isEditable, setIsEditable] = useState(false);
   const [editMode, setEditMode] = useState<{ [key: number]: boolean }>({});
@@ -42,7 +43,7 @@ const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data, onC
   const handleAddYear = () => {
     const newIndicators = [...indicators];
     const newPeriod = (parseInt(newIndicators[newIndicators.length - 1].period) + 1).toString();
-    
+
     const newYearIndicators: IKeyIndicators = {
       period: newPeriod,
       currentSharePrice: "0",
@@ -101,145 +102,149 @@ const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data, onC
   };
 
   return (
-    <Box mt={3}>
-      <Typography textAlign="center" textTransform="uppercase" variant="h1" fontWeight="bold">
-        Key{" "}
-        <Typography
-          component="span"
-          sx={{
-            color: "#2AA500",
-            fontWeight: "inherit",
-            fontSize: "inherit",
-            lineHeight: "inherit",
-          }}
-        >
-          Indicators
+    <div id={id}>
+
+      <Box mt={3}>
+        <Typography textAlign="center" textTransform="uppercase" variant="h1" fontWeight="bold">
+          Key{" "}
+          <Typography
+            component="span"
+            sx={{
+              color: "#2AA500",
+              fontWeight: "inherit",
+              fontSize: "inherit",
+              lineHeight: "inherit",
+            }}
+          >
+            Indicators
+          </Typography>
         </Typography>
-      </Typography>
 
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        <Button 
-          variant="contained" 
-          color={isEditable ? "success" : "primary"} 
-          startIcon={isEditable ? <SaveIcon /> : <EditIcon />} 
-          onClick={() => setIsEditable(!isEditable)}
-        >
-          {isEditable ? "Save" : "Edit"}
-        </Button>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          startIcon={<AddCircleIcon />} 
-          onClick={handleAddYear}
-          sx={{ ml: 2 }}
-        >
-          Add Year
-        </Button>
-      </Box>
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <Button
+            variant="contained"
+            color={isEditable ? "success" : "primary"}
+            startIcon={isEditable ? <SaveIcon /> : <EditIcon />}
+            onClick={() => setIsEditable(!isEditable)}
+          >
+            {isEditable ? "Save" : "Edit"}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddCircleIcon />}
+            onClick={handleAddYear}
+            sx={{ ml: 2 }}
+          >
+            Add Year
+          </Button>
+        </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell align="left" sx={{ fontWeight: "bold", backgroundColor: "black", color: "white" }}>
-                Indicator
-              </TableCell>
-              {indicators.map((indicator, index) => (
-                <TableCell 
-                  key={index} 
-                  align="center" 
-                  sx={{ 
-                    backgroundColor: "black", 
-                    color: "white", 
-                    position: "relative" 
-                  }}
-                >
-                  {isEditable && editMode[index] ? (
-                    <TextField
-                      value={indicator.period}
-                      variant="standard"
-                      type="number"
-                      InputProps={{ 
-                        style: { 
-                          color: 'white', 
-                          textAlign: "center" 
-                        },
-                        inputProps: { min: 2000 }
-                      }}
-                      onChange={(e) => {
-                        // Update period without losing edit mode
-                        const newIndicators = [...indicators];
-                        newIndicators[index] = {
-                          ...newIndicators[index],
-                          period: e.target.value
-                        };
-                        setIndicators(newIndicators);
-                      }}
-                      onBlur={() => handleEditPeriod(index, indicator.period)}
-                      autoFocus
-                      error={!!validationErrors?.[`keyIndicators[${index}].period`]} // Display error for period
-                      helperText={validationErrors?.[`keyIndicators[${index}].period`]} // Error message for period
-                    />
-                  ) : (
-                    <span 
-                      onClick={isEditable ? () => setEditMode(prev => ({...prev, [index]: true})) : undefined}
-                      style={{ cursor: isEditable ? 'pointer' : 'default' }}
-                    >
-                      {indicator.period}
-                    </span>
-                  )}
-                  
-                  {isEditable && (
-                    <IconButton 
-                      size="small" 
-                      color="error" 
-                      onClick={() => handleDeleteYear(index)}
-                      sx={{ position: "absolute", top: 5, right: 5 }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  )}
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell align="left" sx={{ fontWeight: "bold", backgroundColor: "black", color: "white" }}>
+                  Indicator
                 </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.keys(INDICATOR_LABELS).map((key) => (
-              <TableRow key={key}>
-                <TableCell align="left" sx={{ fontWeight: "bold" }}>
-                  {INDICATOR_LABELS[key as keyof IKeyIndicators]}
-                </TableCell>
-                {indicators.map((indicator, periodIndex) => (
-                  <TableCell key={periodIndex} align="center">
-                    {isEditable ? (
+                {indicators.map((indicator, index) => (
+                  <TableCell
+                    key={index}
+                    align="center"
+                    sx={{
+                      backgroundColor: "black",
+                      color: "white",
+                      position: "relative"
+                    }}
+                  >
+                    {isEditable && editMode[index] ? (
                       <TextField
-                        value={indicator[key as keyof IKeyIndicators] || "0"}
+                        value={indicator.period}
                         variant="standard"
                         type="number"
-                        onChange={(e) => handleEditIndicator(
-                          periodIndex, 
-                          key as keyof IKeyIndicators, 
-                          e.target.value
-                        )}
-                        InputProps={{ 
-                          style: { textAlign: "center" },
-                          inputProps: { min: 0 }
+                        InputProps={{
+                          style: {
+                            color: 'white',
+                            textAlign: "center"
+                          },
+                          inputProps: { min: 2000 }
                         }}
-                        fullWidth
-                        error={!!validationErrors?.[`keyIndicators[${periodIndex}].${key}`]} // Display error for the field
-                        helperText={validationErrors?.[`keyIndicators[${periodIndex}].${key}`]} // Error message for the field
+                        onChange={(e) => {
+                          // Update period without losing edit mode
+                          const newIndicators = [...indicators];
+                          newIndicators[index] = {
+                            ...newIndicators[index],
+                            period: e.target.value
+                          };
+                          setIndicators(newIndicators);
+                        }}
+                        onBlur={() => handleEditPeriod(index, indicator.period)}
+                        autoFocus
+                        error={!!validationErrors?.[`keyIndicators[${index}].period`]} // Display error for period
+                        helperText={validationErrors?.[`keyIndicators[${index}].period`]} // Error message for period
                       />
                     ) : (
-                      indicator[key as keyof IKeyIndicators] || "0"
+                      <span
+                        onClick={isEditable ? () => setEditMode(prev => ({ ...prev, [index]: true })) : undefined}
+                        style={{ cursor: isEditable ? 'pointer' : 'default' }}
+                      >
+                        {indicator.period}
+                      </span>
+                    )}
+
+                    {isEditable && (
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteYear(index)}
+                        sx={{ position: "absolute", top: 5, right: 5 }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                     )}
                   </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+            </TableHead>
+            <TableBody>
+              {Object.keys(INDICATOR_LABELS).map((key) => (
+                <TableRow key={key}>
+                  <TableCell align="left" sx={{ fontWeight: "bold" }}>
+                    {INDICATOR_LABELS[key as keyof IKeyIndicators]}
+                  </TableCell>
+                  {indicators.map((indicator, periodIndex) => (
+                    <TableCell key={periodIndex} align="center">
+                      {isEditable ? (
+                        <TextField
+                          value={indicator[key as keyof IKeyIndicators] || "0"}
+                          variant="standard"
+                          type="number"
+                          onChange={(e) => handleEditIndicator(
+                            periodIndex,
+                            key as keyof IKeyIndicators,
+                            e.target.value
+                          )}
+                          InputProps={{
+                            style: { textAlign: "center" },
+                            inputProps: { min: 0 }
+                          }}
+                          fullWidth
+                          error={!!validationErrors?.[`keyIndicators[${periodIndex}].${key}`]} // Display error for the field
+                          helperText={validationErrors?.[`keyIndicators[${periodIndex}].${key}`]} // Error message for the field
+                        />
+                      ) : (
+                        indicator[key as keyof IKeyIndicators] || "0"
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </div>
+
   );
 };
 

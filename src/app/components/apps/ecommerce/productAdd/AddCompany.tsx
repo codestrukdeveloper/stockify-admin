@@ -152,6 +152,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       website: "",
       aboutus: "",
       logo: "",
+      videoLink:"",
       categoryId: "",
       industryId: "",
       sectorId: "",
@@ -173,7 +174,9 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
   });
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  
+
+
+
   useEffect(() => {
     if (Object.keys(validationErrors).length > 0) {
       const firstErrorKey = Object.keys(validationErrors)[0];
@@ -183,7 +186,81 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
         firstErrorElement.focus(); // Optional: Focus on the field
       }
     }
+
+    if (validationErrors["company.industryId"]||validationErrors["company.performanceId"]||validationErrors["company.sectorId"]||validationErrors["company.categoryId"]||validationErrors["company.depositsId"]) {
+      const shareholderSection = document.getElementById("company-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    if (validationErrors["company.aboutus"]||validationErrors["company.videLink"]) {
+      const shareholderSection = document.getElementById("company-about-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    if (validationErrors["company.shareHolders"]) {
+      const shareholderSection = document.getElementById("shareHolders-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+
+
+    if (validationErrors["company.phone"]||validationErrors["company.email"]||validationErrors["company.pan"]||validationErrors["company.isin"]||validationErrors["company.website"]||validationErrors["company.management"]) {
+      const shareholderSection = document.getElementById("company-information-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    if (validationErrors["shareholders"]) {
+      const shareholderSection = document.getElementById("shareholder-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+    if (validationErrors["cashflow"]) {
+      const shareholderSection = document.getElementById("cashflow-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+    if (validationErrors["financialResults"]) {
+      const shareholderSection = document.getElementById("balancesheet-financialResults");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+    if (validationErrors["faq"]) {
+      const shareholderSection = document.getElementById("faq-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+    if (validationErrors["balancesheet"]) {
+      const shareholderSection = document.getElementById("balancesheet-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+    if (validationErrors["profitLoss"]) {
+      const shareholderSection = document.getElementById("profitLoss-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+    if (validationErrors["keyIndicators"]) {
+      const shareholderSection = document.getElementById("keyIndicators-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
   }, [validationErrors]);
+
+
 
 
 
@@ -196,21 +273,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       company: { ...prev.company, [key]: value },
     }));
 
-    const validationResult = createCompanyDto.safeParse(formData);
 
-
-    console.log("ValidationResult", validationResult)
-
-    if (!validationResult.success) {
-      const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
-        errors[err.path.join(".")] = err.message;
-      });
-      console.log("errors", errors)
-
-      setValidationErrors(errors);
-      return;
-    }
   };
 
 
@@ -245,23 +308,6 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       ...prev,
       company: { ...prev.company, [key]: value },
     }));
-
-
-    const validationResult = createCompanyDto.safeParse(formData);
-
-
-    console.log("ValidationResult", validationResult)
-
-    if (!validationResult.success) {
-      const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
-        errors[err.path.join(".")] = err.message;
-      });
-      console.log("errors", errors)
-
-      setValidationErrors(errors);
-      return;
-    }
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -295,6 +341,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
         setError(created.error);
       }
     } catch (error) {
+      
       console.log("ERROR", error);
     }
   };
@@ -349,6 +396,16 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     }));
   };
 
+
+
+
+
+
+
+
+
+
+
   return (
     <PageContainer title="Add Product" description="this is Add Product">
       <Breadcrumb title="Add Product" items={BCrumb} />
@@ -367,6 +424,8 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           deposits={deposits}
           categories={categories}
           validationErrors={validationErrors}
+          id="company-section"
+
         />
 
         <KeyIndicators
@@ -375,6 +434,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
             handleInputChange("keyIndicators", updatedIndicators)
           }
           validationErrors={validationErrors}
+          id="keyIndicators-section"
         />
 
         <AboutTheCompany
@@ -387,6 +447,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
             handleInputChange("company", { ...formData.company, videoLink: newLink })
           }
           validationErrors={validationErrors}
+          id="company-about-section"
         />
 
         <ProfitLossSummary
@@ -395,6 +456,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
             handleInputChange("profitLoss", updatedProfitLoss)
           }
           validationErrors={validationErrors}
+          id="profitLoss-section"
         />
 
         <BalanceSheet
@@ -403,6 +465,8 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
             handleInputChange("balanceSheet", updatedBalanceSheet)
           }
           validationErrors={validationErrors}
+          id="balancesheet-section"
+
         />
 
         <CashFlowSummary
@@ -411,11 +475,17 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
             handleInputChange("cashFlow", updatedCashFlow)
           }
           validationErrors={validationErrors}
+          id="cashflow-section"
+
         />
         <ShareHolder
           shareholders={formData.company?.shareHolders || []}
           onAdd={handleAddShareholder}
           onRemove={handleRemoveShareholder}
+          id="shareholder-section"
+
+          validationErrors={validationErrors}
+
         />
         <br />
         <EditableAddressAndManagement
@@ -438,6 +508,8 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
             onChangeCompany("management", management)
           }
           validationErrors={validationErrors}
+          id="company-introduction-section"
+
         />
         <br />
 
@@ -445,13 +517,16 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           onUpload={handleFinancialResultUpload}
           onRemove={handleRemove}
           financialResults={financialResults}
-        />        
+          id="financial-result-section"
+
+        />
         <br />
 
         <FaqComponent
           faqs={formData.company.faq}
           onFaqChange={handleFaqChange}
           validationErrors={validationErrors}
+          id='faq-section'
         />
 
         <Button variant="contained" color="primary" type="submit">
