@@ -194,9 +194,9 @@ const ShareHolder: React.FC<ShareHolderProps> = ({
             </Paper>
           </Grid>
         </Grid>
-        {validationErrors?.["shareHolders"] && (
+        {validationErrors?.["company.shareHolders"] && (
           <FormHelperText error sx={{ mt: 2 }}>
-            {validationErrors["shareHolders"]}
+            {validationErrors["company.shareHolders"]}
           </FormHelperText>
         )}
       </Box>
