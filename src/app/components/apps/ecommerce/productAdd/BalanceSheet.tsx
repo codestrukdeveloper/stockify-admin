@@ -23,6 +23,7 @@ import { IBalanceSheet } from "@/app/(DashboardLayout)/types/apps/IBalanceSheet"
 interface EditableBalanceSheetProps {
   data: IBalanceSheet[];
   onChange: (updatedBalanceSheet: IBalanceSheet[]) => void;
+  id: string,
   validationErrors?: Record<string, string>; // Prop to pass validation errors
 }
 
@@ -30,6 +31,7 @@ const EditableBalanceSheet: React.FC<EditableBalanceSheetProps> = ({
   data,
   onChange,
   validationErrors,
+  id
 }) => {
   const [balanceSheets, setBalanceSheets] = useState<IBalanceSheet[]>(
     data.length > 0
@@ -139,165 +141,168 @@ const EditableBalanceSheet: React.FC<EditableBalanceSheetProps> = ({
   };
 
   return (
-    <Box mt={3}>
-      <Typography
-        textAlign="center"
-        textTransform="uppercase"
-        variant="h1"
-        fontWeight="bold"
-      >
-        Balance Sheet{" "}
+    <div id={id}>
+      <Box mt={3}>
         <Typography
-          component="span"
-          sx={{
-            color: "#2AA500",
-            fontWeight: "inherit",
-            fontSize: "inherit",
-            lineHeight: "inherit",
-          }}
+          textAlign="center"
+          textTransform="uppercase"
+          variant="h1"
+          fontWeight="bold"
         >
-          Summary
+          Balance Sheet{" "}
+          <Typography
+            component="span"
+            sx={{
+              color: "#2AA500",
+              fontWeight: "inherit",
+              fontSize: "inherit",
+              lineHeight: "inherit",
+            }}
+          >
+            Summary
+          </Typography>
         </Typography>
-      </Typography>
 
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        <Button
-          variant="contained"
-          color={isEditable ? "success" : "primary"}
-          startIcon={isEditable ? <SaveIcon /> : <EditIcon />}
-          onClick={() => setIsEditable(!isEditable)}
-        >
-          {isEditable ? "Save" : "Edit"}
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddCircleIcon />}
-          onClick={handleAddYear}
-          sx={{ ml: 2 }}
-        >
-          Add Year
-        </Button>
-      </Box>
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <Button
+            variant="contained"
+            color={isEditable ? "success" : "primary"}
+            startIcon={isEditable ? <SaveIcon /> : <EditIcon />}
+            onClick={() => setIsEditable(!isEditable)}
+          >
+            {isEditable ? "Save" : "Edit"}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddCircleIcon />}
+            onClick={handleAddYear}
+            sx={{ ml: 2 }}
+          >
+            Add Year
+          </Button>
+        </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell
-                align="left"
-                sx={{
-                  fontWeight: "bold",
-                  backgroundColor: "black",
-                  color: "white",
-                }}
-              >
-                BALANCE SHEET
-              </TableCell>
-              {balanceSheets.map((balanceSheet, index) => (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
                 <TableCell
-                  key={index}
-                  align="center"
+                  align="left"
                   sx={{
+                    fontWeight: "bold",
                     backgroundColor: "black",
                     color: "white",
-                    position: "relative",
                   }}
                 >
-                  {isEditable && editMode[index] ? (
-                    <TextField
-                      value={balanceSheet.period}
-                      variant="standard"
-                      type="number"
-                      InputProps={{
-                        style: { color: "white", textAlign: "center" },
-                        inputProps: { min: 2000 },
-                      }}
-                      onChange={(e) => {
-                        const newBalanceSheets = [...balanceSheets];
-                        newBalanceSheets[index] = {
-                          ...newBalanceSheets[index],
-                          period: e.target.value,
-                        };
-                        setBalanceSheets(newBalanceSheets);
-                      }}
-                      onBlur={() =>
-                        handleEditPeriod(index, balanceSheet.period || "")
-                      }
-                      autoFocus
-                      error={!!validationErrors?.[`balanceSheet[${index}].period`]} // Display error for period
-                      helperText={validationErrors?.[`balanceSheet[${index}].period`]} // Error message for period
-                    />
-                  ) : (
-                    <span
-                      onClick={
-                        isEditable
-                          ? () =>
-                            setEditMode((prev) => ({
-                              ...prev,
-                              [index]: true,
-                            }))
-                          : undefined
-                      }
-                      style={{ cursor: isEditable ? "pointer" : "default" }}
-                    >
-                      {balanceSheet.period}
-                    </span>
-                  )}
-
-                  {isEditable && (
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleDeleteYear(index)}
-                      sx={{ position: "absolute", top: 5, right: 5 }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  )}
+                  BALANCE SHEET
                 </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.keys(BALANCE_SHEET_LABELS).map((key) => (
-              <TableRow key={key}>
-                <TableCell align="left" sx={{ fontWeight: "bold" }}>
-                  {BALANCE_SHEET_LABELS[key as keyof IBalanceSheet]}
-                </TableCell>
-                {balanceSheets.map((balanceSheet, periodIndex) => (
-                  <TableCell key={periodIndex} align="center">
-                    {isEditable ? (
+                {balanceSheets.map((balanceSheet, index) => (
+                  <TableCell
+                    key={index}
+                    align="center"
+                    sx={{
+                      backgroundColor: "black",
+                      color: "white",
+                      position: "relative",
+                    }}
+                  >
+                    {isEditable && editMode[index] ? (
                       <TextField
-                        value={balanceSheet[key as keyof IBalanceSheet] || "0"}
+                        value={balanceSheet.period}
                         variant="standard"
                         type="number"
-                        onChange={(e) =>
-                          handleEditIndicator(
-                            periodIndex,
-                            key as keyof IBalanceSheet,
-                            e.target.value
-                          )
-                        }
                         InputProps={{
-                          style: { textAlign: "center" },
-                          inputProps: { min: 0 },
+                          style: { color: "white", textAlign: "center" },
+                          inputProps: { min: 2000 },
                         }}
-                        fullWidth
-                        error={!!validationErrors?.[`balanceSheet[${periodIndex}].${key}`]} // Display error for the field
-                        helperText={validationErrors?.[`balanceSheet[${periodIndex}].${key}`]} // Error message for the field
+                        onChange={(e) => {
+                          const newBalanceSheets = [...balanceSheets];
+                          newBalanceSheets[index] = {
+                            ...newBalanceSheets[index],
+                            period: e.target.value,
+                          };
+                          setBalanceSheets(newBalanceSheets);
+                        }}
+                        onBlur={() =>
+                          handleEditPeriod(index, balanceSheet.period || "")
+                        }
+                        autoFocus
+                        error={!!validationErrors?.[`balanceSheet[${index}].period`]} // Display error for period
+                        helperText={validationErrors?.[`balanceSheet[${index}].period`]} // Error message for period
                       />
                     ) : (
-                      balanceSheet[key as keyof IBalanceSheet] || "0"
+                      <span
+                        onClick={
+                          isEditable
+                            ? () =>
+                              setEditMode((prev) => ({
+                                ...prev,
+                                [index]: true,
+                              }))
+                            : undefined
+                        }
+                        style={{ cursor: isEditable ? "pointer" : "default" }}
+                      >
+                        {balanceSheet.period}
+                      </span>
+                    )}
+
+                    {isEditable && (
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteYear(index)}
+                        sx={{ position: "absolute", top: 5, right: 5 }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                     )}
                   </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+            </TableHead>
+            <TableBody>
+              {Object.keys(BALANCE_SHEET_LABELS).map((key) => (
+                <TableRow key={key}>
+                  <TableCell align="left" sx={{ fontWeight: "bold" }}>
+                    {BALANCE_SHEET_LABELS[key as keyof IBalanceSheet]}
+                  </TableCell>
+                  {balanceSheets.map((balanceSheet, periodIndex) => (
+                    <TableCell key={periodIndex} align="center">
+                      {isEditable ? (
+                        <TextField
+                          value={balanceSheet[key as keyof IBalanceSheet] || "0"}
+                          variant="standard"
+                          type="number"
+                          onChange={(e) =>
+                            handleEditIndicator(
+                              periodIndex,
+                              key as keyof IBalanceSheet,
+                              e.target.value
+                            )
+                          }
+                          InputProps={{
+                            style: { textAlign: "center" },
+                            inputProps: { min: 0 },
+                          }}
+                          fullWidth
+                          error={!!validationErrors?.[`balanceSheet[${periodIndex}].${key}`]} // Display error for the field
+                          helperText={validationErrors?.[`balanceSheet[${periodIndex}].${key}`]} // Error message for the field
+                        />
+                      ) : (
+                        balanceSheet[key as keyof IBalanceSheet] || "0"
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </div>
+
   );
 };
 

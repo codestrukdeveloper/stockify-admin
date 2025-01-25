@@ -53,12 +53,12 @@ export default async function AddCompany() {
 
   return (
     <AddCompanyClient
-      sectors={sectorsResponse.data}
-      deposits={depositsResponse.data}
-      performances={performancesResponse.data}
-      categories={categoriesResponse.data}
-      industries={industriesResponse.data}
-      dhrps={dhrpResponse.data}
+      sectors={sectorsResponse.data || []}
+      deposits={depositsResponse.data || []}
+      performances={performancesResponse.data || []}
+      categories={categoriesResponse.data || []}
+      industries={industriesResponse.data || []}
+      dhrps={dhrpResponse.data || []}
     />
   );
 }

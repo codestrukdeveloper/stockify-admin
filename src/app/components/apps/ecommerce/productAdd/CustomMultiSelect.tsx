@@ -9,6 +9,8 @@ interface CustomMultiSelectProps {
     options: IDeposit[];
     error?: boolean;
     helperText?: string;
+    id: string;
+
   }
   
 const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({
@@ -17,6 +19,7 @@ const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({
     options,
     error,
     helperText,
+    id
 }) => {
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
@@ -27,6 +30,8 @@ const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({
     };
 
     return (
+        <div id={id}>
+
         <FormControl fullWidth variant="filled" error={error}>
             <InputLabel>{name}</InputLabel>
             <Select
@@ -55,6 +60,8 @@ const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({
             </Select>
             {error && <FormHelperText>{helperText}</FormHelperText>}
         </FormControl>
+        </div>
+
     );
 };
 
