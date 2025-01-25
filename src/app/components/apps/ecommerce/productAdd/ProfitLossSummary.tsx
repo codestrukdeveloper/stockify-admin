@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  TextField, 
-  Button, 
-  IconButton 
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  Button,
+  IconButton,
+  FormHelperText,
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EditIcon from '@mui/icons-material/Edit';
@@ -22,9 +23,14 @@ import { IProfitLosses } from '@/app/(DashboardLayout)/types/apps/IProfitLoss';
 interface EditableProfitLossSummaryProps {
   data: IProfitLosses[];
   onChange: (updatedProfitLoss: IProfitLosses[]) => void;
+  validationErrors?: Record<string, string>; // Prop to pass validation errors
 }
 
-const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({ data, onChange }) => {
+const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({
+  data,
+  onChange,
+  validationErrors
+}) => {
   const [profitLosses, setProfitLosses] = useState<IProfitLosses[]>(data.length > 0 ? data : [
     {
       period: new Date().getFullYear().toString(),
@@ -48,6 +54,11 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({ d
   const [isEditable, setIsEditable] = useState(false);
   const [editMode, setEditMode] = useState<{ [key: number]: boolean }>({});
 
+
+  useEffect(() => {
+    setProfitLosses(data);
+  }, [data]);
+
   const PROFIT_LOSS_LABELS: { [key in keyof IProfitLosses]?: string } = {
     revenue: "REVENUE",
     expense: "EXPENSE",
@@ -69,7 +80,7 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({ d
   const handleAddYear = () => {
     const newProfitLosses = [...profitLosses];
     const newPeriod = (parseInt(newProfitLosses[newProfitLosses.length - 1].period || new Date().getFullYear().toString()) + 1).toString();
-    
+
     const newYearProfitLoss: IProfitLosses = {
       period: newPeriod,
       revenue: "0",
@@ -145,19 +156,19 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({ d
         </Typography>
       </Typography>
 
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        <Button 
-          variant="contained" 
-          color={isEditable ? "success" : "primary"} 
-          startIcon={isEditable ? <SaveIcon /> : <EditIcon />} 
+      <Box display="flex" justifyContent="flex-end" mb={2} mt={2}>
+        <Button
+          variant="contained"
+          color={isEditable ? "success" : "primary"}
+          startIcon={isEditable ? <SaveIcon /> : <EditIcon />}
           onClick={() => setIsEditable(!isEditable)}
         >
           {isEditable ? "Save" : "Edit"}
         </Button>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          startIcon={<AddCircleIcon />} 
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddCircleIcon />}
           onClick={handleAddYear}
           sx={{ ml: 2 }}
         >
@@ -170,16 +181,16 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({ d
           <TableHead>
             <TableRow>
               <TableCell align="left" sx={{ fontWeight: "bold", backgroundColor: "black", color: "white" }}>
-                Indicator
+                PROFIT & LOSS
               </TableCell>
               {profitLosses.map((profitLoss, index) => (
-                <TableCell 
-                  key={index} 
-                  align="center" 
-                  sx={{ 
-                    backgroundColor: "black", 
-                    color: "white", 
-                    position: "relative" 
+                <TableCell
+                  key={index}
+                  align="center"
+                  sx={{
+                    backgroundColor: "black",
+                    color: "white",
+                    position: "relative"
                   }}
                 >
                   {isEditable && editMode[index] ? (
@@ -187,10 +198,10 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({ d
                       value={profitLoss.period}
                       variant="standard"
                       type="number"
-                      InputProps={{ 
-                        style: { 
-                          color: 'white', 
-                          textAlign: "center" 
+                      InputProps={{
+                        style: {
+                          color: 'white',
+                          textAlign: "center"
                         },
                         inputProps: { min: 2000 }
                       }}
@@ -205,20 +216,22 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({ d
                       }}
                       onBlur={() => handleEditPeriod(index, profitLoss.period || "")}
                       autoFocus
+                      error={!!validationErrors?.[`profitLoss[${index}].period`]} // Display error for period
+                      helperText={validationErrors?.[`profitLoss[${index}].period`]} // Error message for period
                     />
                   ) : (
-                    <span 
-                      onClick={isEditable ? () => setEditMode(prev => ({...prev, [index]: true})) : undefined}
+                    <span
+                      onClick={isEditable ? () => setEditMode(prev => ({ ...prev, [index]: true })) : undefined}
                       style={{ cursor: isEditable ? 'pointer' : 'default' }}
                     >
                       {profitLoss.period}
                     </span>
                   )}
-                  
+
                   {isEditable && (
-                    <IconButton 
-                      size="small" 
-                      color="error" 
+                    <IconButton
+                      size="small"
+                      color="error"
                       onClick={() => handleDeleteYear(index)}
                       sx={{ position: "absolute", top: 5, right: 5 }}
                     >
@@ -243,15 +256,17 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({ d
                         variant="standard"
                         type="number"
                         onChange={(e) => handleEditIndicator(
-                          periodIndex, 
-                          key as keyof IProfitLosses, 
+                          periodIndex,
+                          key as keyof IProfitLosses,
                           e.target.value
                         )}
-                        InputProps={{ 
+                        InputProps={{
                           style: { textAlign: "center" },
                           inputProps: { min: 0 }
                         }}
                         fullWidth
+                        error={!!validationErrors?.[`profitLoss[${periodIndex}].${key}`]} // Display error for the field
+                        helperText={validationErrors?.[`profitLoss[${periodIndex}].${key}`]} // Error message for the field
                       />
                     ) : (
                       profitLoss[key as keyof IProfitLosses] || "0"

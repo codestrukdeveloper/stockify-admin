@@ -2,7 +2,7 @@ import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcr
 import PageContainer from "@/app/components/container/PageContainer";
 import BlankCard from "@/app/components/shared/BlankCard";
 import ProductTableList from "@/app/components/apps/ecommerce/ProductTableList/ProductTableList";
-import { ICompany } from "@/app/(DashboardLayout)/types/apps/company";
+import { ICompany } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { companyService } from "@/utils/api/company-service";
 
 const BCrumb = [
@@ -21,7 +21,6 @@ export default async function EcomProductList({ searchParams }: { searchParams?:
 
   const search = searchParams?.search || "";
 
-  // Fetch companies from API on the server side
     const companies = await companyService.searchCompanies(page, limit, search);
     
     console.log("companies",companies)

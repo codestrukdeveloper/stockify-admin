@@ -24,7 +24,7 @@ import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { Cancel } from "@mui/icons-material";
 import FileUpload from "./FileUpload";
-import { FILE_FOR } from "@/app/(DashboardLayout)/types/apps/company";
+import { FILE_FOR } from "@/app/(DashboardLayout)/types/apps/ICompany";
 
 export interface DataTableProps {
   year: string[];

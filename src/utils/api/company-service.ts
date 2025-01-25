@@ -1,4 +1,4 @@
-import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/company";
+import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { BASE_URL } from ".";
 import axiosServices from "../axios";
 

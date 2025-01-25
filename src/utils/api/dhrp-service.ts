@@ -1,15 +1,12 @@
 import { IDhrp } from "@/app/(DashboardLayout)/types/apps/IDhrp";
 import axiosServices from "../axios";
 
-const API_URL = '/admin/dhrp';
+const API_URL = '/admin/dhrps';
 
 export const dhrpService = {
   fetchDhrps: async (page: number, limit: number) => {
     const response = await axiosServices.get(`${API_URL}?page=${page}&limit=${limit}`);
-    return {
-      Dhrp: response.data.data,
-      total: response.data.total,
-    };
+    return response.data.data;
   },
 
   fetchDhrpById: async (id: string) => {

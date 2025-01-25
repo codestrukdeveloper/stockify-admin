@@ -21,17 +21,6 @@ const axiosServices = axios.create({
 
 axiosServices.interceptors.request.use(
   async (config) => {
-
-    // const cookieStore = cookies();
-    // const accessToken = cookieStore.get("accessToken")?.value;
-    const refreshToken = getRefreshTokenFromLocalStorage();
-
-    config.headers.Authorization = `Bearer ${refreshToken}`
-
-    // Log or debug tokens if needed
-    // console.log("Access Token:", accessToken);
-    // console.log("Refresh Token:", refreshToken);
-
     return config;
   },
   (error) => Promise.reject(error)

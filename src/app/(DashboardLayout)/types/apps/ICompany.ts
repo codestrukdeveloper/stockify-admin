@@ -12,6 +12,20 @@ import { IShareholder } from "./IShareholder";
 import { IPerformance } from "./peformance";
 import { ISector } from "./sector";
 
+export interface IFinancialResults {
+    title: string;
+    period: string;
+    document: string
+};
+
+
+export interface IFinancialResultsWithFile extends Omit<IFinancialResults, "document"> {
+    document: File; 
+}
+export interface IFaq{
+    question: string;
+    answer:string
+}
 export interface ICompany {
     _id?: string;
     name: string;
@@ -46,10 +60,9 @@ export interface ICompany {
     updatedAt?: string;
     isDeleted?: boolean;
     deletedAt?: Date;
-    financialResulsts: {
-        period: string;
-        document: string
-    }[]
+    financialResults:IFinancialResults[]
+    faq:IFaq[],
+ 
 };
 
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -12,6 +12,7 @@ import {
   TextField,
   Button,
   IconButton,
+  FormHelperText,
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
@@ -22,28 +23,34 @@ import { ICashflowSum } from "@/app/(DashboardLayout)/types/apps/ICashflowSum";
 interface EditableCashflowSummaryProps {
   data: ICashflowSum[];
   onChange: (updatedCashflow: ICashflowSum[]) => void;
+  validationErrors?: Record<string, string>; // Prop to pass validation errors
 }
 
 const EditableCashflowSummary: React.FC<EditableCashflowSummaryProps> = ({
   data,
   onChange,
+  validationErrors,
 }) => {
   const [cashflows, setCashflows] = useState<ICashflowSum[]>(
     data.length > 0
       ? data
       : [
-          {
-            period: new Date().getFullYear().toString(),
-            operatingAct: "0",
-            investingAct: "0",
-            financialAct: "0",
-            netCashFlow: "0",
-          },
-        ]
+        {
+          period: new Date().getFullYear().toString(),
+          operatingAct: "0",
+          investingAct: "0",
+          financialAct: "0",
+          netCashFlow: "0",
+        },
+      ]
   );
 
   const [isEditable, setIsEditable] = useState(false);
   const [editMode, setEditMode] = useState<{ [key: number]: boolean }>({});
+
+  useEffect(() => {
+    setCashflows(data);
+  }, [data]);
 
   const CASHFLOW_LABELS: { [key in keyof ICashflowSum]?: string } = {
     operatingAct: "Operating Activities",
@@ -57,7 +64,7 @@ const EditableCashflowSummary: React.FC<EditableCashflowSummaryProps> = ({
     const newPeriod = (
       parseInt(
         newCashflows[newCashflows.length - 1].period ||
-          new Date().getFullYear().toString()
+        new Date().getFullYear().toString()
       ) + 1
     ).toString();
 
@@ -166,8 +173,9 @@ const EditableCashflowSummary: React.FC<EditableCashflowSummaryProps> = ({
                   color: "white",
                 }}
               >
-                Indicator
+                CASH FLOW SUMMARY
               </TableCell>
+
               {cashflows.map((cashflow, index) => (
                 <TableCell
                   key={index}
@@ -200,16 +208,18 @@ const EditableCashflowSummary: React.FC<EditableCashflowSummaryProps> = ({
                       }}
                       onBlur={() => handleEditPeriod(index, cashflow.period || "")}
                       autoFocus
+                      error={!!validationErrors?.[`cashflow[${index}].period`]} // Display error for period
+                      helperText={validationErrors?.[`cashflow[${index}].period`]} // Error message for period
                     />
                   ) : (
                     <span
                       onClick={
                         isEditable
                           ? () =>
-                              setEditMode((prev) => ({
-                                ...prev,
-                                [index]: true,
-                              }))
+                            setEditMode((prev) => ({
+                              ...prev,
+                              [index]: true,
+                            }))
                           : undefined
                       }
                       style={{ cursor: isEditable ? "pointer" : "default" }}
@@ -257,6 +267,8 @@ const EditableCashflowSummary: React.FC<EditableCashflowSummaryProps> = ({
                           inputProps: { min: 0 },
                         }}
                         fullWidth
+                        error={!!validationErrors?.[`cashflow[${periodIndex}].${key}`]} // Display error for the field
+                        helperText={validationErrors?.[`cashflow[${periodIndex}].${key}`]} // Error message for the field
                       />
                     ) : (
                       cashflow[key as keyof ICashflowSum] || "0"

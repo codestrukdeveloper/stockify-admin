@@ -1,17 +1,16 @@
 "use client"
+
 import { Box, Button, Grid, Stack } from "@mui/material";
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/components/container/PageContainer";
-
 import CompanyLogoAndNameCard from "@/app/components/apps/ecommerce/productAdd/CompanyLogoAndNameCard";
 import KeyIndicators from "@/app/components/apps/ecommerce/productAdd/KeyIndicators";
 import CashFlowSummary from "@/app/components/apps/ecommerce/productAdd/CashFlowSummary";
 import BalanceSheet from "@/app/components/apps/ecommerce/productAdd/BalanceSheet";
 import ProfitLossSummary from "@/app/components/apps/ecommerce/productAdd/ProfitLossSummary";
 import AboutTheCompany from "@/app/components/apps/ecommerce/productAdd/AboutTheCompany";
-import PricingTrend from "@/app/components/apps/ecommerce/productAdd/PricingTrend";
-import React, { useState } from "react";
-import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/company";
+import React, { useEffect, useState } from "react";
+import { ICompanyFull, IFaq, IFinancialResults, IFinancialResultsWithFile } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { ISector } from "@/app/(DashboardLayout)/types/apps/sector";
 import { IDeposit, IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
 import { IPerformance } from "@/app/(DashboardLayout)/types/apps/peformance";
@@ -22,12 +21,19 @@ import { ICashflowSum } from "@/app/(DashboardLayout)/types/apps/ICashflowSum";
 import { IPriceTrend } from "@/app/(DashboardLayout)/types/apps/IPricingTrend.interface";
 import { IProfitLosses } from "@/app/(DashboardLayout)/types/apps/IProfitLoss";
 import EditableAddressAndManagement from "./EditableAddressManagement";
-import FileUpload from "./FileUpload";
-import MainFileUpload from "./MainFileUpload";
 import { createCompanyAction, uploadImages } from "@/app/(DashboardLayout)/apps/company/action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import { IError } from "@/app/(DashboardLayout)/types/apps/error";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";
+import { createCompanyDto } from "@/schema/company.dto";
+import ExcelUploader from "./ExcelUploader";
+import FinancialResultUploader from "./FinancialResultUpload";
+import { IShareholder } from "@/app/(DashboardLayout)/types/apps/IShareholder";
+import ShareHolder from "./ShareHolders";
+import { IDhrp } from "@/app/(DashboardLayout)/types/apps/IDhrp";
+import FaqComponent from "./Faq";
+
+
 
 const BCrumb = [
   {
@@ -55,7 +61,8 @@ const keyIndicatorsInitialValue: IKeyIndicators = {
   returnOnEquity: "0",
   returnOnTotalAssets: "0",
   rowc: "0",
-}
+};
+
 const initialBalanceSheet: IBalanceSheet = {
   period: new Date().getFullYear().toString(),
   cashEqlt: "0",
@@ -106,13 +113,14 @@ const initialProfitLosses: IProfitLosses = {
   companyId: "",
 };
 
-
 interface AddCompanyProps {
-  sectors: ISector[],
-  deposits: IDeposit[],
-  industries: IIndustry[],
-  performances: IPerformance[],
-  categories: ICategory[]
+  sectors: ISector[];
+  deposits: IDeposit[];
+  industries: IIndustry[];
+  performances: IPerformance[];
+  categories: ICategory[];
+  dhrps: IDhrp[];
+
 }
 
 const AddCompanyClient: React.FC<AddCompanyProps> = ({
@@ -120,10 +128,13 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
   deposits,
   industries,
   performances,
-  categories
+  categories,
+  dhrps
 }) => {
   const [error, setError] = useState<IError>();
   const [logo, setLogo] = useState<File>();
+  const [financialResults, setFinancialResults] = useState<IFinancialResultsWithFile[]>([]);
+
   const [formData, setFormData] = useState<ICompanyFull>({
     company: {
       name: "",
@@ -150,7 +161,9 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       management: [],
       shareHolders: [],
       slug: "",
-      financialResulsts: []
+      financialResults: [],
+      faq: []
+
     },
     profitLoss: [initialProfitLosses],
     priceTrend: [initialPriceTrend],
@@ -158,6 +171,21 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     balanceSheet: [initialBalanceSheet],
     cashFlow: [initialCashflowSum],
   });
+
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  
+  useEffect(() => {
+    if (Object.keys(validationErrors).length > 0) {
+      const firstErrorKey = Object.keys(validationErrors)[0];
+      const firstErrorElement = document.getElementById(firstErrorKey);
+      if (firstErrorElement) {
+        firstErrorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        firstErrorElement.focus(); // Optional: Focus on the field
+      }
+    }
+  }, [validationErrors]);
+
+
 
   const onChangeCompany = <K extends keyof ICompanyFull["company"]>(
     key: K,
@@ -167,86 +195,178 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       ...prev,
       company: { ...prev.company, [key]: value },
     }));
+
+    const validationResult = createCompanyDto.safeParse(formData);
+
+
+    console.log("ValidationResult", validationResult)
+
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err) => {
+        errors[err.path.join(".")] = err.message;
+      });
+      console.log("errors", errors)
+
+      setValidationErrors(errors);
+      return;
+    }
   };
+
 
   const handleInputChange = (key: keyof ICompanyFull, value: any) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSelectChange = (key: keyof ICompanyFull["company"], value: string) => {
-    console.log(`Parent handleSelectChange: Key=${key}, Value=${value}`); // Debugging
 
+  const handleAddShareholder = (shareholder: IShareholder) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: {
+        ...prev.company,
+        shareHolders: [...(prev.company.shareHolders || []), shareholder], // Initialize as empty array if undefined
+      },
+    }));
+  };
+
+  // Handle removing a shareholder
+  const handleRemoveShareholder = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: {
+        ...prev.company,
+        shareHolders: (prev.company.shareHolders || []).filter((_, i) => i !== index), // Initialize as empty array if undefined
+      },
+    }));
+  };
+
+  const handleSelectChange = (key: keyof ICompanyFull["company"], value: string) => {
     setFormData((prev) => ({
       ...prev,
       company: { ...prev.company, [key]: value },
     }));
+
+
+    const validationResult = createCompanyDto.safeParse(formData);
+
+
+    console.log("ValidationResult", validationResult)
+
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err) => {
+        errors[err.path.join(".")] = err.message;
+      });
+      console.log("errors", errors)
+
+      setValidationErrors(errors);
+      return;
+    }
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      // if (logo) {
-      //   console.log("FILES",logo);
-      //   const data = await uploadImages("stocks", [logo]);
-      //   if (isServerError(data)) {
-      //     setError(data.error);
-      //     // return
-      //   }
 
-      //   if (!Array.isArray(data)) {
-      //     setError({
-      //       message: "uploaded images is not an array"
-      //     })
-      //     // return
-      //   }
-
-      //   setFormData((prev) => ({
-      //     ...prev,
-      //     company: { ...prev.company, logo: Array.isArray(data) ? data[0] : data }
-
-      //   }))
-      // }
-
-      const created = await createCompanyAction(formData);
+    console.log("formData", formData)
 
 
-
-      if (isServerError(created)) {
-
-        setError(created.error);
-      }
+    const validationResult = createCompanyDto.safeParse(formData);
 
 
-    } catch (error) {
+    console.log("ValidationResult", validationResult)
 
-      console.log("ERRPOR", error);
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err) => {
+        errors[err.path.join(".")] = err.message;
+      });
+      console.log("errors", errors)
+
+      setValidationErrors(errors);
+      return;
     }
 
+    setValidationErrors({});
+
+    try {
+      const created = await createCompanyAction(formData);
+
+      if (isServerError(created)) {
+        setError(created.error);
+      }
+    } catch (error) {
+      console.log("ERROR", error);
+    }
   };
-  console.log("Error", error)
 
-  if (error) {
-    <ErrorMessage error={error} />
-  }
+  const handleExcelUpload = (data: Partial<ICompanyFull>) => {
+    console.log("Excel Data:", data);
 
-  console.log("FORM_Data", formData)
+    setFormData((prev) => {
+      const updatedFormData = {
+        ...prev,
+        company: {
+          ...prev.company,
+          ...data.company,
+        },
+        profitLoss: data.profitLoss || prev.profitLoss,
+        balanceSheet: data.balanceSheet || prev.balanceSheet,
+        cashFlow: data.cashFlow || prev.cashFlow,
+        keyIndicators: data.keyIndicators || prev.keyIndicators,
+      };
+
+      console.log("Updated FormData:", updatedFormData);
+      return updatedFormData;
+    });
+  };
+
+  const handleFinancialResultUpload = (data: { title: string; period: string; document: File }) => {
+    setFinancialResults((prev) => ({
+      ...prev,
+      title: data.title,
+      period: data.period,
+      document: data.document.name,
+    }));
+
+    // Optionally, upload the file to a server or storage service
+    // uploadFile(data.document);
+    console.log("FInalicaionRes", financialResults)
+  };
+
+  const handleRemove = (index: number) => {
+    setFinancialResults((prev) => {
+      if (!Array.isArray(prev)) {
+        return [];
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleFaqChange = (faqs: IFaq[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: { ...prev.company, faq: faqs },
+    }));
+  };
 
   return (
     <PageContainer title="Add Product" description="this is Add Product">
       <Breadcrumb title="Add Product" items={BCrumb} />
-      {/* <MainFileUpload  /> */}
-      <br />
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} className="flex flex-col gap-5">
+        <ExcelUploader onUpload={handleExcelUpload} oldData={formData} /> {/* Add the ExcelUploader component */}
+
         <CompanyLogoAndNameCard
           company={formData.company}
-          onChange={handleSelectChange}
+          onChange={(key, value) => onChangeCompany(key, value)}
           sectors={sectors}
           logo={logo}
           handleLogo={setLogo}
           industries={industries}
+          dhrps={dhrps}
           performances={performances}
           deposits={deposits}
           categories={categories}
+          validationErrors={validationErrors}
         />
 
         <KeyIndicators
@@ -254,47 +374,27 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           onChange={(updatedIndicators) =>
             handleInputChange("keyIndicators", updatedIndicators)
           }
+          validationErrors={validationErrors}
         />
 
         <AboutTheCompany
           aboutus={formData.company.aboutus}
           videoLink={formData.company.videoLink}
-
           onAboutChange={(about: string) =>
             handleInputChange("company", { ...formData.company, aboutus: about })
           }
-
           onVideoLinkChange={(newLink: string) =>
             handleInputChange("company", { ...formData.company, videoLink: newLink })
           }
+          validationErrors={validationErrors}
         />
-
-        {/* <PricingTrend
-          data={{
-            labels: ["Nov 23", "Dec 23", "Jan 24"],
-            datasets: [
-              {
-                label: "Price",
-                data: [9000, 9500, 8000],
-                borderColor: "#4caf50",
-                backgroundColor: "#4caf50",
-                pointRadius: 5,
-                pointBackgroundColor: "#4caf50",
-                fill: false,
-                tension: 0.4,
-              },
-            ],
-          }}
-          onChange={(updatedTrend) =>
-            handleInputChange("priceTrend", updatedTrend)
-          }
-        /> */}
 
         <ProfitLossSummary
           data={formData.profitLoss}
           onChange={(updatedProfitLoss) =>
             handleInputChange("profitLoss", updatedProfitLoss)
           }
+          validationErrors={validationErrors}
         />
 
         <BalanceSheet
@@ -302,6 +402,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           onChange={(updatedBalanceSheet) =>
             handleInputChange("balanceSheet", updatedBalanceSheet)
           }
+          validationErrors={validationErrors}
         />
 
         <CashFlowSummary
@@ -309,6 +410,12 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           onChange={(updatedCashFlow) =>
             handleInputChange("cashFlow", updatedCashFlow)
           }
+          validationErrors={validationErrors}
+        />
+        <ShareHolder
+          shareholders={formData.company?.shareHolders || []}
+          onAdd={handleAddShareholder}
+          onRemove={handleRemoveShareholder}
         />
         <br />
         <EditableAddressAndManagement
@@ -325,11 +432,27 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           onEmailChange={(email) => onChangeCompany("email", email)}
           onPhoneChange={(phone) => onChangeCompany("phone", phone)}
           onWebsiteChange={(website) => onChangeCompany("website", website)}
+          onLocationChange={(location) => onChangeCompany("location", location)}
+          location={formData.company.location}
           onManagementChange={(management) =>
             onChangeCompany("management", management)
           }
+          validationErrors={validationErrors}
         />
+        <br />
 
+        <FinancialResultUploader
+          onUpload={handleFinancialResultUpload}
+          onRemove={handleRemove}
+          financialResults={financialResults}
+        />        
+        <br />
+
+        <FaqComponent
+          faqs={formData.company.faq}
+          onFaqChange={handleFaqChange}
+          validationErrors={validationErrors}
+        />
 
         <Button variant="contained" color="primary" type="submit">
           Submit

@@ -33,7 +33,6 @@ import CustomCheckbox from "@/app/components/forms/theme-elements/CustomCheckbox
 import { useDispatch, useSelector } from "@/store/hooks";
 import { orderBy } from "lodash";
 import { IIndustry as IIndustryType } from "@/app/(DashboardLayout)/types/apps/industry";
-import { deleteIndustryAction, fetchIndustries, fetchIndustry } from "@/utils/api/industry-api";
 import { RootState } from "@/store/store";
 import Loading from "@/app/loading";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";

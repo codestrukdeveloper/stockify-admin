@@ -7,11 +7,13 @@ import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 
 interface CompanyImageProps {
-  image: File |undefined| null;
+  image: File | undefined | null;
   onChangeImage: (file: File) => void;
+  validationErrors: Record<string, string>;
+  
 }
 
-const CompanyImage: React.FC<CompanyImageProps> = ({ image, onChangeImage }) => {
+const CompanyImage: React.FC<CompanyImageProps> = ({ image, onChangeImage, validationErrors }) => {
   const theme = useTheme();
 
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
@@ -39,8 +41,7 @@ const CompanyImage: React.FC<CompanyImageProps> = ({ image, onChangeImage }) => 
         color: theme.palette.primary.main,
         textAlign: "center",
         padding: image ? "0px" : "30px",
-        border: "1px dashed",
-        borderColor: theme.palette.primary.main,
+        border: `1px dashed ${validationErrors["company.logo"] ? theme.palette.error.main : theme.palette.primary.main}`,
         cursor: "pointer",
         display: "flex",
         alignItems: "center",
@@ -57,10 +58,16 @@ const CompanyImage: React.FC<CompanyImageProps> = ({ image, onChangeImage }) => 
           height={130}
           style={{ objectFit: "cover" }}
           className="w-full"
+          id="company.logo"
         />
       ) : (
         <Typography variant="body2" className="m-auto">
           Drag 'n' drop company logo here, or click to select one
+        </Typography>
+      )}
+      {validationErrors["company.logo"] && (
+        <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+          {validationErrors["company.logo"]}
         </Typography>
       )}
     </Box>

@@ -8,6 +8,7 @@ import {
   Typography,
   Grid,
   useTheme,
+  FormHelperText,
 } from '@mui/material';
 
 interface AboutTheCompanyProps {
@@ -15,6 +16,7 @@ interface AboutTheCompanyProps {
   videoLink?: string;
   onAboutChange: (newDescription: string) => void;
   onVideoLinkChange: (newLink: string) => void;
+  validationErrors?: Record<string, string>; // Prop to pass validation errors
 }
 
 const AboutTheCompany: React.FC<AboutTheCompanyProps> = ({
@@ -22,6 +24,7 @@ const AboutTheCompany: React.FC<AboutTheCompanyProps> = ({
   videoLink,
   onAboutChange,
   onVideoLinkChange,
+  validationErrors,
 }) => {
   const theme = useTheme();
   const [localDescription, setLocalDescription] = useState(aboutus);
@@ -61,10 +64,13 @@ const AboutTheCompany: React.FC<AboutTheCompanyProps> = ({
             label="Company Description"
             multiline
             minRows={10}
+            id={`company.aboutus`}
             variant="outlined"
             value={localDescription}
             onChange={handleDescriptionChange}
             sx={{ marginBottom: 2 }}
+            error={!!validationErrors?.aboutus} // Display error for description
+            helperText={validationErrors?.aboutus} // Error message for description
           />
         </Grid>
 
@@ -86,6 +92,7 @@ const AboutTheCompany: React.FC<AboutTheCompanyProps> = ({
                   frameBorder="0"
                   allowFullScreen
                 ></iframe>
+
               </Box>
             ) : (
               <Box
@@ -111,11 +118,14 @@ const AboutTheCompany: React.FC<AboutTheCompanyProps> = ({
 
             <TextField
               fullWidth
+              id={`company.videoLink`}
               label="YouTube Video Link"
               variant="outlined"
               value={localVideoLink}
               onChange={handleVideoLinkChange}
               sx={{ marginTop: 2 }}
+              error={!!validationErrors?.videoLink} // Display error for video link
+              helperText={validationErrors?.videoLink} // Error message for video link
             />
           </Box>
         </Grid>

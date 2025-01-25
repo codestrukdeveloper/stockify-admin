@@ -1,4 +1,4 @@
-import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/company";
+import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { IServerError, IServerResponse } from "@/app/(DashboardLayout)/types/apps/error";
 import { companyService } from "@/utils/api/company-service";
 const API_URL = + "/admin/company";

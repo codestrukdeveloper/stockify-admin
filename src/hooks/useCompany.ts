@@ -1,4 +1,4 @@
-import { ICompany, ICompanyFull } from "@/app/(DashboardLayout)/types/apps/company"
+import { ICompany, ICompanyFull } from "@/app/(DashboardLayout)/types/apps/ICompany"
 import { companyService } from "@/utils/api/company-service"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 

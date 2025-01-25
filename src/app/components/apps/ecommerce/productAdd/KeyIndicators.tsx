@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Button, IconButton } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Button, IconButton, FormHelperText } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -9,28 +9,11 @@ import { IKeyIndicators } from '@/app/(DashboardLayout)/types/apps/IKeyIndicator
 interface EditableKeyIndicatorsProps {
   data: IKeyIndicators[];
   onChange: (updatedIndicators: IKeyIndicators[]) => void;
+  validationErrors?: Record<string, string>;
 }
 
-const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data, onChange }) => {
-  const [indicators, setIndicators] = useState<IKeyIndicators[]>(data.length > 0 ? data : [
-    {
-      period: new Date().getFullYear().toString(),
-      currentSharePrice: "0",
-      faceValuePerShare: "0",
-      bookValuePerShare: "0",
-      priceToEarning: "0",
-      priceToSales: "0",
-      priceToBook: "0",
-      outstandingSharesMillion: "0",
-      marketCapMillionRs: "0",
-      debtToEquity: "0",
-      dividendPercentOnCMP: "0",
-      dividendPerShare: "0",
-      returnOnEquity: "0",
-      returnOnTotalAssets: "0",
-      rowc: "0",
-    }
-  ]);
+const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data, onChange, validationErrors }) => {
+  const [indicators, setIndicators] = useState<IKeyIndicators[]>(data);
   const [isEditable, setIsEditable] = useState(false);
   const [editMode, setEditMode] = useState<{ [key: number]: boolean }>({});
 
@@ -50,6 +33,11 @@ const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data, onC
     returnOnTotalAssets: "Return on Total Assets",
     rowc: "ROWC"
   };
+
+  useEffect(() => {
+    setIndicators(data);
+  }, [data]);
+
 
   const handleAddYear = () => {
     const newIndicators = [...indicators];
@@ -189,6 +177,8 @@ const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data, onC
                       }}
                       onBlur={() => handleEditPeriod(index, indicator.period)}
                       autoFocus
+                      error={!!validationErrors?.[`keyIndicators[${index}].period`]} // Display error for period
+                      helperText={validationErrors?.[`keyIndicators[${index}].period`]} // Error message for period
                     />
                   ) : (
                     <span 
@@ -236,6 +226,8 @@ const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data, onC
                           inputProps: { min: 0 }
                         }}
                         fullWidth
+                        error={!!validationErrors?.[`keyIndicators[${periodIndex}].${key}`]} // Display error for the field
+                        helperText={validationErrors?.[`keyIndicators[${periodIndex}].${key}`]} // Error message for the field
                       />
                     ) : (
                       indicator[key as keyof IKeyIndicators] || "0"

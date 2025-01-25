@@ -27,7 +27,7 @@ import CustomSwitch from '../../../forms/theme-elements/CustomSwitch';
 import { IconDotsVertical, IconFilter, IconSearch, IconTrash } from '@tabler/icons-react';
 import { ProductType } from '../../../../(DashboardLayout)/types/apps/eCommerce';
 import { RootState } from '@/store/store';
-import { ICompany } from '@/app/(DashboardLayout)/types/apps/company';
+import { ICompany } from '@/app/(DashboardLayout)/types/apps/ICompany';
 import { fetchCompanys, searchCompanies } from '@/utils/api/company-action';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getDaysAgo } from '@/utils/utils';

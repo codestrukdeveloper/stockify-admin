@@ -2,7 +2,7 @@ import axios from '../../../utils/axios';
 import { filter, map } from 'lodash';
 import { createSlice } from '@reduxjs/toolkit';
 import { AppDispatch } from '../../store';
-import { ICompany, ICompanyFull } from '@/app/(DashboardLayout)/types/apps/company';
+import { ICompany, ICompanyFull } from '@/app/(DashboardLayout)/types/apps/ICompany';
 
 const API_URL = 'http://localhost:3001/api/v1/admin/company/';
 
