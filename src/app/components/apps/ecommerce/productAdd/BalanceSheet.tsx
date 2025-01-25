@@ -19,6 +19,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { IBalanceSheet } from "@/app/(DashboardLayout)/types/apps/IBalanceSheet";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
 
 interface EditableBalanceSheetProps {
   data: IBalanceSheet[];
@@ -300,6 +301,18 @@ const EditableBalanceSheet: React.FC<EditableBalanceSheetProps> = ({
             </TableBody>
           </Table>
         </TableContainer>
+
+        {validationErrors?.["balanceSheet"] && (
+          <Box
+            sx={{
+              color: "error.main",
+              fontSize: "0.875rem",
+              marginTop: 0.5,
+            }}
+          >
+           <ErrorMessage error={{message:validationErrors["balanceSheet"]}} />
+          </Box>
+        )}
       </Box>
     </div>
 

@@ -67,8 +67,16 @@ export interface ICompany {
 
 
 
-export interface ICompanyFull {
+export interface ICompanyFull{
     company: ICompany,
+    profitLoss: IProfitLosses[],
+    priceTrend: IPriceTrend[],
+    keyIndicators: IKeyIndicators[],
+    balanceSheet: IBalanceSheet[],
+    cashFlow: ICashflowSum[],
+};
+
+export interface ICompanyFullCreate extends ICompany {
     profitLoss: IProfitLosses[],
     priceTrend: IPriceTrend[],
     keyIndicators: IKeyIndicators[],

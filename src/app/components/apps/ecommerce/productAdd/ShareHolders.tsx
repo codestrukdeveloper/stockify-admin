@@ -131,8 +131,8 @@ const ShareHolder: React.FC<ShareHolderProps> = ({
               onChange={(e) => setPercent(parseFloat(e.target.value))}
               variant="outlined"
               inputProps={{ min: 1, max: 100 }}
-              // error={!!validationErrors?.["shareholders.percent"]} // Display error for percent
-              // helperText={validationErrors?.["shareholders.percent"]} // Error message for percent
+            // error={!!validationErrors?.["shareholders.percent"]} // Display error for percent
+            // helperText={validationErrors?.["shareholders.percent"]} // Error message for percent
             />
           </Grid>
           <Grid
@@ -150,11 +150,7 @@ const ShareHolder: React.FC<ShareHolderProps> = ({
         </Grid>
 
         {/* Display general shareholder error */}
-        {validationErrors?.["shareholders"] && (
-          <FormHelperText error sx={{ mt: 2 }}>
-            {validationErrors["shareholders"]}
-          </FormHelperText>
-        )}
+
 
         <Grid container marginTop={3} spacing={3}>
           <Grid item xs={12} md={6}>
@@ -198,6 +194,11 @@ const ShareHolder: React.FC<ShareHolderProps> = ({
             </Paper>
           </Grid>
         </Grid>
+        {validationErrors?.["shareHolders"] && (
+          <FormHelperText error sx={{ mt: 2 }}>
+            {validationErrors["shareHolders"]}
+          </FormHelperText>
+        )}
       </Box>
     </div>
   );

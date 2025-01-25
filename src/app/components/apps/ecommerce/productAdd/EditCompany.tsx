@@ -21,7 +21,7 @@ import { ICashflowSum } from "@/app/(DashboardLayout)/types/apps/ICashflowSum";
 import { IPriceTrend } from "@/app/(DashboardLayout)/types/apps/IPricingTrend.interface";
 import { IProfitLosses } from "@/app/(DashboardLayout)/types/apps/IProfitLoss";
 import EditableAddressAndManagement from "./EditableAddressManagement";
-import { createCompanyAction, updateCompany, updateCompanyLogo, uploadImages } from "@/app/(DashboardLayout)/apps/company/action";
+import { createCompanyAction, uploadImages } from "@/app/(DashboardLayout)/apps/company/action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import { IError } from "@/app/(DashboardLayout)/types/apps/error";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";
@@ -33,8 +33,6 @@ import ShareHolder from "./ShareHolders";
 import { IDhrp } from "@/app/(DashboardLayout)/types/apps/IDhrp";
 import FaqComponent from "./Faq";
 import toast, { Toaster } from "react-hot-toast";
-import ValidationErrors from "@/app/components/shared/ValidationError";
-import { uploadFile } from "@/utils/api/uploadAction";
 
 
 
@@ -123,6 +121,7 @@ interface AddCompanyProps {
   performances: IPerformance[];
   categories: ICategory[];
   dhrps: IDhrp[];
+  companyFull:Partial<ICompanyFull>
 
 }
 
@@ -163,10 +162,10 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       depositsId: [],
       dhrpId: "",
       management: [],
+      shareHolders: [],
       slug: "",
       financialResults: [],
-      faq: [],
-      shareHolders: [],
+      faq: []
 
     },
     profitLoss: [initialProfitLosses],
@@ -190,7 +189,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       }
     }
 
-    if (validationErrors["company.industryId"] || validationErrors["company.logo"] || validationErrors["company.performanceId"] || validationErrors["company.sectorId"] || validationErrors["company.categoryId"] || validationErrors["company.depositsId"]) {
+    if (validationErrors["company.industryId"] || validationErrors["company.performanceId"] || validationErrors["company.sectorId"] || validationErrors["company.categoryId"] || validationErrors["company.depositsId"]) {
       const shareholderSection = document.getElementById("company-section");
       if (shareholderSection) {
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -219,7 +218,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       }
     }
 
-    if (validationErrors["company.shareHolders"]) {
+    if (validationErrors["shareholders"]) {
       const shareholderSection = document.getElementById("shareholder-section");
       if (shareholderSection) {
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -231,13 +230,13 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-    if (validationErrors["company.financialResults"]) {
-      const shareholderSection = document.getElementById("financial-result-section");
+    if (validationErrors["financialResults"]) {
+      const shareholderSection = document.getElementById("balancesheet-financialResults");
       if (shareholderSection) {
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-    if (validationErrors["company.faq"]) {
+    if (validationErrors["faq"]) {
       const shareholderSection = document.getElementById("faq-section");
       if (shareholderSection) {
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -255,13 +254,10 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-    console.log("validationErrors", validationErrors);
-
-    if (validationErrors["KeyIndicators"]) { // Use "KeyIndicators" (uppercase K)
-      console.log("KeyIndicators validation error detected:", validationErrors["KeyIndicators"]);
-      const keyIndicatorsSection = document.getElementById("keyIndicators-section");
-      if (keyIndicatorsSection) {
-        keyIndicatorsSection.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (validationErrors["keyIndicators"]) {
+      const shareholderSection = document.getElementById("keyIndicators-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
   }, [validationErrors]);
@@ -321,29 +317,15 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
 
     console.log("formData", formData)
 
-    if (!logo) {
-      setValidationErrors({ "company.logo": "logo is required" })
-      toast.error("logo is required");
-      return
-    }
-
-    if (financialResults.length < 1) {
-      setValidationErrors({ "company.financialResults": "Financils Results is required" })
-      toast.error("Financils Results is required");
-      return
-    }
-
 
     const validationResult = createCompanyDto.safeParse(formData);
 
-    console.log("formData", formData)
 
     console.log("ValidationResult", validationResult)
 
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
       validationResult.error.errors.forEach((err) => {
-
         errors[err.path.join(".")] = err.message;
       });
       console.log("errors", errors)
@@ -355,12 +337,11 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     setValidationErrors({});
 
     try {
-
       const data = validationResult.data.company as unknown as ICompany;
       const formData: ICompanyFullCreate = {
         ...data,
         profitLoss: validationResult.data.profitLoss || [],
-        keyIndicators: validationResult.data.keyIndicators || [],
+        keyIndicators: validationResult.data.KeyIndicators || [],
         balanceSheet: validationResult.data.balanceSheet || [],
         cashFlow: validationResult.data.cashFlow || [],
         priceTrend: validationResult.data.priceTrend || [],
@@ -386,48 +367,13 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
         setError(created.error);
         return
 
-      };
-
-      console.log("Succcesfully created", created);
-
-      const uploadedLogo = await uploadFile([logo], "stocks");
-      console.log("uploadedLogo created", uploadedLogo);
-
-      if (Array.isArray(uploadedLogo)) {
-        const updatedCompanyWithLogo = await updateCompanyLogo(created._id!, uploadedLogo[0]);
-        if (isServerError(updatedCompanyWithLogo)) {
-          toast.error("Failed to update company logo");
-          return;
-        }
-        console.log("Company logo updated:", updatedCompanyWithLogo);
       }
 
-      // Upload financial results
-      const uploadedFinancialResults = await Promise.all(
-        financialResults.map(async (result) => {
-          const uploadedFile = await uploadFile([result.document], "financial-results");
-          return {
-            title: result.title,
-            period: result.period,
-            document: uploadedFile[0], // Assuming uploadFile returns an array of URLs
-          };
-        })
-      );
-      console.log("Uploaded financial results:", uploadedFinancialResults);
-
-      // Update company with financial results
-      const updatedCompanyWithFinancialResults = await updateCompany(created._id!, {
-        financialResults: uploadedFinancialResults,
-      });
-      if (isServerError(updatedCompanyWithFinancialResults)) {
-        toast.error("Failed to update company with financial results");
-        return;
-      }
-      console.log("Company updated with financial results:", updatedCompanyWithFinancialResults);
-
-      toast.success("Company created and files uploaded successfully!");
-
+      toast.success("added company")
     } catch (error) {
+
+
+
       console.log("ERROR", error);
     }
   };
@@ -596,8 +542,6 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           onRemove={handleRemove}
           financialResults={financialResults}
           id="financial-result-section"
-          validationErrors={validationErrors}
-
 
         />
         <br />
@@ -608,7 +552,6 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           validationErrors={validationErrors}
           id='faq-section'
         />
-        <ValidationErrors errors={validationErrors} />
 
         <Button variant="contained" color="primary" type="submit">
           Submit

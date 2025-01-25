@@ -135,6 +135,17 @@ const AboutTheCompany: React.FC<AboutTheCompanyProps> = ({
             </Box>
           </Grid>
         </Grid>
+        {validationErrors?.["company.videoLink"] && (
+          <Box
+            sx={{
+              color: "error.main",
+              fontSize: "0.875rem",
+              marginTop: 0.5,
+            }}
+          >
+            {validationErrors["company.videoLink"]}
+          </Box>
+        )}
       </Box>
     </div>
   );

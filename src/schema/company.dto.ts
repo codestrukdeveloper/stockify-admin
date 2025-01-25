@@ -8,97 +8,103 @@ import { BalanceSheetDto, UpdateBalanceSheetDto } from "./balanceSheet.dto";
 import { KeyIndicatorsDto, UpdateKeyIndicatorsDto } from "./keyIndicators.dto";
 import { createManagementDto } from "./management.dto";
 
+// Custom error messages for ProfitLossesDto
 export const CreateProfitLossesDto = z.object({
   period: periodString,
-  revenue: commonString.default("0"),
-  expense: commonString.default("0"),
-  ebdita: commonString.default("0"),
-  otherCost: commonString.default("0"),
-  pbt: commonString.default("0"),
-  taxExpense: commonString.default("0"),
-  pat: commonString.default("0"),
-  otherIncExpense: commonString.default("0"),
-  incomeNet: z.string().default("0"),
-  outstandingShare: commonString.default("0"),
-  epsPerShare: commonString.default("0"),
-  revGrowth: commonString.default("0"),
-  ebitaMargin: commonString.default("0"),
-  patMargin: commonString.default("0"),
-  epsGrowth: commonString.default("0"),
+  revenue: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "Revenue must be a valid number" }),
+  expense: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "Expense must be a valid number" }),
+  ebdita: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "EBDITA must be a valid number" }),
+  otherCost: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "Other Cost must be a valid number" }),
+  pbt: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "PBT must be a valid number" }),
+  taxExpense: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "Tax Expense must be a valid number" }),
+  pat: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "PAT must be a valid number" }),
+  otherIncExpense: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "Other Income/Expense must be a valid number" }),
+  incomeNet: z.string().default("0").refine(val => !isNaN(Number(val)), { message: "Net Income must be a valid number" }),
+  outstandingShare: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "Outstanding Shares must be a valid number" }),
+  epsPerShare: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "EPS per Share must be a valid number" }),
+  revGrowth: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "Revenue Growth must be a valid number" }),
+  ebitaMargin: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "EBITA Margin must be a valid number" }),
+  patMargin: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "PAT Margin must be a valid number" }),
+  epsGrowth: commonString.default("0").refine(val => !isNaN(Number(val)), { message: "EPS Growth must be a valid number" }),
 });
 
+// Custom error messages for addCompanyLogoDto
 export const addCompanyLogoDto = z.object({
-  logo: z.string(),
-  _id: objectIdSchema
-
+  logo: z.string().min(1, "Logo URL is required"),
+  _id: objectIdSchema,
 });
 
+// Custom error messages for slugDto
 export const slugDto = z.object({
-  slug: z.string(),
+  slug: z.string().min(1, "Slug is required"),
 });
 
+// Custom error messages for addDhrpLink
 export const addDhrpLink = z.object({
-  dhrp: z.string(),
-  _id: objectIdSchema
-
+  dhrp: z.string().min(1, "DHRP link is required"),
+  _id: objectIdSchema,
 });
 
-
+// Custom error messages for faqDto
 export const faqDto = z.object({
-  answer: z.string(),
-  question: z.string(),
+  answer: z.string().min(1, "Answer is required"),
+  question: z.string().min(1, "Question is required"),
 });
 
+// Custom error messages for financialResultsSchema
+export const financialResultsSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  period: periodString,
+  document: z.string().min(1, "Document URL is required"),
+});
+
+// Custom error messages for companyBaseSchema
 const companyBaseSchema = z.object({
-  name: z.string().max(100).nonempty("Name is required"),
-  ticker: z.string().max(100).nonempty("Name is required"),
-  isin: z.string().max(50),
-  pan: z.string().max(50).optional(),
-  location: z.string().max(200),
-  rating: commonNumber.optional().default("0"),
-  price: commonNumber,
-  qty: commonNumber,
-  minQty: commonNumber.optional(),
-  maxQty: commonNumber.optional(),
-  lot: commonNumber.optional(),
-  email: z.string().email("Invalid email format").max(50),
-  phone: z.string().max(50),
-  website: z.string().max(100).optional(),
-  videoLink: z.string().url("Invalid URL format").max(100).optional(),
-  shareholderFile: z.string().max(100).optional(),
-  dhrpLink: z.string().optional(),
-  aboutus: z.string(),
+  minQty: commonNumber.optional().refine(val => !isNaN(Number(val)), { message: "Minimum Quantity must be a valid number" }),
+  ticker: z.string().max(10, "Ticker must be at most 10 characters").nonempty("Ticker is required"),
+  slug: z.string().max(100, "Slug must be at most 100 characters"),
+  name: z.string().max(100, "Name must be at most 100 characters").nonempty("Name is required"),
+  status: z.boolean().default(true).optional(),
+  maxQty: commonNumber.optional().refine(val => !isNaN(Number(val)), { message: "Maximum Quantity must be a valid number" }),
+  logo: z.string().max(100, "Logo URL must be at most 100 characters"),
   categoryId: objectIdSchema,
   industryId: objectIdSchema,
+  qty: commonNumber.refine(val => !isNaN(Number(val)), { message: "Quantity must be a valid number" }),
   sectorId: objectIdSchema,
   dhrpId: objectIdSchema,
-  depositsId: z.array(objectIdSchema),
+  depositsId: z.array(objectIdSchema).min(1, "At least one deposit is required"),
   performanceId: objectIdSchema.optional(),
-  slug: z.string().max(100),
-  faq: z.array(
-    faqDto
-  ),
-
-  logo: z.string().max(100),
-  status: z.boolean().default(true).optional(),
+  isin: z.string().max(50, "ISIN must be at most 50 characters"),
+  pan: z.string().max(50, "PAN must be at most 50 characters").optional(),
+  location: z.string().max(200, "Location must be at most 200 characters"),
+  rating: commonNumber.optional().default("0"),
+  price: commonNumber.refine(val => !isNaN(Number(val)), { message: "Price must be a valid number" }),
+  lot: commonNumber.optional().refine(val => !isNaN(Number(val)), { message: "Lot must be a valid number" }),
+  email: z.string().email("Invalid email format").max(50, "Email must be at most 50 characters"),
+  phone: z.string().max(50, "Phone number must be at most 50 characters"),
+  website: z.string().max(100, "Website URL must be at most 100 characters").optional(),
+  videoLink: z.string().url("Invalid URL format").max(100, "Video link must be at most 100 characters").optional(),
+  shareholderFile: z.string().max(100, "Shareholder file URL must be at most 100 characters").optional(),
+  dhrpLink: z.string().optional(),
+  management: z.array(createManagementDto).min(1, "At least one management member is required"),
+  aboutus: z.string().min(1, "About Us is required"),
+  faq: z.array(faqDto).min(1, "At least one FAQ is required"),
+  financialResults: z.array(financialResultsSchema).optional(),
+  shareHolders: z.array(createShareholderDto).min(1, "At least one shareholder is required"),
 });
 
+// Custom error messages for companyFullSchema
 const companyFullSchema = z.object({
   company: companyBaseSchema,
-  priceTrend: z.array(createPriceTrendDto).optional(),
-  shareHolders: z.array(createShareholderDto).optional(),
-  management: z.array(createManagementDto).optional(),
-  profitLoss: z.array(CreateProfitLossesDto).optional(),
-  balanceSheet: z.array(BalanceSheetDto).optional(),
-  cashFlow: z.array(createCashflowSumDto).optional(),
-  KeyIndicators: z.array(KeyIndicatorsDto).optional(),
+  priceTrend: z.array(createPriceTrendDto).min(1, "At least one price trend is required"),
+  profitLoss: z.array(CreateProfitLossesDto).min(1, "At least one profit/loss entry is required"),
+  balanceSheet: z.array(BalanceSheetDto).min(1, "At least one balance sheet entry is required"),
+  cashFlow: z.array(createCashflowSumDto).min(1, "At least one cash flow entry is required"),
+  keyIndicators: z.array(KeyIndicatorsDto).min(1, "At least one key indicator is required"),
 });
 
-
 export const createCompanyDto = companyFullSchema.omit({});
-
 export type createCompanyDto = z.infer<typeof companyFullSchema>;
-
 
 const updateCompanyBaseSchema = z.object({
   company: companyBaseSchema.optional(),
@@ -111,7 +117,7 @@ const updateCompanyBaseSchema = z.object({
 });
 
 export const updateCompanyDto = companyFullSchema.partial().extend({
-  _id: objectIdSchema
+  _id: objectIdSchema,
 });
 
 export type updateCompanyDto = z.infer<typeof updateCompanyDto>;

@@ -5,6 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { IKeyIndicators } from '@/app/(DashboardLayout)/types/apps/IKeyIndicators';
+import ErrorMessage from '@/app/components/shared/ErrorMessage';
 
 interface EditableKeyIndicatorsProps {
   data: IKeyIndicators[];
@@ -242,6 +243,17 @@ const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data,id, 
             </TableBody>
           </Table>
         </TableContainer>
+        {validationErrors?.["KeyIndicators"] && (
+          <Box
+            sx={{
+              color: "error.main",
+              fontSize: "0.875rem",
+              marginTop: 0.5,
+            }}
+          >
+           <ErrorMessage error={{message:validationErrors["KeyIndicators"]}} />
+          </Box>
+        )}
       </Box>
     </div>
 
