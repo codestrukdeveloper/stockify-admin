@@ -4,7 +4,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { AppDispatch } from '../../store';
 import { ISector } from '@/app/(DashboardLayout)/types/apps/sector';
 
-const API_URL = 'http://localhost:3001/api/v1/admin/Sector/';
+const API_URL = 'http://13.232.10.252:3000/api/v1/admin/Sector/';
 
 interface StateType {
   sectors: ISector[];

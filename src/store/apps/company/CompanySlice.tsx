@@ -4,7 +4,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { AppDispatch } from '../../store';
 import { ICompany, ICompanyFull } from '@/app/(DashboardLayout)/types/apps/ICompany';
 
-const API_URL = 'http://localhost:3001/api/v1/admin/company/';
+const API_URL = 'http://13.232.10.252:3000/api/v1/admin/company/';
 
 interface StateType {
     companies: ICompany[];
