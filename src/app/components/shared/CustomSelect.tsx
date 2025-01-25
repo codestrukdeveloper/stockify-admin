@@ -3,7 +3,7 @@ import { Box, FormControl, InputLabel, TextField, Autocomplete, FormHelperText }
 
 export interface SelectProps {
     options: Common[];
-    name: "categoryId" | "depositsId" | "sectorId" | "dhrpId" | "industryId" | "performanceId";
+    name: "categoryId" | "depositsId" | "sectorId" | "dhrpId" | "industryId" | "performanceId"|"relatbleStocks";
     onChange: (value: string) => void;
     value?: string;
     error?: boolean; // Prop to indicate if there's an error
