@@ -1,6 +1,8 @@
-import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/ICompany";
+"use server";
+import { ICompanyFull, ICompanyFullCreate } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { IServerError, IServerResponse } from "@/app/(DashboardLayout)/types/apps/error";
 import { companyService } from "@/utils/api/company-service";
+import { handleErrorResponse } from "../../action";
 const API_URL = + "/admin/company";
 
 export async function fetchCompanies(page: number, limit: number): Promise<
@@ -79,38 +81,45 @@ export async function deleteCompanyById(id: string): Promise<IServerResponse<str
     }
 }
 
-export async function createCompanyAction(company: ICompanyFull): Promise<IServerResponse<ICompanyFull>> {
+export async function createCompanyAction(company: ICompanyFullCreate): Promise<IServerResponse<ICompanyFullCreate>> {
     try {
         const response = await companyService.createCompany(company);
-        console.log("Response", response)
-        return response;
+        console.log("Response", response.data)
+        return response.data.data;
 
     } catch (error: any) {
-        console.error("Error creating company:", error);
+        console.error("Error creating company:", error.response.data);
         return handleErrorResponse(error);
     }
 }
 
 export async function updateCompany(
     id: string,
-    company: Partial<ICompanyFull>
+    company: Partial<ICompanyFullCreate>
 ): Promise<IServerResponse<ICompanyFull>> {
     try {
         const response = await companyService.updateCompany(id, company);
         console.log("Response", response)
-        return response;
+        return response.data.data;
     } catch (error: any) {
         console.error("Error updating company:", error);
         return handleErrorResponse(error);
     }
 }
 
-// Helper function to handle errors and return standardized error responses
-function handleErrorResponse(error: any): IServerResponse<any> {
-    return {
-        error: {
-            message: error.response?.data?.message || "An error occurred",
-            errors: error.response?.data?.errors || [],
-        },
-    };
+
+export async function updateCompanyLogo(
+    id: string,
+    logo: string,
+    
+): Promise<IServerResponse<ICompanyFull>> {
+    try {
+        const response = await companyService.updateCompanyLogo(id, logo);
+        console.log("Response", response)
+        return response.data.data;
+    } catch (error: any) {
+        console.error("Error updating company:", error);
+        return handleErrorResponse(error);
+    }
 }
+// Helper function to handle errors and return standardized error responses

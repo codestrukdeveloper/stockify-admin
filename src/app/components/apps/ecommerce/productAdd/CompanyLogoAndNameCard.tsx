@@ -25,7 +25,7 @@ interface CompanyLogoAndNameCardProps {
   dhrps: IDhrp[];
   categories: ICategory[];
   validationErrors: Record<string, string>;
-  id:string
+  id: string
 }
 
 const CompanyLogoAndNameCard: React.FC<CompanyLogoAndNameCardProps> = ({
@@ -40,17 +40,18 @@ const CompanyLogoAndNameCard: React.FC<CompanyLogoAndNameCardProps> = ({
   dhrps,
   categories,
   validationErrors,
-id
+  id
 }) => {
   return (
     <div id={id}>
       <Box display="flex" gap={2} flexWrap={"wrap"}>
         <Grid container spacing={2}>
+
           <Grid className="bg:black" item xs={12} md={3} display="flex" alignItems="center">
             <CompanyImage
               image={logo}
               onChangeImage={handleLogo}
-              validationErrors={validationErrors} // Pass validationErrors
+              validationErrors={validationErrors}
             />
           </Grid>
 
@@ -140,6 +141,74 @@ id
                   />
                 </FormControl>
               </Grid>
+            </Grid>
+
+            <Grid container spacing={2}>
+              {/* Company Ticker */}
+              <Grid item xs={4} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel shrink htmlFor="company.qty">
+                    Company Qty
+                  </InputLabel>
+                  <TextField
+                    id="company.qty"
+                    className="w-full"
+                    placeholder="Company Qty"
+                    variant="filled"
+                    name="qty"
+                    type="number"
+                    sx={{ width: "100%" }}
+                    value={company?.qty || ""}
+                    onChange={(e) => onChange("qty", e.target.value)}
+                    error={!!validationErrors["company.qty"]}
+                    helperText={validationErrors["company.qty"]}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Min Quantity */}
+              <Grid item xs={4} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel shrink htmlFor="company.minQty">
+                    Price
+                  </InputLabel>
+                  <TextField
+                    id="company.price"
+                    className="w-full"
+                    placeholder="Price"
+                    variant="filled"
+                    name="price"
+                    type="number"
+                    sx={{ width: "100%" }}
+                    value={company?.price || ""}
+                    onChange={(e) => onChange("price", e.target.value)}
+                    error={!!validationErrors["company.price"]}
+                    helperText={validationErrors["company.price"]}
+                  />
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={4} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel shrink htmlFor="company.lot">
+                    Lot
+                  </InputLabel>
+                  <TextField
+                    id="company.lot"
+                    className="w-full"
+                    placeholder="Lot"
+                    variant="filled"
+                    name="lot"
+                    type="number"
+                    sx={{ width: "100%" }}
+                    value={company?.price || ""}
+                    onChange={(e) => onChange("lot", e.target.value)}
+                    error={!!validationErrors["company.lot"]}
+                    helperText={validationErrors["company.lot"]}
+                  />
+                </FormControl>
+              </Grid>
+
             </Grid>
 
             <Grid container spacing={2}>

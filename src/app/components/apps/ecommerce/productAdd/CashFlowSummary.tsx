@@ -19,6 +19,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ICashflowSum } from "@/app/(DashboardLayout)/types/apps/ICashflowSum";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
 
 interface EditableCashflowSummaryProps {
   data: ICashflowSum[];
@@ -284,6 +285,18 @@ const EditableCashflowSummary: React.FC<EditableCashflowSummaryProps> = ({
             </TableBody>
           </Table>
         </TableContainer>
+
+        {validationErrors?.["cashFlow"] && (
+          <Box
+            sx={{
+              color: "error.main",
+              fontSize: "0.875rem",
+              marginTop: 0.5,
+            }}
+          >
+           <ErrorMessage error={{message:validationErrors["cashFlow"]}} />
+          </Box>
+        )}
       </Box>
     </div>
   );

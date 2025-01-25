@@ -2,7 +2,8 @@ import React from "react";
 import { Providers } from "@/store/providers";
 import MyApp from "./app";
 import "./global.css";
-
+import 'react-toastify/dist/ReactToastify.css';
+import { Toaster } from "react-hot-toast";
 
 export const metadata = {
   title: "Stockify Main Demo",
@@ -18,6 +19,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <Providers>
+          <Toaster />
+
           <MyApp>{children}</MyApp>
         </Providers>
       </body>

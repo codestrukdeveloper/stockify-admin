@@ -26,5 +26,19 @@ export const getLoggedIndetails = async (): Promise<IServerResponse<IUser>> => {
             }
         }
 
+
+
+
     }
+}
+
+
+export function handleErrorResponse(error: any): IServerResponse<any> {
+    console.log("handleErrorResponse",error.response.data)
+    return {
+        error: {
+            message: error.response?.data?.message || "An error occurred",
+            errors: error.response?.data?.details||error.response?.data?.errors || [],
+        },
+    };
 }

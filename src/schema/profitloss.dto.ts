@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { commonString, objectIdSchema } from "./common.dto";
+import { commonString, objectIdSchema, periodString } from "./common.dto";
 
 export const CreateProfitLossesDto = z.object({
-  period: z.string().date(),
+  period: periodString,
   revenue: commonString.default("0"),
   expense: commonString.default("0"),
   ebdita: commonString.default("0"),
@@ -14,10 +14,10 @@ export const CreateProfitLossesDto = z.object({
   incomeNet: z.string().default("0"),
   outstandingShare: commonString.default("0"),
   epsPerShare: commonString.default("0"),
-  revGrowth: commonString.default("0"),
-  ebitaMargin: commonString.default("0"),
-  patMargin: commonString.default("0"),
-  epsGrowth: commonString.default("0"),
+  revGrowth: z.string().default("0"),
+  ebitaMargin: z.string().default("0"),
+  patMargin: z.string().default("0"),
+  epsGrowth: z.string().default("0"),
   companyId: objectIdSchema,
 });
 

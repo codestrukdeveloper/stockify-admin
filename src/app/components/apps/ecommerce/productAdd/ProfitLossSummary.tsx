@@ -19,6 +19,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { IProfitLosses } from '@/app/(DashboardLayout)/types/apps/IProfitLoss';
+import ErrorMessage from '@/app/components/shared/ErrorMessage';
 
 interface EditableProfitLossSummaryProps {
   data: IProfitLosses[];
@@ -282,6 +283,17 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({
             </TableBody>
           </Table>
         </TableContainer>
+        {validationErrors?.["profitLoss"] && (
+          <Box
+            sx={{
+              color: "error.main",
+              fontSize: "0.875rem",
+              marginTop: 0.5,
+            }}
+          >
+           <ErrorMessage error={{message:validationErrors["profitLoss"]}} />
+          </Box>
+        )}
       </Box>
 
     </div>);

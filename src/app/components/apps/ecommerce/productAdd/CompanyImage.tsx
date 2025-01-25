@@ -10,7 +10,7 @@ interface CompanyImageProps {
   image: File | undefined | null;
   onChangeImage: (file: File) => void;
   validationErrors: Record<string, string>;
-  
+
 }
 
 const CompanyImage: React.FC<CompanyImageProps> = ({ image, onChangeImage, validationErrors }) => {
@@ -67,7 +67,7 @@ const CompanyImage: React.FC<CompanyImageProps> = ({ image, onChangeImage, valid
       )}
       {validationErrors["company.logo"] && (
         <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-          {validationErrors["company.logo"]}
+          Company logo is required
         </Typography>
       )}
     </Box>
