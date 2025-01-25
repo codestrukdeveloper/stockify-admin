@@ -137,7 +137,6 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
   const [error, setError] = useState<IError>();
   const [logo, setLogo] = useState<File>();
   const [financialResults, setFinancialResults] = useState<IFinancialResultsWithFile[]>([]);
-
   const [formData, setFormData] = useState<ICompanyFull>({
     company: {
       name: "",
@@ -212,12 +211,14 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     };
 
 
-    if (validationErrors["company.phone"] || validationErrors["company.email"] || validationErrors["company.pan"] || validationErrors["company.isin"] || validationErrors["company.website"] || validationErrors["company.management"]) {
+    if (validationErrors["company.phone"] ||validationErrors["company.management"]|| validationErrors["company.email"] || validationErrors["company.pan"] || validationErrors["company.isin"] || validationErrors["company.website"] || validationErrors["company.management"]) {
       const shareholderSection = document.getElementById("company-information-section");
       if (shareholderSection) {
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
+
+    
 
     if (validationErrors["company.shareHolders"]) {
       const shareholderSection = document.getElementById("shareholder-section");
@@ -257,6 +258,13 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     }
     console.log("validationErrors", validationErrors);
 
+    if (validationErrors["KeyIndicators"]) { // Use "KeyIndicators" (uppercase K)
+      console.log("KeyIndicators validation error detected:", validationErrors["KeyIndicators"]);
+      const keyIndicatorsSection = document.getElementById("keyIndicators-section");
+      if (keyIndicatorsSection) {
+        keyIndicatorsSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
     if (validationErrors["KeyIndicators"]) { // Use "KeyIndicators" (uppercase K)
       console.log("KeyIndicators validation error detected:", validationErrors["KeyIndicators"]);
       const keyIndicatorsSection = document.getElementById("keyIndicators-section");
@@ -379,6 +387,15 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           errorMessage = created.error.message; // Use the single error message if present
         }
 
+        if(errorMessage==="Company already exists with this name!"){
+          setValidationErrors({"company.name":"Company already exists with this name!"})
+        return
+        }
+
+        if(errorMessage==="Company already exists with this ticker!"||"Company already exists with this Ticker!"){
+          setValidationErrors({"company.ticker":"Company already exists with this Ticker!"});
+          return;
+        }
         // Display the toast message
         toast.error(errorMessage);
         console.log("created.error", created.error)
@@ -402,10 +419,16 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
         console.log("Company logo updated:", updatedCompanyWithLogo);
       }
 
+      console.log("financialResults:", financialResults);
+      
       // Upload financial results
       const uploadedFinancialResults = await Promise.all(
         financialResults.map(async (result) => {
           const uploadedFile = await uploadFile([result.document], "financial-results");
+          if (isServerError(uploadedFile)) {
+            toast.error("Failed to update company logo");
+            return;
+          }
           return {
             title: result.title,
             period: result.period,
@@ -454,18 +477,13 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
   };
 
   const handleFinancialResultUpload = (data: { title: string; period: string; document: File }) => {
-    setFinancialResults((prev) => ({
-      ...prev,
-      title: data.title,
-      period: data.period,
-      document: data.document.name,
-    }));
-
-    // Optionally, upload the file to a server or storage service
-    // uploadFile(data.document);
-    console.log("FInalicaionRes", financialResults)
+    setFinancialResults((prev) => {
+      if (!Array.isArray(prev)) {
+        return [data]; // Ensure it's always an array
+      }
+      return [...prev, data]; // Append new entry to the array
+    });
   };
-
   const handleRemove = (index: number) => {
     setFinancialResults((prev) => {
       if (!Array.isArray(prev)) {
@@ -586,7 +604,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
             onChangeCompany("management", management)
           }
           validationErrors={validationErrors}
-          id="company-introduction-section"
+          id="company-information-section"
 
         />
         <br />

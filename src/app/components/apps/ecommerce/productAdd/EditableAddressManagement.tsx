@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Box, Button, Grid, TextField, Typography, Divider, Paper } from "@mui/material";
 import { Delete } from "@mui/icons-material";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
 
 interface IManagement {
   name: string;
@@ -236,7 +237,18 @@ const EditableAddressAndManagement: React.FC<EditableAddressAndManagementProps> 
             ))}
           </Grid>
         </Grid>
+        {validationErrors?.["company.management"] && (
+          <Box
+            sx={{
+              color: "error.main",
+              fontSize: "0.875rem",
+              marginTop: 0.5,
+            }}
+          >
+            <ErrorMessage error={{ message: validationErrors["company.management"] }} />
 
+          </Box>
+        )}
       </Paper>
     </div>
 
