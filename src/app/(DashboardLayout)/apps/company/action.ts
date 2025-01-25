@@ -1,5 +1,5 @@
 "use server";
-import { ICompanyFull, ICompanyFullCreate } from "@/app/(DashboardLayout)/types/apps/ICompany";
+import { ICompany, ICompanyFull, ICompanyFullCreate } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { IServerError, IServerResponse } from "@/app/(DashboardLayout)/types/apps/error";
 import { companyService } from "@/utils/api/company-service";
 import { handleErrorResponse } from "../../action";

@@ -24,7 +24,7 @@ import dynamic from 'next/dynamic';
 import { CustomSelect } from './CustomSelect';
 import { CustomSelectAuthor } from './CustomSelectAuthor';
 import { BlogSchema } from '@/utils/schema/blogSchema';
-import { createBlogAction } from '@/app/(DashboardLayout)/apps/blog/action';
+import { createBlogAction, uploadImages } from '@/app/(DashboardLayout)/apps/blog/action';
 
 // Dynamically import rich text editor
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
@@ -132,7 +132,7 @@ const CreateBlogClient: React.FC = () => {
 
         // Validate using Zod schema
         const result = BlogSchema.safeParse(blogData);
-console.log(result);
+        console.log(result);
         if (!result.success) {
             // Handle validation errors
             const newErrors: Record<string, string> = {};
@@ -159,6 +159,29 @@ console.log(result);
             setOpenSnackbar(true);
         } else {
             try {
+                let uploadedImageUrl = '';
+
+                // Upload featured image if it exists
+                if (featuredImage) {
+                    const uploadResponse = await uploadImages('blogs', [featuredImage]);
+
+                    // Check if the upload was successful
+                    if (isServerError(uploadResponse)) {
+                         // Handle API errors
+                        setSnackbarMessage(uploadResponse.error.message || 'An error occurred');
+                        setSnackbarSeverity('error');
+                        setOpenSnackbar(true);
+                    }
+console.log(uploadResponse);
+                    // Use the first uploaded image URL
+                 //   uploadedImageUrl = uploadResponse;
+                }
+
+                // Prepare the final blog data with the uploaded image URL
+                const finalBlogData = {
+                    ...result.data,
+                    featuredImage: uploadedImageUrl || result.data.featuredImage // Fallback to the original value if no image was uploaded
+                };
                 // Call the API to create the blog
                 const response = await createBlogAction(result.data as unknown as IBlog);
 
