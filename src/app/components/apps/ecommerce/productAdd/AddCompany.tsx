@@ -68,6 +68,8 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
 
   console.log("companyData", companyData)
   const [error, setError] = useState<IError>();
+  const [loading, setLoading] = useState<boolean>(false);
+
   const [logo, setLogo] = useState<File>();
   const [financialResults, setFinancialResults] = useState<IFinancialResultsWithFile[]>([]);
   const [formData, setFormData] = useState<ICompanyFull>(companyData);

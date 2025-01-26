@@ -257,14 +257,14 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
 
   // Fetch Products
   React.useEffect(() => {
-    dispatch(searchCompanies(page, rowsPerPage, search));
+    // dispatch(searchCompanies(page, rowsPerPage, search));
   }, [search]);
 
-  React.useEffect(() => {
-    if (searchedCompanies && searchCompanies.length > 0) {
-      setCompanies(searchedCompanies)
-    }
-  }, [searchedCompanies])
+  // React.useEffect(() => {
+  //   if (searchedCompanies && searchCompanies.length > 0) {
+  //     setCompanies(searchedCompanies)
+  //   }
+  // }, [searchedCompanies])
 
   const { } = useSelector((state: RootState) => state.companyReducer);
 
