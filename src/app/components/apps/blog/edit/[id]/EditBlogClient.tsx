@@ -50,7 +50,7 @@ const EditBlogClient: React.FC<EditProps> = ({ data }) => {
     const [tagInput, setTagInput] = useState('');
     const [status, setStatus] = useState<'draft' | 'published'>(data.status || 'draft');
     const [relatedStocks, setRelatedStocks] = useState<string[]>(data.relatedStocks || []);
-    const [author, setAuthor] = useState(data.author || '');
+    const [author, setAuthor] = useState('');
     const [featuredImageUrl, setFeaturedImageUrl] = useState(data.featuredImage || '');
     const [featuredImage, setFeaturedImage] = useState<File | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
