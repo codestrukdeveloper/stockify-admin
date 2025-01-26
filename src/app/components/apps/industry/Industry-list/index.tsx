@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
-import { IndustryContext } from "@/app/context/IndustryContext/index";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TextField,
@@ -23,12 +22,7 @@ import {
   TablePagination,
 } from "@mui/material";
 import Link from "next/link";
-import {
-  IconEdit,
-  IconEye,
-  IconSearch,
-  IconTrash,
-} from "@tabler/icons-react";
+import { IconEdit, IconEye, IconSearch, IconTrash } from "@tabler/icons-react";
 import CustomCheckbox from "@/app/components/forms/theme-elements/CustomCheckbox";
 import { useDispatch, useSelector } from "@/store/hooks";
 import { orderBy } from "lodash";
@@ -36,14 +30,14 @@ import { IIndustry as IIndustryType } from "@/app/(DashboardLayout)/types/apps/i
 import { RootState } from "@/store/store";
 import Loading from "@/app/loading";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";
+import { fetchIndustries, deleteIndustryAction } from "@/store/apps/industry/industry-action";
 
-function IIndustry() {
+function IndustryList({ industries: initialIndustries }: { industries: IIndustryType[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [pageNo, setPageNo] = useState(1);
   const [limit, setLimit] = useState(10);
-  const { loading,total,totalPage, error} = useSelector((state: RootState) => state.industryReducer);
+  const { loading, total, totalPage, error } = useSelector((state: RootState) => state.industryReducer);
 
-  
   const [activeTab, setActiveTab] = useState("All");
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -51,14 +45,14 @@ function IIndustry() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchIndustries(pageNo,limit));
-  }, [dispatch,pageNo,limit]);
+    dispatch(fetchIndustries(pageNo, limit));
+  }, [dispatch, pageNo, limit]);
 
-  const tabItem = ["All", "Shipped", "Delivered", "Pending"];
+  const tabItems = ["All", "Shipped", "Delivered", "Pending"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleClick = (status: string) => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % tabItem.length);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % tabItems.length);
     setActiveTab(status);
   };
 
@@ -84,7 +78,7 @@ function IIndustry() {
     return filteredIndustries;
   };
 
-  const industries = useSelector((state: any) =>
+  const industries = useSelector((state: RootState) =>
     getVisibleProduct(
       state.industryReducer.industries,
       state.industryReducer.sortBy,
@@ -116,8 +110,7 @@ function IIndustry() {
 
   const handleConfirmDelete = async () => {
     for (const productId of selectedProducts) {
-      // Assume deleteIndustry is an API call to delete an industry
-     dispatch(deleteIndustryAction(productId));
+      dispatch(deleteIndustryAction(productId));
     }
     setSelectedProducts([]);
     setSelectAll(false);
@@ -128,7 +121,6 @@ function IIndustry() {
     setOpenDeleteDialog(false);
   };
 
-
   const handleChangePage = (event: unknown, newPage: number) => {
     setPageNo(newPage);
   };
@@ -137,14 +129,14 @@ function IIndustry() {
     setLimit(parseInt(event.target.value));
     setPageNo(1);
   };
-  if(loading){
-    return <Loading/>
-  }
-  
-  console.log("INdustries",industries);
-  console.log("total",total);
-  console.log("totalPage",totalPage);
 
+  if (loading) {
+    return <Loading />;
+  }
+
+  console.log("Industries", industries);
+  console.log("total", total);
+  console.log("totalPage", totalPage);
 
   return (
     <Box>
@@ -273,20 +265,16 @@ function IIndustry() {
             ))}
           </TableBody>
         </Table>
-        {
-          error&&
-        <ErrorMessage error={error}/>
-        }
-         <TablePagination
-            rowsPerPageOptions={[10, 25,50,100]}
-            component="div"
-            count={totalPage}
-            rowsPerPage={1}
-            page={pageNo}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-
+        {error && <ErrorMessage error={error} />}
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          component="div"
+          count={total}
+          rowsPerPage={limit}
+          page={pageNo - 1} // Page is zero-based in TablePagination
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Box>
       <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirm Delete</DialogTitle>
@@ -297,11 +285,7 @@ function IIndustry() {
           <Button variant="contained" onClick={handleCloseDeleteDialog}>
             Cancel
           </Button>
-          <Button
-            color="error"
-            variant="outlined"
-            onClick={handleConfirmDelete}
-          >
+          <Button color="error" variant="outlined" onClick={handleConfirmDelete}>
             Delete
           </Button>
         </DialogActions>
@@ -310,4 +294,4 @@ function IIndustry() {
   );
 }
 
-export default IIndustry;
+export default IndustryList;

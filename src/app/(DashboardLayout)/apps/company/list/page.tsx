@@ -2,9 +2,9 @@ import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcr
 import PageContainer from "@/app/components/container/PageContainer";
 import BlankCard from "@/app/components/shared/BlankCard";
 import ProductTableList from "@/app/components/apps/ecommerce/ProductTableList/ProductTableList";
-import { ICompany } from "@/app/(DashboardLayout)/types/apps/ICompany";
-import { companyService } from "@/utils/api/company-service";
 import { searchCompanies } from "../action";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
 
 const BCrumb = [
   {
@@ -22,7 +22,13 @@ export default async function EcomProductList({ searchParams }: { searchParams?:
 
   const search = searchParams?.search || "";
 
-  const companies = await companyService.searchCompanies(page, limit, search);
+  const companies = await searchCompanies(page, limit, search);
+
+  if (isServerError(companies)) {
+    <ErrorMessage error={companies.error} />
+
+    return
+  }
 
   console.log("companies", companies)
 
@@ -36,7 +42,7 @@ export default async function EcomProductList({ searchParams }: { searchParams?:
       {/* Breadcrumb */}
       <Breadcrumb title="Stocks" items={BCrumb} />
       <BlankCard>
-        <ProductTableList initialCompanies={companies} initialPage={page} initialSearch={search} />
+        <ProductTableList initialCompanies={companies.data} initialPage={page} initialSearch={search} />
       </BlankCard>
     </PageContainer>
   );

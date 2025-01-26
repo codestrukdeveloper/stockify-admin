@@ -15,15 +15,16 @@ import { IconEye, IconMessage2, IconPoint } from '@tabler/icons-react';
 import { fetchBlogPost } from '@/store/apps/blog/BlogSlice';
 import BlankCard from '../../shared/BlankCard';
 import { BlogPostType } from '../../../(DashboardLayout)/types/apps/blog';
+import { IBlog } from '@/app/(DashboardLayout)/types/apps/IBlog';
 
 interface Btype {
-  post: BlogPostType;
+  post: IBlog;
   index?: number;
 }
 
 const BlogCard = ({ post }: Btype) => {
   const dispatch = useDispatch();
-  const { coverImg, title, view, comments, category, author, createdAt }: any = post;
+  const { coverImg,_id, title, view, comments, category, author, createdAt }: any = post;
 
   const linkTo = title
     .toLowerCase()
@@ -36,7 +37,7 @@ const BlogCard = ({ post }: Btype) => {
         <>
           <Typography
             component={NextLink}
-            href={`/apps/blog/detail/${linkTo}`}
+            href={`/apps/blog/edit/${_id}`}
             onClick={() => dispatch(fetchBlogPost(linkTo))}
           >
             <CardMedia component="img" height="240" image={coverImg} alt="green iguana" />

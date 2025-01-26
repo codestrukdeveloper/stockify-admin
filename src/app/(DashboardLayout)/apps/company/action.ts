@@ -1,5 +1,5 @@
 "use server";
-import { ICompanyFull, ICompanyFullExtended } from "@/app/(DashboardLayout)/types/apps/ICompany";
+import { ICompany, ICompanyFull, ICompanyFullExtended } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { IServerError, IServerResponse } from "@/app/(DashboardLayout)/types/apps/error";
 import { companyService } from "@/utils/api/company-service";
 import { handleErrorResponse } from "../../action";
@@ -41,7 +41,7 @@ export async function searchCompanies(
     search: string
 ): Promise<
     IServerResponse<{
-        data: ICompanyFull[];
+        data: ICompany[];
         totalPage: number;
     }>
 > {
@@ -49,7 +49,7 @@ export async function searchCompanies(
         const response = await companyService.searchCompanies(page, limit, search);
         console.log("Response", response)
 
-        return { data: response.data.data.data, totalPage: response.data.data.totalPage };
+        return response.data.data;;
     } catch (error: any) {
         console.error("Error searching companies:", error);
         return handleErrorResponse(error);

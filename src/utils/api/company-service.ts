@@ -28,7 +28,7 @@ export const companyService = {
     const response = await axiosServices.get(
       `${API_URL}?page=${page}&limit=${limit}&search=${search}&searchName=${search}`
     );
-    return response.data.data.data;
+    return response;
   },
 
   fetchCompanyById: async (id: string) => {

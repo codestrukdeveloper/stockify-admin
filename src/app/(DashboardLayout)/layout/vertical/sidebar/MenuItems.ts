@@ -115,7 +115,7 @@ const Menuitems: MenuitemsType[] = [
         id: uniqueId(),
         title: "List",
         icon: IconPoint,
-        href: "/apps/sector/list",
+        href: "/apps/sector/list?page=0&&limit=20",
       },
       {
         id: uniqueId(),
@@ -179,7 +179,7 @@ const Menuitems: MenuitemsType[] = [
         id: uniqueId(),
         title: "List",
         icon: IconPoint,
-        href: "/apps/dhrps/list",
+        href: "/apps/dhrps/list?page=0&&limit=20",
       },
       {
         id: uniqueId(),
@@ -211,7 +211,7 @@ const Menuitems: MenuitemsType[] = [
         id: uniqueId(),
         title: "List",
         icon: IconPoint,
-        href: "/apps/deposit/list",
+        href: "/apps/deposit/list?page=0&&limit=20",
       },
       {
         id: uniqueId(),
@@ -243,7 +243,7 @@ const Menuitems: MenuitemsType[] = [
         id: uniqueId(),
         title: "List",
         icon: IconPoint,
-        href: "/apps/performance/list",
+        href: "/apps/performance/list?page=0&&limit=20",
       },
       {
         id: uniqueId(),
@@ -275,7 +275,7 @@ const Menuitems: MenuitemsType[] = [
         id: uniqueId(),
         title: "List",
         icon: IconPoint,
-        href: "/apps/category/list",
+        href: "/apps/category/list?page=0&&limit=20",
       },
       {
         id: uniqueId(),
@@ -305,12 +305,12 @@ const Menuitems: MenuitemsType[] = [
     chip: "New",
     chipColor: "secondary",
   },
-  {
-    id: uniqueId(),
-    title: "company",
-    icon: IconShoppingCart,
-    href: "/dashboards/company",
-  },
+  // {
+  //   id: uniqueId(),
+  //   title: "company",
+  //   icon: IconShoppingCart,
+  //   href: "/dashboards/company",
+  // },
   {
     id: uniqueId(),
     title: "Frontend pages",
@@ -382,15 +382,15 @@ const Menuitems: MenuitemsType[] = [
     children: [
       {
         id: uniqueId(),
-        title: "Posts",
+        title: "list",
         icon: IconPoint,
-        href: "/apps/blog/post",
+        href: "/apps/blog/list?page=0&&limit=20",
       },
       {
         id: uniqueId(),
-        title: "Detail",
+        title: "create",
         icon: IconPoint,
-        href: "/apps/blog/detail/streaming-video-way-before-it-was-cool-go-dark-tomorrow",
+        href: "/apps/blog/create",
       },
     ],
   },
@@ -411,7 +411,7 @@ const Menuitems: MenuitemsType[] = [
         id: uniqueId(),
         title: "List",
         icon: IconPoint,
-        href: "/apps/company/list",
+        href: "/apps/company/list?page=0&&limit=20",
       },
   
       {

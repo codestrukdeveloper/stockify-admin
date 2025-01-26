@@ -2,7 +2,6 @@ import React from "react";
 import { Providers } from "@/store/providers";
 import MyApp from "./app";
 import "./global.css";
-import 'react-toastify/dist/ReactToastify.css';
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
