@@ -1,4 +1,4 @@
-import { ICompanyFull, ICompanyFullCreate } from "@/app/(DashboardLayout)/types/apps/ICompany";
+import { ICompanyFull, ICompanyFullExtended } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { BASE_URL } from ".";
 import axiosServices from "../axios";
 
@@ -40,7 +40,7 @@ export const companyService = {
     return response.data.data;
   },
 
-  createCompany: async (company: ICompanyFullCreate) => {
+  createCompany: async (company: ICompanyFullExtended) => {
     const response = await axiosServices.post(API_URL+"/new", company);
     return response;
   },

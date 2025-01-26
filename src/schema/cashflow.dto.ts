@@ -7,7 +7,7 @@ export const createCashflowSumDto = z.object({
     investingAct: z.string().max(50),
     financialAct: z.string().max(50),
     netCashFlow: z.string().max(50),
-    companyId:objectIdSchema.optional()
+    companyId:  objectIdSchema.optional()
 });
 
 export const updateCashflowSumDto = createCashflowSumDto.partial().extend({

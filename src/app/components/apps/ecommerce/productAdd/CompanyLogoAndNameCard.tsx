@@ -17,7 +17,7 @@ interface CompanyLogoAndNameCardProps {
   company?: Partial<ICompany>;
   onChange: (key: keyof ICompany, value: string | string[]) => void;
   sectors: ISector[];
-  logo: File | undefined | null;
+  logo: File | undefined | null | string;
   handleLogo: (file: File) => void;
   deposits: IDeposit[];
   industries: IIndustry[];
@@ -74,6 +74,25 @@ const CompanyLogoAndNameCard: React.FC<CompanyLogoAndNameCardProps> = ({
                 helperText={validationErrors["company.name"]}
               />
             </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel shrink htmlFor="company.name">
+                Company Slug
+              </InputLabel>
+              <TextField
+                id="company.slug"
+                className="w-full"
+                placeholder="Company Slug"
+                variant="filled"
+                name="name"
+                sx={{ width: "100%" }}
+                value={company?.slug || ""}
+                onChange={(e) => onChange("slug", e.target.value)}
+                error={!!validationErrors["company.slug"]}
+                helperText={validationErrors["company.slug"]}
+              />
+            </FormControl>
+
 
             <Grid container spacing={2}>
               {/* Company Ticker */}
@@ -201,7 +220,7 @@ const CompanyLogoAndNameCard: React.FC<CompanyLogoAndNameCardProps> = ({
                     name="lot"
                     type="number"
                     sx={{ width: "100%" }}
-                    value={company?.price || ""}
+                    value={company?.lot || ""}
                     onChange={(e) => onChange("lot", e.target.value)}
                     error={!!validationErrors["company.lot"]}
                     helperText={validationErrors["company.lot"]}

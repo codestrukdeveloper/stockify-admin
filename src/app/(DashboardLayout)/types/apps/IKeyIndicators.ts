@@ -1,23 +1,24 @@
 export interface IKeyIndicators {
   _id?: string;
-  period: string;
-  rowc?: string;
   companyId?: string;
+  period: string;
+  rowc: string; // Ensure this is a string
+
+  bookValuePerShare: string;
+  currentSharePrice: string;
+  debtToEquity: string;
+  dividendPerShare: string;
+  dividendPercentOnCMP: string;
+  faceValuePerShare: string;
+  marketCapMillionRs: string;
+  outstandingSharesMillion: string;
+  priceToBook: string;
+  priceToEarning: string;
+  priceToSales: string;
+  returnOnEquity: string;
+  returnOnTotalAssets: string;
   createdAt?: string;
   updatedAt?: string;
-  bookValuePerShare?: string;
-  currentSharePrice?: string;
-  debtToEquity?: string;
-  dividendPerShare?: string;
-  dividendPercentOnCMP?: string;
-  faceValuePerShare?: string;
-  marketCapMillionRs?: string;
-  outstandingSharesMillion?: string;
-  priceToBook?: string;
-  priceToEarning?: string;
-  priceToSales?: string;
-  returnOnEquity?: string;
-  returnOnTotalAssets?: string;
 }
 
 

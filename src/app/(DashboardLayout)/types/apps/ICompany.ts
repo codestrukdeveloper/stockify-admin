@@ -31,6 +31,9 @@ export interface ICompany {
     name: string;
     ticker: string;
     isin: string;
+    metaTitle: string;
+    metaDescription: string;
+    keywords: string[];
     pan?: string;
     location?: string;
     rating?: number;
@@ -76,7 +79,7 @@ export interface ICompanyFull{
     cashFlow: ICashflowSum[],
 };
 
-export interface ICompanyFullCreate extends ICompany {
+export interface ICompanyFullExtended extends ICompany {
     profitLoss: IProfitLosses[],
     priceTrend: IPriceTrend[],
     keyIndicators: IKeyIndicators[],

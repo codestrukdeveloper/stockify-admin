@@ -1,5 +1,5 @@
 "use server";
-import { ICompanyFull, ICompanyFullCreate } from "@/app/(DashboardLayout)/types/apps/ICompany";
+import { ICompanyFull, ICompanyFullExtended } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { IServerError, IServerResponse } from "@/app/(DashboardLayout)/types/apps/error";
 import { companyService } from "@/utils/api/company-service";
 import { handleErrorResponse } from "../../action";
@@ -56,7 +56,7 @@ export async function searchCompanies(
     }
 }
 
-export async function fetchCompanyById(id: string): Promise<IServerResponse<ICompanyFull>> {
+export async function fetchCompanyById(id: string): Promise<IServerResponse<ICompanyFullExtended>> {
     try {
         const response = await companyService.fetchCompanyById(id);
         console.log("Response", response)
@@ -81,7 +81,7 @@ export async function deleteCompanyById(id: string): Promise<IServerResponse<str
     }
 }
 
-export async function createCompanyAction(company: ICompanyFullCreate): Promise<IServerResponse<ICompanyFullCreate>> {
+export async function createCompanyAction(company: ICompanyFullExtended): Promise<IServerResponse<ICompanyFullExtended>> {
     try {
         const response = await companyService.createCompany(company);
         console.log("Response", response.data)
@@ -95,7 +95,7 @@ export async function createCompanyAction(company: ICompanyFullCreate): Promise<
 
 export async function updateCompany(
     id: string,
-    company: Partial<ICompanyFullCreate>
+    company: Partial<ICompanyFullExtended>
 ): Promise<IServerResponse<ICompanyFull>> {
     try {
         const response = await companyService.updateCompany(id, company);

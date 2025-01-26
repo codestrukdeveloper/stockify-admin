@@ -61,32 +61,32 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData }) => {
                 console.warn(`Header "${header}" not found in Excel file. Using default value: ${defaultValue}`);
                 return defaultValue;
             }
-            
+
             const value = row[index + 1];
-            
+
             // Handle special cases
             if (value === '#DIV/0!' || value === undefined || value === null) {
                 return defaultValue;
             }
-            
+
             // For percentage columns, convert to string with % sign
             if (isPercentage) {
                 // If value is already a percentage string, return as is
                 if (typeof value === 'string' && value.includes('%')) {
                     return value;
                 }
-                
+
                 // Convert decimal to percentage string
                 if (typeof value === 'number') {
                     return `${(value * 100).toFixed(1)}%`;
                 }
             }
-            
+
             // Handle float conversion for specific columns
             if (isFloat && typeof value === 'number') {
                 return value.toFixed(2);
             }
-            
+
             // For other numeric values, convert to string
             return value.toString();
         };
@@ -206,7 +206,7 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData }) => {
     };
 
     return (
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: 3,my: 3 }} display={"flex"} flexDirection={"column"} alignItems={"center"} justifyContent={"center"}>
             <Typography variant="h6" gutterBottom>
                 Upload Excel File
             </Typography>

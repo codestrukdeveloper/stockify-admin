@@ -31,6 +31,7 @@ import { ICompany } from '@/app/(DashboardLayout)/types/apps/ICompany';
 import { fetchCompanys, searchCompanies } from '@/utils/api/company-action';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getDaysAgo } from '@/utils/utils';
+import { deleteCompanyById } from '@/app/(DashboardLayout)/apps/company/action';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -161,10 +162,22 @@ interface EnhancedTableToolbarProps {
   numSelected: number;
   handleSearch: React.ChangeEvent<HTMLInputElement> | any;
   search: string;
+  onDeleteSuccess: () => void
 }
 
-const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
+const EnhancedTableToolbar = async(props: EnhancedTableToolbarProps) => {
   const { numSelected, handleSearch, search } = props;
+
+  const onDelete = async () => {
+    if (numSelected > 0) {
+      try {
+   
+        props.onDeleteSuccess();
+      } catch (error) {
+        console.error('Error deleting companies:', error);
+      }
+    }
+  };
 
   return (
     <Toolbar
@@ -201,7 +214,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
+          <IconButton onClick={onDelete}> {/* Add onClick handler */}
             <IconTrash width="18" />
           </IconButton>
         </Tooltip>
@@ -216,6 +229,11 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   );
 };
 
+interface Props {
+  initialCompanies: ICompany[];
+  initialPage: number;
+  initialSearch: string;
+}
 
 interface Props {
   initialCompanies: ICompany[];
@@ -229,63 +247,49 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
   const [page, setPage] = React.useState(initialPage);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [order, setOrder] = React.useState<Order>('asc');
-  const [orderBy, setOrderBy] = React.useState<any>('calories');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
-
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(20);
+  const { companies: searchedCompanies } = useSelector((state: RootState) => state.companyReducer);
+
 
   const dispatch = useDispatch();
 
-  //Fetch Products
+  // Fetch Products
   React.useEffect(() => {
-    dispatch(searchCompanies(page, rowsPerPage, search))
-  }, [page, rowsPerPage, search]);
+    dispatch(searchCompanies(page, rowsPerPage, search));
+  }, [search]);
+
+  React.useEffect(() => {
+    if (searchedCompanies && searchCompanies.length > 0) {
+      setCompanies(searchedCompanies)
+    }
+  }, [searchedCompanies])
 
   const { } = useSelector((state: RootState) => state.companyReducer);
 
   const [rows, setRows] = React.useState<any>(fetchCompanys);
-  console.log("initialCompanies", initialCompanies)
-  // React.useEffect(() => {
-  //   setRows(fetchCompanys);
-  // }, [fetchCompanys]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("search", event.target.value)
-    // const filteredRows: ProductType[] = .filter((row:ICompany) => {
-    //   return row.name.toLowerCase().includes(event.target.value);
-    // });
-
     setSearch(event.target.value);
-    // setRows(filteredRows);
   };
 
-  // This is for the sorting
-  const handleRequestSort = (event: React.MouseEvent<unknown>, property: any) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
 
-  // This is for select all the row
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n: any) => n.name);
+      const newSelecteds = rows.map((n: any) => n._id); // Use _id instead of name
       setSelected(newSelecteds);
-
       return;
     }
     setSelected([]);
   };
 
-  // This is for the single row sleect
-  const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
+    const selectedIndex = selected.indexOf(id);
     let newSelected: readonly string[] = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -300,8 +304,9 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
     setSelected(newSelected);
   };
 
+
   const handleChangePage = (event: unknown, newPage: number) => {
-    router.push(`/apps/company/list?page=${newPage}&&limit=${rowsPerPage}`)
+    router.push(`/apps/company/list?page=${newPage}&&limit=${rowsPerPage}`);
     setPage(newPage);
   };
 
@@ -314,18 +319,36 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
     setDense(event.target.checked);
   };
 
-  const isSelected = (name: string) => selected.indexOf(name) !== -1;
+  const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const theme = useTheme();
   const borderColor = theme.palette.divider;
 
+  // Handle Edit Action
+  const handleEdit = (id: string) => {
+    router.push(`/apps/company/edit-company/${id}`);
+  };
+
+  console.log("selected",selected)
+  const handleDeleteSuccess = async () => {
+    setCompanies((prevCompanies) => {
+      return prevCompanies.filter((company) => !selected.includes(company._id!));
+    });
+    // console.log("selected", selectedIds)
+    // await Promise.all(selectedIds.map((id: string) => deleteCompanyById(id)));
+    setSelected([]);
+    dispatch(searchCompanies(1, 20, ""));
+
+  };
+  console.log("companies", companies)
+
   return (
     <Box>
       <Box>
         <EnhancedTableToolbar
+          onDeleteSuccess={handleDeleteSuccess}
           numSelected={selected.length}
           search={search}
           handleSearch={(event: any) => handleSearch(event)}
@@ -337,81 +360,64 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
               aria-labelledby="tablename"
               size={dense ? 'small' : 'medium'}
             >
-              <EnhancedTableHead
-                numSelected={selected.length}
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={rows.length}
-              />
+
               <TableBody>
                 {Array.isArray(companies) && companies?.map((row: ICompany, index) => {
-                    const isItemSelected = isSelected(row.name);
-                    const labelId = `enhanced-table-checkbox-${index}`;
-                    return (
-                      <TableRow
-                        hover
-                        onClick={(event) => handleClick(event, row._id!)}
-                        role="checkbox"
-                        aria-checked={isItemSelected}
-                        tabIndex={-1}
-                        key={row.name}
-                        selected={isItemSelected}
-                      >
-                        <TableCell padding="checkbox">
-                          <CustomCheckbox
-                            color="primary"
-                            checked={isItemSelected}
-                            inputProps={{
-                              'aria-labelledby': labelId,
-                            }}
-                          />
-                        </TableCell>
+                  const isItemSelected = isSelected(row._id!);
+                  const labelId = `enhanced-table-checkbox-${index}`;
+                  return (
+                    <TableRow
+                      hover
+                      onClick={(event) => handleClick(event, row._id!)}
+                      role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={row._id} // Use _id as the key
+                      selected={isItemSelected}
+                    >
+                      <TableCell padding="checkbox">
+                        <CustomCheckbox
+                          color="primary"
+                          checked={isItemSelected}
+                          inputProps={{
+                            'aria-labelledby': labelId,
+                          }}
+                        />
+                      </TableCell>
 
-                        <TableCell>
-                          <Box display="flex" alignItems="center">
-                            <Avatar src={row.logo} alt="product" sx={{ width: 56, height: 56 }} />
-                            <Box
-                              sx={{
-                                ml: 2,
-                              }}
-                            >
-                              <Typography variant="h6" fontWeight="600">
-                                {row.name}
-                              </Typography>
-                              <Typography color="textSecondary" variant="subtitle1">
-                                {row.name}
-                              </Typography>
-                            </Box>
+                      <TableCell>
+                        <Box display="flex" alignItems="center">
+                          <Avatar src={row.logo} alt="product" sx={{ width: 56, height: 56 }} />
+                          <Box sx={{ ml: 2 }}>
+                            <Typography variant="h6" fontWeight="600">
+                              {row.name}
+                            </Typography>
+                            <Typography color="textSecondary" variant="subtitle1">
+                              {row.name}
+                            </Typography>
                           </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Typography>{row?.ticker}</Typography>
-                        </TableCell>
-
-
-                        <TableCell>
-                          <Typography fontWeight={600} variant="h6">
-                            {row.updatedAt && getDaysAgo(row.updatedAt)}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title='action'>
-                            <IconButton size="small">
-                              <IconDotsVertical size="1.1rem" />
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Typography>{row?.ticker}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography fontWeight={600} variant="h6">
+                          {row.updatedAt && getDaysAgo(row.updatedAt)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title="Edit">
+                          <IconButton size="small" onClick={() => handleEdit(row._id!)}>
+                            <IconDotsVertical size="1.1rem" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {emptyRows > 0 && (
-                  <TableRow
-                    style={{
-                      height: (dense ? 33 : 53) * emptyRows,
-                    }}
-                  >
+                  <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
                     <TableCell colSpan={6} />
                   </TableRow>
                 )}
@@ -437,5 +443,4 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
       </Box>
     </Box>
   );
-};
-
+}

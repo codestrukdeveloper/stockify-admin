@@ -7,7 +7,7 @@ import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 
 interface CompanyImageProps {
-  image: File | undefined | null;
+  image: File | undefined | null | string;
   onChangeImage: (file: File) => void;
   validationErrors: Record<string, string>;
 
@@ -52,7 +52,7 @@ const CompanyImage: React.FC<CompanyImageProps> = ({ image, onChangeImage, valid
       <input {...getInputProps()} />
       {image ? (
         <Image
-          src={URL.createObjectURL(image)} // Create a URL for the image
+          src={typeof image === "string" ? image : URL.createObjectURL(image)} // Create a URL for the image
           alt="Uploaded Logo"
           width={211}
           height={130}

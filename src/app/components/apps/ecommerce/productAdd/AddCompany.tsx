@@ -10,22 +10,17 @@ import BalanceSheet from "@/app/components/apps/ecommerce/productAdd/BalanceShee
 import ProfitLossSummary from "@/app/components/apps/ecommerce/productAdd/ProfitLossSummary";
 import AboutTheCompany from "@/app/components/apps/ecommerce/productAdd/AboutTheCompany";
 import React, { useEffect, useState } from "react";
-import { ICompany, ICompanyFull, ICompanyFullCreate, IFaq, IFinancialResults, IFinancialResultsWithFile } from "@/app/(DashboardLayout)/types/apps/ICompany";
+import { ICompany, ICompanyFull, ICompanyFullExtended, IFaq, IFinancialResults, IFinancialResultsWithFile } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { ISector } from "@/app/(DashboardLayout)/types/apps/sector";
 import { IDeposit, IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
 import { IPerformance } from "@/app/(DashboardLayout)/types/apps/peformance";
 import { ICategory } from "@/app/(DashboardLayout)/types/apps/category";
-import { IKeyIndicators } from "@/app/(DashboardLayout)/types/apps/IKeyIndicators";
-import { IBalanceSheet } from "@/app/(DashboardLayout)/types/apps/IBalanceSheet";
-import { ICashflowSum } from "@/app/(DashboardLayout)/types/apps/ICashflowSum";
-import { IPriceTrend } from "@/app/(DashboardLayout)/types/apps/IPricingTrend.interface";
-import { IProfitLosses } from "@/app/(DashboardLayout)/types/apps/IProfitLoss";
 import EditableAddressAndManagement from "./EditableAddressManagement";
 import { createCompanyAction, updateCompany, updateCompanyLogo, uploadImages } from "@/app/(DashboardLayout)/apps/company/action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import { IError } from "@/app/(DashboardLayout)/types/apps/error";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";
-import { createCompanyDto } from "@/schema/company.dto";
+import { createCompanyDto, updateCompanyDto } from "@/schema/company.dto";
 import ExcelUploader from "./ExcelUploader";
 import FinancialResultUploader from "./FinancialResultUpload";
 import { IShareholder } from "@/app/(DashboardLayout)/types/apps/IShareholder";
@@ -35,6 +30,7 @@ import FaqComponent from "./Faq";
 import toast, { Toaster } from "react-hot-toast";
 import ValidationErrors from "@/app/components/shared/ValidationError";
 import { uploadFile } from "@/utils/api/uploadAction";
+import SEOMetaFields from "./SeoMetaFields";
 
 
 
@@ -48,73 +44,7 @@ const BCrumb = [
   },
 ];
 
-const keyIndicatorsInitialValue: IKeyIndicators = {
-  period: "2025",
-  currentSharePrice: "0",
-  faceValuePerShare: "0",
-  bookValuePerShare: "0",
-  priceToEarning: "0",
-  priceToSales: "0",
-  priceToBook: "0",
-  outstandingSharesMillion: "0",
-  marketCapMillionRs: "0",
-  debtToEquity: "0",
-  dividendPercentOnCMP: "0",
-  dividendPerShare: "0",
-  returnOnEquity: "0",
-  returnOnTotalAssets: "0",
-  rowc: "0",
-};
 
-const initialBalanceSheet: IBalanceSheet = {
-  period: new Date().getFullYear().toString(),
-  cashEqlt: "0",
-  nonCurrentAsset: "0",
-  currentAsset: "0",
-  totalAsset: "0",
-  eqShareCap: "0",
-  reserves: "0",
-  totalEq: "0",
-  nonCurrentLiability: "0",
-  currentLiability: "0",
-  totalLiability: "0",
-  totalEqLiability: "0",
-  companyId: "",
-};
-
-const initialCashflowSum: ICashflowSum = {
-  period: new Date().getFullYear().toString(),
-  operatingAct: "0",
-  investingAct: "0",
-  financialAct: "0",
-  netCashFlow: "0",
-};
-
-const initialPriceTrend: IPriceTrend = {
-  price: "0",
-  label: "",
-  period: new Date().getFullYear().toString(),
-};
-
-const initialProfitLosses: IProfitLosses = {
-  period: new Date().getFullYear().toString(),
-  revenue: "0",
-  expense: "0",
-  ebdita: "0",
-  otherCost: "0",
-  pbt: "0",
-  taxExpense: "0",
-  pat: "0",
-  otherIncExpense: "0",
-  incomeNet: "0",
-  outstandingShare: "0",
-  epsPerShare: "0",
-  revGrowth: "0",
-  ebitaMargin: "0",
-  patMargin: "0",
-  epsGrowth: "0",
-  companyId: "",
-};
 
 interface AddCompanyProps {
   sectors: ISector[];
@@ -123,7 +53,7 @@ interface AddCompanyProps {
   performances: IPerformance[];
   categories: ICategory[];
   dhrps: IDhrp[];
-
+  companyData: ICompanyFull,
 }
 
 const AddCompanyClient: React.FC<AddCompanyProps> = ({
@@ -132,48 +62,15 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
   industries,
   performances,
   categories,
-  dhrps
+  dhrps,
+  companyData,
 }) => {
+
+  console.log("companyData", companyData)
   const [error, setError] = useState<IError>();
   const [logo, setLogo] = useState<File>();
   const [financialResults, setFinancialResults] = useState<IFinancialResultsWithFile[]>([]);
-  const [formData, setFormData] = useState<ICompanyFull>({
-    company: {
-      name: "",
-      ticker: "",
-      isin: "",
-      location: "",
-      rating: undefined,
-      price: undefined,
-      qty: undefined,
-      minQty: undefined,
-      maxQty: undefined,
-      lot: undefined,
-      email: "",
-      phone: "",
-      website: "",
-      aboutus: "",
-      logo: "",
-      videoLink: "",
-      categoryId: "",
-      industryId: "",
-      sectorId: "",
-      performanceId: "",
-      depositsId: [],
-      dhrpId: "",
-      management: [],
-      slug: "",
-      financialResults: [],
-      faq: [],
-      shareHolders: [],
-
-    },
-    profitLoss: [initialProfitLosses],
-    priceTrend: [initialPriceTrend],
-    keyIndicators: [keyIndicatorsInitialValue],
-    balanceSheet: [initialBalanceSheet],
-    cashFlow: [initialCashflowSum],
-  });
+  const [formData, setFormData] = useState<ICompanyFull>(companyData);
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -189,7 +86,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       }
     }
 
-    if (validationErrors["company.industryId"] || validationErrors["company.logo"] || validationErrors["company.performanceId"] || validationErrors["company.sectorId"] || validationErrors["company.categoryId"] || validationErrors["company.depositsId"]) {
+    if (validationErrors["company.industryId"] || validationErrors["company.slug"] || validationErrors["company.logo"] || validationErrors["company.performanceId"] || validationErrors["company.sectorId"] || validationErrors["company.categoryId"] || validationErrors["company.depositsId"]) {
       const shareholderSection = document.getElementById("company-section");
       if (shareholderSection) {
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -211,14 +108,14 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     };
 
 
-    if (validationErrors["company.phone"] ||validationErrors["company.management"]|| validationErrors["company.email"] || validationErrors["company.pan"] || validationErrors["company.isin"] || validationErrors["company.website"] || validationErrors["company.management"]) {
+    if (validationErrors["company.phone"] || validationErrors["company.management"] || validationErrors["company.email"] || validationErrors["company.pan"] || validationErrors["company.isin"] || validationErrors["company.website"] || validationErrors["company.management"]) {
       const shareholderSection = document.getElementById("company-information-section");
       if (shareholderSection) {
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
 
-    
+
 
     if (validationErrors["company.shareHolders"]) {
       const shareholderSection = document.getElementById("shareholder-section");
@@ -268,6 +165,14 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     if (validationErrors["KeyIndicators"]) { // Use "KeyIndicators" (uppercase K)
       console.log("KeyIndicators validation error detected:", validationErrors["KeyIndicators"]);
       const keyIndicatorsSection = document.getElementById("keyIndicators-section");
+      if (keyIndicatorsSection) {
+        keyIndicatorsSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+
+    if (validationErrors["company.metaDescription"] || validationErrors["company.metaTitle"] || validationErrors["company.keywords"]) { // Use "KeyIndicators" (uppercase K)
+      console.log("KeyIndicators validation error detected:", validationErrors["KeyIndicators"]);
+      const keyIndicatorsSection = document.getElementById("seo-section");
       if (keyIndicatorsSection) {
         keyIndicatorsSection.scrollIntoView({ behavior: "smooth", block: "center" });
       }
@@ -329,20 +234,21 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
 
     console.log("formData", formData)
 
-    if (!logo) {
+    if (!logo && !formData.company._id) {
       setValidationErrors({ "company.logo": "logo is required" })
       toast.error("logo is required");
       return
     }
 
-    if (financialResults.length < 1) {
+    if (financialResults.length < 1 && !formData.company._id) {
       setValidationErrors({ "company.financialResults": "Financils Results is required" })
       toast.error("Financils Results is required");
       return
     }
 
 
-    const validationResult = createCompanyDto.safeParse(formData);
+    let validationResult= createCompanyDto.safeParse(formData);
+
 
     console.log("formData", formData)
 
@@ -365,7 +271,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     try {
 
       const data = validationResult.data.company as unknown as ICompany;
-      const formData: ICompanyFullCreate = {
+      const formData: ICompanyFullExtended = {
         ...data,
         profitLoss: validationResult.data.profitLoss || [],
         keyIndicators: validationResult.data.keyIndicators || [],
@@ -374,7 +280,17 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
         priceTrend: validationResult.data.priceTrend || [],
       };
 
-      const created = await createCompanyAction(formData);
+      let created;
+      console.log("formData", formData)
+
+      if (formData._id) {
+
+        created = await updateCompany(formData._id, formData);
+
+      } else {
+
+        created = await createCompanyAction(formData);
+      }
 
       console.log("created", created)
       if (isServerError(created)) {
@@ -387,14 +303,16 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           errorMessage = created.error.message; // Use the single error message if present
         }
 
-        if(errorMessage==="Company already exists with this name!"){
-          setValidationErrors({"company.name":"Company already exists with this name!"})
-        return
-        }
+        if (errorMessage === "Company already exists with this name!") {
+          setValidationErrors({ "company.name": "Company already exists with this name!" })
+          return
+        };
 
-        if(errorMessage==="Company already exists with this ticker!"||"Company already exists with this Ticker!"){
-          setValidationErrors({"company.ticker":"Company already exists with this Ticker!"});
-          return;
+        console.log("ERRORMEssag", errorMessage)
+
+        if (errorMessage === "Company already exists with this ticker!" || errorMessage === "Company already exists with this Ticker!") {
+          setValidationErrors({ "company.ticker": "Company already exists with this Ticker!" });
+          return
         }
         // Display the toast message
         toast.error(errorMessage);
@@ -420,7 +338,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       }
 
       console.log("financialResults:", financialResults);
-      
+
       // Upload financial results
       const uploadedFinancialResults = await Promise.all(
         financialResults.map(async (result) => {
@@ -449,6 +367,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       console.log("Company updated with financial results:", updatedCompanyWithFinancialResults);
 
       toast.success("Company created and files uploaded successfully!");
+      setValidationErrors({})
 
     } catch (error) {
       console.log("ERROR", error);
@@ -474,6 +393,8 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       console.log("Updated FormData:", updatedFormData);
       return updatedFormData;
     });
+    setValidationErrors({})
+
   };
 
   const handleFinancialResultUpload = (data: { title: string; period: string; document: File }) => {
@@ -483,6 +404,8 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       }
       return [...prev, data]; // Append new entry to the array
     });
+    setValidationErrors({})
+
   };
   const handleRemove = (index: number) => {
     setFinancialResults((prev) => {
@@ -491,6 +414,8 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       }
       return prev.filter((_, i) => i !== index);
     });
+    setValidationErrors({})
+
   };
 
   const handleFaqChange = (faqs: IFaq[]) => {
@@ -498,6 +423,35 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       ...prev,
       company: { ...prev.company, faq: faqs },
     }));
+    setValidationErrors({})
+
+  };
+
+
+  const handleMetaTitleChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: { ...prev.company, metaTitle: value },
+    }));
+    setValidationErrors({})
+
+  };
+
+  const handleMetaDescriptionChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: { ...prev.company, metaDescription: value },
+    }));
+    setValidationErrors({})
+  };
+
+  const handleKeywordsChange = (value: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: { ...prev.company, keywords: value },
+    }));
+    setValidationErrors({})
+
   };
 
 
@@ -512,7 +466,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           company={formData.company}
           onChange={(key, value) => onChangeCompany(key, value)}
           sectors={sectors}
-          logo={logo}
+          logo={logo || formData.company.logo}
           handleLogo={setLogo}
           industries={industries}
           dhrps={dhrps}
@@ -625,6 +579,20 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           onFaqChange={handleFaqChange}
           validationErrors={validationErrors}
           id='faq-section'
+        />
+
+        <br />
+
+        <SEOMetaFields
+          metaTitle={formData.company.metaTitle || ""}
+          metaDescription={formData.company.metaDescription || ""}
+          keywords={formData.company.keywords || []}
+          onMetaTitleChange={handleMetaTitleChange}
+          onMetaDescriptionChange={handleMetaDescriptionChange}
+          onKeywordsChange={handleKeywordsChange}
+          validationErrors={validationErrors}
+          id="seo-section"
+
         />
         <ValidationErrors errors={validationErrors} />
 

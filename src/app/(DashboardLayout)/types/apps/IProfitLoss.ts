@@ -2,7 +2,7 @@
 export interface IProfitLosses {
   _id?: string;
   companyId?: string;
-  period?: string;
+  period: string;
   
 
   revenue?: string;
