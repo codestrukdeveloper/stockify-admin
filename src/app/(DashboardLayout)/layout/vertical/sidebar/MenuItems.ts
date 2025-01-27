@@ -410,33 +410,6 @@ const Menuitems: MenuitemsType[] = [
       },
     ],
   },
-  {
-    id: uniqueId(),
-    title: "Companies",
-    icon: IconBasket,
-    href: "/apps/company/",
-    children: [
-      {
-        id: uniqueId(),
-        title: "List",
-        icon: IconPoint,
-        href: "/apps/company/list",
-      },
-  
-      {
-        id: uniqueId(),
-        title: "Add Company",
-        icon: IconPoint,
-        href: "/apps/company/add-company",
-      },
-      // {
-      //   id: uniqueId(),
-      //   title: "Edit Product",
-      //   icon: IconPoint,
-      //   href: "/apps/company/edit-product",
-      // },
-    ],
-  },
   // {
   //   id: uniqueId(),
   //   title: "Chats",
