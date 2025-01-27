@@ -24,14 +24,17 @@ import { visuallyHidden } from '@mui/utils';
 import { useSelector, useDispatch } from '@/store/hooks';
 import CustomCheckbox from '../../../forms/theme-elements/CustomCheckbox';
 import CustomSwitch from '../../../forms/theme-elements/CustomSwitch';
-import { IconDotsVertical, IconFilter, IconSearch, IconTrash } from '@tabler/icons-react';
+import { IconDotsVertical, IconEdit, IconFilter, IconSearch, IconTrash } from '@tabler/icons-react';
 import { ProductType } from '../../../../(DashboardLayout)/types/apps/eCommerce';
 import { RootState } from '@/store/store';
 import { ICompany } from '@/app/(DashboardLayout)/types/apps/ICompany';
-import { fetchCompanys, searchCompanies } from '@/utils/api/company-action';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getDaysAgo } from '@/utils/utils';
-import { deleteCompanyById } from '@/app/(DashboardLayout)/apps/company/action';
+import { deleteCompanyById, fetchCompanies, searchCompanies } from '@/app/(DashboardLayout)/apps/company/action';
+import { Stack } from '@mui/material';
+import { isServerError } from '@/app/(DashboardLayout)/action';
+import { IError } from '@/app/(DashboardLayout)/types/apps/error';
+import { ServerErrorRender } from '@/app/components/shared/ServerErrorRender';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -165,13 +168,13 @@ interface EnhancedTableToolbarProps {
   onDeleteSuccess: () => void
 }
 
-const EnhancedTableToolbar = async(props: EnhancedTableToolbarProps) => {
+const EnhancedTableToolbar = async (props: EnhancedTableToolbarProps) => {
   const { numSelected, handleSearch, search } = props;
 
   const onDelete = async () => {
     if (numSelected > 0) {
       try {
-   
+
         props.onDeleteSuccess();
       } catch (error) {
         console.error('Error deleting companies:', error);
@@ -238,37 +241,54 @@ interface Props {
 interface Props {
   initialCompanies: ICompany[];
   initialPage: number;
+  totalPages: number;
+
   initialSearch: string;
 }
 
-export default function ProductTableList({ initialCompanies, initialPage, initialSearch }: Props) {
+export default function ProductTableList({ initialCompanies, initialPage, totalPages, initialSearch }: Props) {
   const [companies, setCompanies] = React.useState<ICompany[]>(initialCompanies);
   const [search, setSearch] = React.useState(initialSearch);
-  const [page, setPage] = React.useState(initialPage);
+  const [page, setPage] = React.useState(1);
+  const [totalPage, setTotalPage] = React.useState(totalPages);
+  const [error, setError] = React.useState<IError | null>();
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(20);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const { companies: searchedCompanies } = useSelector((state: RootState) => state.companyReducer);
 
 
   const dispatch = useDispatch();
 
-  // Fetch Products
   React.useEffect(() => {
-    // dispatch(searchCompanies(page, rowsPerPage, search));
-  }, [search]);
+    fetchCWithPage(1);
+  }, [])
 
-  // React.useEffect(() => {
-  //   if (searchedCompanies && searchCompanies.length > 0) {
-  //     setCompanies(searchedCompanies)
-  //   }
-  // }, [searchedCompanies])
+  const fetchCWithPage = async (pageNo: number) => {
+    try {
 
-  const { } = useSelector((state: RootState) => state.companyReducer);
+      const data = await searchCompanies(pageNo, 10, "");
 
-  const [rows, setRows] = React.useState<any>(fetchCompanys);
+      if (isServerError(data)) {
+        setError(data.error);
+        return
+      }
+      console.log("data", data);
+
+      setCompanies(data.data as any);
+      // setTotalPages(data.totalPage);
+    } catch (error) {
+
+    }
+    finally {
+    }
+  }
+
+
+  const [rows, setRows] = React.useState<any>(10);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
@@ -305,11 +325,17 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
   };
 
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    router.push(`/apps/company/list?page=${newPage}&&limit=${rowsPerPage}`);
-    setPage(newPage);
-  };
+  const handleChangePage = async (event: unknown, newPage: number) => {
+    setPage(newPage + 1);
+    const data = await searchCompanies(newPage + 1, 10, "");
+    if (isServerError(data)) {
+      setError(data.error);
+      return
+    }
+    console.log("data", data);
 
+    setCompanies(data.data as any);
+  }
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
@@ -331,7 +357,7 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
     router.push(`/apps/company/edit-company/${id}`);
   };
 
-  console.log("selected",selected)
+  console.log("selected", selected)
   const handleDeleteSuccess = async () => {
     setCompanies((prevCompanies) => {
       return prevCompanies.filter((company) => !selected.includes(company._id!));
@@ -339,14 +365,24 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
     // console.log("selected", selectedIds)
     // await Promise.all(selectedIds.map((id: string) => deleteCompanyById(id)));
     setSelected([]);
-    dispatch(searchCompanies(1, 20, ""));
 
   };
   console.log("companies", companies)
 
   return (
     <Box>
+      {
+        error &&
+        <ServerErrorRender error={error} toastMessage />
+      }
       <Box>
+        <EnhancedTableToolbar
+          onDeleteSuccess={handleDeleteSuccess}
+          numSelected={selected.length}
+          search={search}
+          handleSearch={(event: any) => handleSearch(event)}
+        />
+
         <EnhancedTableToolbar
           onDeleteSuccess={handleDeleteSuccess}
           numSelected={selected.length}
@@ -355,6 +391,7 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
         />
         <Paper variant="outlined" sx={{ mx: 2, mt: 1, border: `1px solid ${borderColor}` }}>
           <TableContainer>
+
             <Table
               sx={{ minWidth: 750 }}
               aria-labelledby="tablename"
@@ -409,27 +446,23 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
                       <TableCell>
                         <Tooltip title="Edit">
                           <IconButton size="small" onClick={() => handleEdit(row._id!)}>
-                            <IconDotsVertical size="1.1rem" />
+                            <IconEdit size="1.1rem" />
                           </IconButton>
                         </Tooltip>
                       </TableCell>
                     </TableRow>
                   );
                 })}
-                {emptyRows > 0 && (
-                  <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                    <TableCell colSpan={6} />
-                  </TableRow>
-                )}
               </TableBody>
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
+            rowsPerPageOptions={[10]}
+
+            count={totalPage * 10}
+            rowsPerPage={10}
+            page={page - 1}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
@@ -441,6 +474,6 @@ export default function ProductTableList({ initialCompanies, initialPage, initia
           />
         </Box>
       </Box>
-    </Box>
+    </Box >
   );
 }

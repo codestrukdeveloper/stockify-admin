@@ -34,7 +34,8 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({
   validationErrors,
   id
 }) => {
-  const [profitLosses, setProfitLosses] = useState<IProfitLosses[]>(data.length > 0 ? data : [
+  console.log("data",data)
+  const [profitLosses, setProfitLosses] = useState<IProfitLosses[]>(data?.length > 0 ? data : [
     {
       period: new Date().getFullYear().toString(),
       revenue: "0",

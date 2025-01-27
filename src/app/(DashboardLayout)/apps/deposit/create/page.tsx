@@ -4,7 +4,6 @@ import React from "react";
 import CreateDepositApp from "@/app/components/apps/deposit/Add-deposit";
 import BlankCard from "@/app/components/shared/BlankCard";
 import { CardContent } from "@mui/material";
-import { DepositProvider } from "@/app/context/DepositContext";
 
 const BCrumb = [
   {
@@ -18,20 +17,18 @@ const BCrumb = [
 
 const CreateDeposit = () => {
   return (
-    <DepositProvider>
-      <PageContainer
-        title="Create Deposit"
-        description="this is Create Deposit"
-      >
-        <Breadcrumb title="Create Deposit" items={BCrumb} />
+    <PageContainer
+      title="Create Deposit"
+      description="this is Create Deposit"
+    >
+      <Breadcrumb title="Create Deposit" items={BCrumb} />
 
-        <BlankCard>
-          <CardContent>
-            <CreateDepositApp />
-          </CardContent>
-        </BlankCard>
-      </PageContainer>
-    </DepositProvider>
+      <BlankCard>
+        <CardContent>
+          <CreateDepositApp />
+        </CardContent>
+      </BlankCard>
+    </PageContainer>
   );
 };
 export default CreateDeposit;

@@ -1,6 +1,5 @@
 "use client";
 import React, { useContext, useState, useEffect } from "react";
-import { DhrpsContext } from "@/app/context/DhrpsContext/index";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Button,
@@ -20,60 +19,46 @@ import {
   Stack,
   Divider,
   Grid,
+  TextField,
 } from "@mui/material";
-import { format, isValid } from "date-fns";
 import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
-import CustomSelect from "@/app/components/forms/theme-elements/CustomSelect";
-import CustomTextField from "@/app/components/forms/theme-elements/CustomTextField";
-import { IconSquareRoundedPlus, IconTrash } from "@tabler/icons-react";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
+import toast from "react-hot-toast";
+import { IDhrp } from "@/app/(DashboardLayout)/types/apps/IDhrp";
+import { updateDhrpById } from "@/app/(DashboardLayout)/apps/dhrps/action";
 
-const EditDhrpsPage = () => {
-  const { dhrps : dhrpsData, updateDhrps } = useContext(DhrpsContext);
+const EditDhrpsPage = ({ dhrpsData: initialData }: { dhrpsData: IDhrp }) => {
+
+  const [dhrpsData, setDepositData] = useState<IDhrp>(initialData);
   const [showAlert, setShowAlert] = useState(false);
-  const [selectedDhrps, setSelectedDhrps] = useState<any>(null);
   const [editing, setEditing] = useState(false);
-  const [editedDhrps, setEditedDhrps]: any = useState(null);
 
   const pathName = usePathname();
   const getTitle = pathName.split("/").pop();
-
-  useEffect(() => {
-    if (dhrpsData && dhrpsData.length > 0) {
-      if (getTitle) {
-        const dhrps = dhrpsData.find(
-          (inv: { name: string }) => inv.name === getTitle
-        );
-        if (dhrps) {
-          setSelectedDhrps(dhrps);
-          setEditedDhrps({ ...dhrps });
-          setEditing(true);
-        } else {
-          setSelectedDhrps(dhrpsData[0]);
-          setEditedDhrps({ ...dhrpsData[0] });
-          setEditing(true);
-        }
-      } else {
-        setSelectedDhrps(dhrpsData[0]);
-        setEditedDhrps({ ...dhrpsData[0] });
-        setEditing(true);
-      }
-    }
-  }, [getTitle, dhrpsData]);
-  
-
   const router = useRouter();
-
+  console.log("dhrpsData", dhrpsData);
   const handleSave = async () => {
     try {
-      await updateDhrps(editedDhrps);
-      setSelectedDhrps({ ...editedDhrps });
+      const isUpdated = await updateDhrpById(dhrpsData._id!, dhrpsData);
+
+
+      if (isServerError(isUpdated)) {
+
+        return <ServerErrorRender error={isUpdated.error} />
+
+      }
+
+
       setEditing(false); // Exit editing mode
       setShowAlert(true);
 
       // Navigate to the list page
+      toast.success("updated");
       router.push("/apps/dhrps/list");
     } catch (error) {
-      console.error("Error updating dhrps:", error);
+      console.error("Error updating deposit:", error);
     }
 
     setTimeout(() => {
@@ -85,15 +70,11 @@ const EditDhrpsPage = () => {
     setEditing(false);
   };
 
-  if (!selectedDhrps) {
-    return <div>Please select an dhrps.</div>;
+  if (!dhrpsData) {
+    return <ErrorMessage error={{ message: "Data Not Found" }} />;
   }
 
-  const orderDate = selectedDhrps.orderDate;
-  const parsedDate = isValid(new Date(orderDate))
-    ? new Date(orderDate)
-    : new Date();
-  const formattedOrderDate = format(parsedDate, "EEEE, MMMM dd, yyyy");
+
 
   return (
     <Box>
@@ -104,7 +85,7 @@ const EditDhrpsPage = () => {
         alignItems="center"
         mb={3}
       >
-        <Typography variant="h5"># {editedDhrps.id}</Typography>
+        <Typography variant="h5"># {dhrpsData._id}</Typography>
         <Box display="flex" gap={1}>
           {editing ? (
             <>
@@ -131,15 +112,18 @@ const EditDhrpsPage = () => {
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} sm={6}>
           <CustomFormLabel>Name</CustomFormLabel>
-          <CustomTextField
-            value={editedDhrps.name}
+
+          <TextField
+
+            disabled={!editing}
+            value={dhrpsData.name}
             onChange={(e: any) =>
-              setEditedDhrps({ ...editedDhrps, name: e.target.value })
+              setDepositData({ ...dhrpsData, name: e.target.value })
             }
             fullWidth
           />
         </Grid>
-       
+
       </Grid>
 
 

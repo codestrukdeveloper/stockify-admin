@@ -3,7 +3,7 @@ import { Box, FormControl, InputLabel, TextField, Autocomplete, FormHelperText }
 
 export interface SelectProps {
     options: Common[];
-    name: "categoryId" | "depositsId" | "sectorId" | "dhrpId" | "industryId" | "performanceId"|"relatbleStocks";
+    name: "categoryId" | "depositsId" | "sectorId" | "dhrpId" | "industryId" | "performanceId" | "relatbleStocks";
     onChange: (value: string) => void;
     value?: string;
     error?: boolean; // Prop to indicate if there's an error
@@ -21,8 +21,10 @@ export const CustomSelect: React.FC<SelectProps> = ({
     helperText = '',
     id
 }) => {
-    // Find the selected option based on the value
-    const selectedOption = options.find((option) => option._id === value) || null;
+    console.log("options",name,options);
+    const safeOptions = Array.isArray(options) ? options : [];
+    const selectedOption = safeOptions.find((option) => option._id === value) || null;
+
 
     const handleChange = (event: React.SyntheticEvent, newValue: Common | null) => {
         onChange(newValue?._id || ''); // Pass the selected value's ID to the parent

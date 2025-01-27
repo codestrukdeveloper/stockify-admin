@@ -4,7 +4,6 @@ import React from "react";
 import CreateDhrpsApp from "@/app/components/apps/dhrps/Add-dhrps";
 import BlankCard from "@/app/components/shared/BlankCard";
 import { CardContent } from "@mui/material";
-import { DhrpsProvider } from "@/app/context/DhrpsContext";
 
 const BCrumb = [
   {
@@ -18,7 +17,6 @@ const BCrumb = [
 
 const CreateDhrps = () => {
   return (
-    <DhrpsProvider>
       <PageContainer
         title="Create Dhrps"
         description="this is Create Dhrps"
@@ -31,7 +29,6 @@ const CreateDhrps = () => {
           </CardContent>
         </BlankCard>
       </PageContainer>
-    </DhrpsProvider>
   );
 };
 export default CreateDhrps;

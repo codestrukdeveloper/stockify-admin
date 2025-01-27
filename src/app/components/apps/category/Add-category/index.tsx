@@ -1,61 +1,36 @@
 "use client";
 import React, { useState, useContext, useEffect } from "react";
-import { CategoryContext } from "@/app/context/CategoryContext";
 import {
   Alert,
   Button,
-  MenuItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+
   Typography,
-  IconButton,
-  Tooltip,
+
   Box,
   Stack,
   Divider,
   Grid,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { format, isValid } from "date-fns";
-import {
-  IconPlus,
-  IconSquareRoundedPlus,
-  IconTrash,
-} from "@tabler/icons-react";
 import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
 import CustomTextField from "@/app/components/forms/theme-elements/CustomTextField";
+import toast from "react-hot-toast";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { IError } from "@/app/(DashboardLayout)/types/apps/error";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
+import { createCategory } from "@/app/(DashboardLayout)/apps/category/action";
 
 const CreateCategory = () => {
-  const { addCategory, categories } = useContext(CategoryContext);
   const [showAlert, setShowAlert] = useState(false);
   const router = useRouter();
+  const [error, setError] = useState<IError | null>();
+
   const [formData, setFormData] = useState({
     id: 0,
     name: ""
   });
 
-  useEffect(() => {
-    if (Array.isArray(categories) && categories.length > 0) {
-      const lastId = categories[categories.length - 1].id;
-      setFormData((prevData: any) => ({
-        ...prevData,
-        id: lastId + 1,
-      }));
-    } else {
-      setFormData((prevData: any) => ({
-        ...prevData,
-        id: 1,
-      }));
-    }
-  }, [categories]);
-  
 
- 
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
     setFormData((prevData) => {
@@ -66,14 +41,18 @@ const CreateCategory = () => {
     });
   };
 
- 
+
 
 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addCategory(formData);
+      const data = await createCategory(formData);
+      if (isServerError(data)) {
+        setError(data.error);
+        return
+      }
       setFormData({
         id: 0,
         name: ""
@@ -82,6 +61,7 @@ const CreateCategory = () => {
       setTimeout(() => {
         setShowAlert(false);
       }, 5000);
+      toast.success("created successfully")
       router.push("/apps/category/list");
     } catch (error) {
       console.error("Error adding category:", error);
@@ -124,17 +104,17 @@ const CreateCategory = () => {
             alignItems="center"
             mb={3}
           >
-         
-           
+
+
           </Stack>
           <Divider></Divider>
 
           <Grid container spacing={3} mb={4}>
-            
-          
+
+
             <Grid item xs={12} sm={6}>
               <CustomFormLabel
-                htmlFor="Name"
+                htmlFor="name"
                 sx={{
                   mt: 0,
                 }}
@@ -142,7 +122,7 @@ const CreateCategory = () => {
                 Name
               </CustomFormLabel>
               <CustomTextField
-                name="Name"
+                name="name"
                 value={formData.name}
                 onChange={handleChange}
                 fullWidth
@@ -158,6 +138,10 @@ const CreateCategory = () => {
             </Alert>
           )}
         </Box>
+        {
+          error &&
+          <ServerErrorRender error={error} toastMessage />
+        }
       </form>
     </>
   );

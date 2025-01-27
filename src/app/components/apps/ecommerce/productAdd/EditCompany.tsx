@@ -12,7 +12,7 @@ import AboutTheCompany from "@/app/components/apps/ecommerce/productAdd/AboutThe
 import React, { useEffect, useState } from "react";
 import { ICompany, ICompanyFull, ICompanyFullExtended, IFaq, IFinancialResults, IFinancialResultsWithFile } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { ISector } from "@/app/(DashboardLayout)/types/apps/sector";
-import { IDeposit, IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
+import {  IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
 import { IPerformance } from "@/app/(DashboardLayout)/types/apps/peformance";
 import { ICategory } from "@/app/(DashboardLayout)/types/apps/category";
 import EditableAddressAndManagement from "./EditableAddressManagement";
@@ -31,6 +31,7 @@ import toast, { Toaster } from "react-hot-toast";
 import ValidationErrors from "@/app/components/shared/ValidationError";
 import { uploadFile } from "@/utils/api/uploadAction";
 import SEOMetaFields from "./SeoMetaFields";
+import { IDeposit } from "@/app/(DashboardLayout)/types/apps/deposit";
 
 
 
@@ -86,7 +87,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
       }
     }
 
-    if (validationErrors["company.industryId"] || validationErrors["company.slug"] || validationErrors["company.logo"] || validationErrors["company.performanceId"] || validationErrors["company.sectorId"] || validationErrors["company.categoryId"] || validationErrors["company.depositsId"]) {
+    if (validationErrors["company.industryId"]||validationErrors["company.ipoDate"] ||validationErrors["company.ipoPrice"]|| validationErrors["company.slug"] || validationErrors["company.logo"] || validationErrors["company.performanceId"] || validationErrors["company.sectorId"] || validationErrors["company.categoryId"] || validationErrors["company.depositsId"]) {
       const shareholderSection = document.getElementById("company-section");
       if (shareholderSection) {
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });

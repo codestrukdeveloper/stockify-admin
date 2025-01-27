@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useContext, useEffect } from "react";
-import { DhrpsContext } from "@/app/context/DhrpsContext";
 import {
   Alert,
   Button,
@@ -29,9 +28,16 @@ import {
 } from "@tabler/icons-react";
 import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
 import CustomTextField from "@/app/components/forms/theme-elements/CustomTextField";
+import { IError } from "@/app/(DashboardLayout)/types/apps/error";
+import { createDhrp } from "@/app/(DashboardLayout)/apps/dhrps/action";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
+import toast from "react-hot-toast";
 
 const CreateDhrps = () => {
-  const { addDhrps, dhrps } = useContext(DhrpsContext);
+  const [error, setError] = useState<IError | null>();
+  const [saving, setSaving] = useState(false);
+
   const [showAlert, setShowAlert] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -39,23 +45,10 @@ const CreateDhrps = () => {
     name: ""
   });
 
-  useEffect(() => {
-    if (Array.isArray(dhrps) && dhrps.length > 0) {
-      const lastId = dhrps[dhrps.length - 1].id;
-      setFormData((prevData: any) => ({
-        ...prevData,
-        id: lastId + 1,
-      }));
-    } else {
-      setFormData((prevData: any) => ({
-        ...prevData,
-        id: 1,
-      }));
-    }
-  }, [dhrps]);
+
   
 
- 
+
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
     setFormData((prevData) => {
@@ -66,14 +59,24 @@ const CreateDhrps = () => {
     });
   };
 
- 
+
 
 
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setSaving(true);
     e.preventDefault();
+
     try {
-      await addDhrps(formData);
+      const data = await createDhrp(formData);
+
+      if (isServerError(data)) {
+        console.log("res.......", 'error' in data);
+
+        setError(data.error);
+        return
+      }
+
       setFormData({
         id: 0,
         name: ""
@@ -82,9 +85,12 @@ const CreateDhrps = () => {
       setTimeout(() => {
         setShowAlert(false);
       }, 5000);
+      toast.success("created successfully!")
       router.push("/apps/dhrps/list");
     } catch (error) {
       console.error("Error adding dhrps:", error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -111,7 +117,7 @@ const CreateDhrps = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" variant="contained" color="primary">
+              <Button disabled={saving}  type="submit" variant="contained" color="primary">
                 Create Dhrps
               </Button>
             </Box>
@@ -124,17 +130,17 @@ const CreateDhrps = () => {
             alignItems="center"
             mb={3}
           >
-         
-           
+
+
           </Stack>
           <Divider></Divider>
 
           <Grid container spacing={3} mb={4}>
-            
-          
+
+
             <Grid item xs={12} sm={6}>
               <CustomFormLabel
-                htmlFor="Name"
+                htmlFor="name"
                 sx={{
                   mt: 0,
                 }}
@@ -142,7 +148,7 @@ const CreateDhrps = () => {
                 Name
               </CustomFormLabel>
               <CustomTextField
-                name="Name"
+                name="name"
                 value={formData.name}
                 onChange={handleChange}
                 fullWidth
@@ -157,6 +163,12 @@ const CreateDhrps = () => {
               Dhrps added successfully.
             </Alert>
           )}
+
+          {
+            error &&
+            <ServerErrorRender error={error} toastMessage />
+
+          }
         </Box>
       </form>
     </>

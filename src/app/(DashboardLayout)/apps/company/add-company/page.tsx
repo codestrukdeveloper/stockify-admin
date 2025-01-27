@@ -2,18 +2,18 @@ import AddCompanyClient from "@/app/components/apps/ecommerce/productAdd/AddComp
 import { fetchSectors } from "../../sector/action";
 import { fetchIndustries } from "../../industry/action";
 import { fetchPerformances } from "../../performance/action";
-import { fetchCategories } from "@/app/components/apps/category/action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";
 import { fetchDeposits } from "../../deposit/action";
 import { IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
-import { fetchDhrp } from "@/app/components/apps/dhrps/action";
 import { ICashflowSum } from "@/app/(DashboardLayout)/types/apps/ICashflowSum";
 import { IPriceTrend } from "@/app/(DashboardLayout)/types/apps/IPricingTrend.interface";
 import { IProfitLosses } from "@/app/(DashboardLayout)/types/apps/IProfitLoss";
 import { IBalanceSheet } from "@/app/(DashboardLayout)/types/apps/IBalanceSheet";
 import { IKeyIndicators } from "@/app/(DashboardLayout)/types/apps/IKeyIndicators";
 import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/ICompany";
+import { fetchCategories } from "../../category/action";
+import { fetchDhrps } from "../../dhrps/action";
 
 const keyIndicatorsInitialValue: IKeyIndicators = {
   period: "2025",
@@ -89,7 +89,7 @@ export default async function AddCompany() {
   const depositsResponse = await fetchDeposits(1, 100);
   const performancesResponse = await fetchPerformances(1, 100);
   const categoriesResponse = await fetchCategories(1, 100);
-  const dhrpResponse = await fetchDhrp(1, 100);
+  const dhrpResponse = await fetchDhrps(1, 100);
 
   console.log("industriesResponse", industriesResponse);
   console.log("depositsResponse", depositsResponse);

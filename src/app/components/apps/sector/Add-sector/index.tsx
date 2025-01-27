@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useContext, useEffect } from "react";
-import { SectorContext } from "@/app/context/SectorContext";
 import {
   Alert,
   Button,
@@ -29,32 +28,24 @@ import {
 } from "@tabler/icons-react";
 import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
 import CustomTextField from "@/app/components/forms/theme-elements/CustomTextField";
+import { createSector } from "@/app/(DashboardLayout)/apps/sector/action";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
+import { IError } from "@/app/(DashboardLayout)/types/apps/error";
+import toast from "react-hot-toast";
 
 const CreateSector = () => {
-  const { addSector, sectors } = useContext(SectorContext);
   const [showAlert, setShowAlert] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
     id: 0,
     name: ""
   });
+  const [error, setError] = useState<IError | null>();
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (sectors.length > 0) {
-      const lastId = sectors[sectors.length - 1].id;
-      setFormData((prevData: any) => ({
-        ...prevData,
-        id: lastId + 1,
-      }));
-    } else {
-      setFormData((prevData: any) => ({
-        ...prevData,
-        id: 1,
-      }));
-    }
-  }, [sectors]);
 
- 
+
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
     setFormData((prevData) => {
@@ -65,14 +56,24 @@ const CreateSector = () => {
     });
   };
 
- 
+
 
 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
-      await addSector(formData);
+      const data = await createSector(formData);
+      console.log("res.......", 'error' in data);
+
+      if (isServerError(data)) {
+        console.log("res.......", 'error' in data);
+
+        setError(data.error);
+        return
+      }
+
       setFormData({
         id: 0,
         name: ""
@@ -81,13 +82,14 @@ const CreateSector = () => {
       setTimeout(() => {
         setShowAlert(false);
       }, 5000);
+      toast.success("created successfully");
       router.push("/apps/sector/list");
     } catch (error) {
       console.error("Error adding sector:", error);
+    } finally {
+      setSaving(false);
     }
   };
-
-
 
   return (
     <>
@@ -110,7 +112,7 @@ const CreateSector = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" variant="contained" color="primary">
+              <Button disabled={saving} type="submit" variant="contained" color="primary">
                 Create Sector
               </Button>
             </Box>
@@ -123,17 +125,17 @@ const CreateSector = () => {
             alignItems="center"
             mb={3}
           >
-         
-           
+
+
           </Stack>
           <Divider></Divider>
 
           <Grid container spacing={3} mb={4}>
-            
-          
+
+
             <Grid item xs={12} sm={6}>
               <CustomFormLabel
-                htmlFor="Name"
+                htmlFor="name"
                 sx={{
                   mt: 0,
                 }}
@@ -141,7 +143,7 @@ const CreateSector = () => {
                 Name
               </CustomFormLabel>
               <CustomTextField
-                name="Name"
+                name="name"
                 value={formData.name}
                 onChange={handleChange}
                 fullWidth
@@ -157,6 +159,11 @@ const CreateSector = () => {
             </Alert>
           )}
         </Box>
+
+        {
+          error &&
+          <ServerErrorRender error={error} toastMessage />
+        }
       </form>
     </>
   );

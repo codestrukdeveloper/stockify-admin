@@ -29,51 +29,55 @@ import {
 } from "@tabler/icons-react";
 import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
 import CustomTextField from "@/app/components/forms/theme-elements/CustomTextField";
+import { createIndustry } from "@/app/(DashboardLayout)/apps/industry/action";
+import toast from "react-hot-toast";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
+import { IError } from "@/app/(DashboardLayout)/types/apps/error";
 
 const CreateIndustry = () => {
-  const { addIndustry, industries } = useContext(IndustryContext);
   const [showAlert, setShowAlert] = useState(false);
   const router = useRouter();
+  const [error, setError] = useState<IError | null>();
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     id: 0,
     name: ""
   });
 
-  useEffect(() => {
-    if (industries.length > 0) {
-      const lastId = industries[industries.length - 1].id;
-      setFormData((prevData: any) => ({
-        ...prevData,
-        id: lastId + 1,
-      }));
-    } else {
-      setFormData((prevData: any) => ({
-        ...prevData,
-        id: 1,
-      }));
-    }
-  }, [industries]);
 
- 
+
+
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
-    console.log("name",name,value)
+    console.log("name", name, value)
     setFormData((prevData) => {
       const newFormData = { ...prevData, [name]: value };
       return {
         ...newFormData
       };
     });
+    setError(null);
   };
 
- 
+
 
 
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setSaving(true);
     e.preventDefault();
     try {
-      await addIndustry(formData);
+      const data = await createIndustry(formData);
+      console.log("data", data);
+      console.log("res", 'error' in data);
+      if (isServerError(data)) {
+        console.log("res.......", 'error' in data);
+
+        setError(data.error);
+        return
+      }
+
       setFormData({
         id: 0,
         name: ""
@@ -82,12 +86,16 @@ const CreateIndustry = () => {
       setTimeout(() => {
         setShowAlert(false);
       }, 5000);
+      toast.success("created successfully")
       router.push("/apps/industry/list");
     } catch (error) {
+
       console.error("Error adding industry:", error);
     }
+    finally {
+      setSaving(false);
+    }
   };
-
 
 
   return (
@@ -111,7 +119,7 @@ const CreateIndustry = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" variant="contained" color="primary">
+              <Button disabled={saving} type="submit" variant="contained" color="primary">
                 Create Industry
               </Button>
             </Box>
@@ -124,14 +132,14 @@ const CreateIndustry = () => {
             alignItems="center"
             mb={3}
           >
-         
-           
+
+
           </Stack>
           <Divider></Divider>
 
           <Grid container spacing={3} mb={4}>
-            
-          
+
+
             <Grid item xs={12} sm={6}>
               <CustomFormLabel
                 htmlFor="Name"
@@ -158,6 +166,11 @@ const CreateIndustry = () => {
             </Alert>
           )}
         </Box>
+        {
+          error &&
+          <ServerErrorRender error={error} toastMessage />
+
+        }
       </form>
     </>
   );

@@ -1,6 +1,5 @@
 "use client";
 import React, { useContext, useState, useEffect } from "react";
-import { CategoryContext } from "@/app/context/CategoryContext/index";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Button,
@@ -20,62 +19,46 @@ import {
   Stack,
   Divider,
   Grid,
+  TextField,
 } from "@mui/material";
-import { format, isValid } from "date-fns";
 import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
-import CustomSelect from "@/app/components/forms/theme-elements/CustomSelect";
-import CustomTextField from "@/app/components/forms/theme-elements/CustomTextField";
-import { IconSquareRoundedPlus, IconTrash } from "@tabler/icons-react";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
+import toast from "react-hot-toast";
+import { ICategory } from "@/app/(DashboardLayout)/types/apps/category";
+import { updateCategoryById } from "@/app/(DashboardLayout)/apps/category/action";
 
-const EditCategoryPage = () => {
-  const { categories, updateCategory } = useContext(CategoryContext);
+const EditCategoryData = ({ categoryData: initialData }: { categoryData: ICategory }) => {
+
+  const [categoryData, setDepositData] = useState<ICategory>(initialData);
   const [showAlert, setShowAlert] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [editing, setEditing] = useState(false);
-  const [editedCategory, setEditedCategory]: any = useState(null);
 
   const pathName = usePathname();
   const getTitle = pathName.split("/").pop();
-
-  useEffect(() => {
-    if (Array.isArray(categories) && categories.length > 0) {
-      // If there's a specific item to edit, use it
-      if (getTitle) {
-        const category = categories.find(
-          (inv: { name: string }) => inv.name === getTitle
-        );
-        if (category) {
-          setSelectedCategory(category);
-          setEditedCategory({ ...category });
-          setEditing(true);
-        } else {
-          // If specific item not found, fallback to default
-          setSelectedCategory(categories[0]);
-          setEditedCategory({ ...categories[0] });
-          setEditing(true);
-        }
-      } else {
-        // No specific item, default to the first category
-        setSelectedCategory(categories[0]);
-        setEditedCategory({ ...categories[0] });
-        setEditing(true);
-      }
-    }
-  }, [getTitle, categories]);
-
   const router = useRouter();
-
+  console.log("categoryData", categoryData);
   const handleSave = async () => {
     try {
-      await updateCategory(editedCategory);
-      setSelectedCategory({ ...editedCategory });
-      setEditing(false); // Exit editing mode
+      const isUpdated = await updateCategoryById(categoryData._id!, categoryData);
+
+
+      if (isServerError(isUpdated)) {
+
+        return <ServerErrorRender error={isUpdated.error} />
+
+      }
+
+
+      setEditing(false); 
       setShowAlert(true);
 
       // Navigate to the list page
+      toast.success("updated");
       router.push("/apps/category/list");
     } catch (error) {
-      console.error("Error updating category:", error);
+      console.error("Error updating deposit:", error);
     }
 
     setTimeout(() => {
@@ -87,15 +70,11 @@ const EditCategoryPage = () => {
     setEditing(false);
   };
 
-  if (!selectedCategory) {
-    return <div>Please select an category.</div>;
+  if (!categoryData) {
+    return <ErrorMessage error={{ message: "Data Not Found" }} />;
   }
 
-  const orderDate = selectedCategory.orderDate;
-  const parsedDate = isValid(new Date(orderDate))
-    ? new Date(orderDate)
-    : new Date();
-  const formattedOrderDate = format(parsedDate, "EEEE, MMMM dd, yyyy");
+
 
   return (
     <Box>
@@ -106,7 +85,7 @@ const EditCategoryPage = () => {
         alignItems="center"
         mb={3}
       >
-        <Typography variant="h5"># {editedCategory.id}</Typography>
+        <Typography variant="h5"># {categoryData._id}</Typography>
         <Box display="flex" gap={1}>
           {editing ? (
             <>
@@ -123,7 +102,7 @@ const EditCategoryPage = () => {
               color="info"
               onClick={() => setEditing(true)}
             >
-              Edit Category
+              Edit Deposit
             </Button>
           )}
         </Box>
@@ -133,15 +112,18 @@ const EditCategoryPage = () => {
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} sm={6}>
           <CustomFormLabel>Name</CustomFormLabel>
-          <CustomTextField
-            value={editedCategory.name}
+
+          <TextField
+
+            disabled={!editing}
+            value={categoryData.name}
             onChange={(e: any) =>
-              setEditedCategory({ ...editedCategory, name: e.target.value })
+              setDepositData({ ...categoryData, name: e.target.value })
             }
             fullWidth
           />
         </Grid>
-       
+
       </Grid>
 
 
@@ -150,11 +132,11 @@ const EditCategoryPage = () => {
           severity="success"
           sx={{ position: "fixed", top: 16, right: 16 }}
         >
-          Category data updated successfully.
+          Deposit data updated successfully.
         </Alert>
       )}
     </Box>
   );
 };
 
-export default EditCategoryPage;
+export default EditCategoryData;

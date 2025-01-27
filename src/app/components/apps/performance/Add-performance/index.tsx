@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useContext, useEffect } from "react";
-import { PerformanceContext } from "@/app/context/PerformanceContext";
 import {
   Alert,
   Button,
@@ -21,17 +20,18 @@ import {
   Grid,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { format, isValid } from "date-fns";
-import {
-  IconPlus,
-  IconSquareRoundedPlus,
-  IconTrash,
-} from "@tabler/icons-react";
+
 import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
 import CustomTextField from "@/app/components/forms/theme-elements/CustomTextField";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
+import { IError } from "@/app/(DashboardLayout)/types/apps/error";
+import { createPerformance } from "@/app/(DashboardLayout)/apps/performance/action";
+import toast from "react-hot-toast";
 
 const CreatePerformance = () => {
-  const { addPerformance, performances } = useContext(PerformanceContext);
+  const [error, setError] = useState<IError | null>();
+  const [saving, setSaving] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -39,22 +39,9 @@ const CreatePerformance = () => {
     name: ""
   });
 
-  useEffect(() => {
-    if (performances.length > 0) {
-      const lastId = performances[performances.length - 1].id;
-      setFormData((prevData: any) => ({
-        ...prevData,
-        id: lastId + 1,
-      }));
-    } else {
-      setFormData((prevData: any) => ({
-        ...prevData,
-        id: 1,
-      }));
-    }
-  }, [performances]);
 
- 
+
+
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
     setFormData((prevData) => {
@@ -65,14 +52,20 @@ const CreatePerformance = () => {
     });
   };
 
- 
+
 
 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addPerformance(formData);
+      const data = await createPerformance(formData);
+      if (isServerError(data)) {
+        console.log("res.......", 'error' in data);
+
+        setError(data.error);
+        return
+      }
       setFormData({
         id: 0,
         name: ""
@@ -81,9 +74,12 @@ const CreatePerformance = () => {
       setTimeout(() => {
         setShowAlert(false);
       }, 5000);
+      toast.success("Created");
       router.push("/apps/performance/list");
     } catch (error) {
       console.error("Error adding performance:", error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -110,7 +106,7 @@ const CreatePerformance = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" variant="contained" color="primary">
+              <Button disabled={saving} type="submit" variant="contained" color="primary">
                 Create Performance
               </Button>
             </Box>
@@ -123,17 +119,17 @@ const CreatePerformance = () => {
             alignItems="center"
             mb={3}
           >
-         
-           
+
+
           </Stack>
           <Divider></Divider>
 
           <Grid container spacing={3} mb={4}>
-            
-          
+
+
             <Grid item xs={12} sm={6}>
               <CustomFormLabel
-                htmlFor="Name"
+                htmlFor="name"
                 sx={{
                   mt: 0,
                 }}
@@ -141,7 +137,7 @@ const CreatePerformance = () => {
                 Name
               </CustomFormLabel>
               <CustomTextField
-                name="Name"
+                name="name"
                 value={formData.name}
                 onChange={handleChange}
                 fullWidth
@@ -156,7 +152,14 @@ const CreatePerformance = () => {
               Performance added successfully.
             </Alert>
           )}
+
         </Box>
+
+        {
+          error &&
+          <ServerErrorRender error={error} toastMessage />
+
+        }
       </form>
     </>
   );

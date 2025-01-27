@@ -59,8 +59,7 @@ export async function searchCompanies(
 export async function fetchCompanyById(id: string): Promise<IServerResponse<ICompanyFullExtended>> {
     try {
         const response = await companyService.fetchCompanyById(id);
-        console.log("Response", response)
-        return response;
+        return response.data.data;
 
     } catch (error: any) {
         console.error("Error fetching company by ID:", error);

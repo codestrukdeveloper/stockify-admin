@@ -20,7 +20,7 @@ export const fetchSectors = (page: number, limit: number) => async (dispatch: Ap
   }
 };
 
-export const fetchSector = (id: string) => async (dispatch: AppDispatch) => {
+export const fetchSectorById = (id: string) => async (dispatch: AppDispatch) => {
   dispatch(startLoading());
   try {
     const response = await axiosServices.get(`${API_URL}/${id}`);

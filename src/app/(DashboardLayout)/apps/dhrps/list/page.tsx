@@ -1,10 +1,12 @@
 import React from "react";
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/components/container/PageContainer";
-import IDhrps from "@/app/components/apps/dhrps/Dhrps-list/index";
-import { DhrpsProvider } from "@/app/context/DhrpsContext/index";
 import BlankCard from "@/app/components/shared/BlankCard";
 import { CardContent } from "@mui/material";
+import DhrpList from "@/app/components/apps/dhrps/Dhrps-list/index";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { fetchDhrps } from "../action";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
 
 const BCrumb = [
   {
@@ -16,18 +18,26 @@ const BCrumb = [
   },
 ];
 
-const IDhrpsing = () => {
+const IDhrpsing = async() => {
+  const page =  1;
+  const limit = 10;
+
+
+  const dhrps = await fetchDhrps(page, limit);
+
+  if (isServerError(dhrps)) {
+    return <ErrorMessage error={dhrps.error} />
+    
+  }
   return (
-    <DhrpsProvider>
       <PageContainer title="Dhrps List" description="this is Dhrps List">
         <Breadcrumb title="Dhrps List" items={BCrumb} />
         <BlankCard>
           <CardContent>
-            <IDhrps />
+            <DhrpList dhrps={dhrps.data} totalPages={dhrps.totalPage} currentPage={page}  />
           </CardContent>
         </BlankCard>
       </PageContainer>
-    </DhrpsProvider>
   );
 }
 export default IDhrpsing;

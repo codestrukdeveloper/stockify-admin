@@ -30,6 +30,10 @@ import { RootState } from '@/store/store';
 import { IBlog } from '@/app/(DashboardLayout)/types/apps/IBlog';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getDaysAgo } from '@/utils/utils';
+import { fetchBlogs, searchBlogs } from '@/app/(DashboardLayout)/apps/blog/action';
+import { isServerError } from '@/app/(DashboardLayout)/action';
+import { ServerErrorRender } from '@/app/components/shared/ServerErrorRender';
+import Loading from '@/app/loading';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -220,61 +224,67 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 
 interface Props {
   initialBlogs: IBlog[];
-  initialPage: number;
-  initialSearch: string;
+  totalPages: number;
 }
 
-export default function ProductTableList({ initialBlogs, initialPage, initialSearch }: Props) {
+export default function ProductTableList({ initialBlogs, totalPages }: Props) {
   const [blogs, setBlogs] = React.useState<IBlog[]>(initialBlogs);
-  const [search, setSearch] = React.useState(initialSearch);
-  const [page, setPage] = React.useState(initialPage);
+  const [search, setSearch] = React.useState("");
+  const [page, setPage] = React.useState(1);
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<any>('calories');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(20);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [loading, setLoading] = React.useState(false);
+  const [totalPage, setTotalPages] = React.useState(totalPages);
   const [error, setError] = React.useState<string | null>(null);
 
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const API_URL = 'http://13.232.10.252:3000/api/v1';
 
   
-// Fetch blogs from the API
-async function fetchBlogs(page: number, rowsPerPage: number, search: string): Promise<IBlog[]> {
-  const response = await fetch(
-    `${API_URL}/blogs?page=${page}&limit=${rowsPerPage}&search=${search}`
-  );
-  if (!response.ok) {
-    throw new Error('Failed to fetch blogs');
-  }
-  const data = await response.json();
-  return data;
-}
+  const fetchBlogsWithPage = async (pageNo: number) => {
+    setLoading(true);
+    try {
 
-   // Fetch blogs when page, rowsPerPage, or search changes
-   React.useEffect(() => {
-    const loadBlogs = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await fetchBlogs(page, rowsPerPage, search);
-        setBlogs(data);
-      } catch (err) {
-        setError('Failed to fetch blogs');
-        console.error(err);
-      } finally {
-        setLoading(false);
+      const data = await fetchBlogs(pageNo, rowsPerPage);
+
+      if (isServerError(data)) {
+        return <ServerErrorRender error={data.error}/>
       }
-    };
 
-    loadBlogs();
-  }, [page, rowsPerPage, search]);
+      setBlogs(data.data);
+      setTotalPages(data.totalPage);
+    } catch (error) {
+
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
+
+
+  const onSearch = async (search: string) => {
+
+
+    const data = await searchBlogs(1, 20, search);
+
+    if (isServerError(data)) {
+      return <ServerErrorRender error={data.error}/>
+
+    }
+
+    setBlogs(data.data);
+    setTotalPages(data.totalPage);
+
+  }
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
+    onSearch(event.target.value)
   };
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: any) => {
@@ -312,10 +322,12 @@ async function fetchBlogs(page: number, rowsPerPage: number, search: string): Pr
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    router.push(`/apps/blog/list?page=${newPage}&limit=${rowsPerPage}`);
-    setPage(newPage);
+  const handleChangePage = async (event: unknown, newPage: number) => {
+    console.log("pageNo", newPage, totalPages * rowsPerPage);
+    setPage(newPage + 1);
+    await fetchBlogsWithPage(newPage + 1)
   };
+
 
   const edit = (id:string) => {
     router.push(`/apps/blog/edit/${id}`);
@@ -338,6 +350,10 @@ async function fetchBlogs(page: number, rowsPerPage: number, search: string): Pr
   const borderColor = theme.palette.divider;
 
   console.log("blogs",blogs);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <Box>
@@ -428,7 +444,7 @@ async function fetchBlogs(page: number, rowsPerPage: number, search: string): Pr
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={blogs.length}
+            count={totalPage * 1}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

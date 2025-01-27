@@ -164,7 +164,75 @@ const CompanyLogoAndNameCard: React.FC<CompanyLogoAndNameCardProps> = ({
 
             <Grid container spacing={2}>
               {/* Company Ticker */}
+
+              {/* Min Quantity */}
               <Grid item xs={4} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel shrink htmlFor="company.minQty">
+                   Current Price
+                  </InputLabel>
+                  <TextField
+                    id="company.price"
+                    className="w-full"
+                    placeholder="Price"
+                    variant="filled"
+                    name="price"
+                    type="number"
+                    sx={{ width: "100%" }}
+                    value={company?.price || ""}
+                    onChange={(e) => onChange("price", e.target.value)}
+                    error={!!validationErrors["company.price"]}
+                    helperText={validationErrors["company.price"]}
+                  />
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={4} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel shrink htmlFor="company.ipoDate">
+                    Ipo Date
+                  </InputLabel>
+                  <TextField
+                    id="company.ipoDate"
+                    className="w-full"
+                    placeholder="Ipo Date"
+                    variant="filled"
+                    name="ipoDate"
+                    type="date"
+                    sx={{ width: "100%" }}
+                    value={company?.ipoDate || ""}
+                    onChange={(e) => onChange("ipoDate", e.target.value)}
+                    error={!!validationErrors["company.ipoDate"]}
+                    helperText={validationErrors["company.ipoDate"]}
+                  />
+                </FormControl>
+              </Grid>
+
+
+              <Grid item xs={4} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel shrink htmlFor="company.ipoPrice">
+                    Pre Ipo Price 
+                  </InputLabel>
+                  <TextField
+                    id="company.ipoPrice"
+                    className="w-full"
+                    placeholder="pre ipo price"
+                    variant="filled"
+                    name="ipoPrice"
+                    type="text"
+                    sx={{ width: "100%" }}
+                    value={company?.ipoPrice || ""}
+                    onChange={(e) => onChange("ipoPrice", e.target.value)}
+                    error={!!validationErrors["company.ipoPrice"]}
+                    helperText={validationErrors["company.ipoPrice"]}
+                  />
+                </FormControl>
+              </Grid>
+            </Grid>
+            <Grid container spacing={2}>
+              {/* Company Ticker */}
+              <Grid item xs={6} sm={6}>
                 <FormControl fullWidth>
                   <InputLabel shrink htmlFor="company.qty">
                     Company Qty
@@ -185,29 +253,8 @@ const CompanyLogoAndNameCard: React.FC<CompanyLogoAndNameCardProps> = ({
                 </FormControl>
               </Grid>
 
-              {/* Min Quantity */}
-              <Grid item xs={4} sm={4}>
-                <FormControl fullWidth>
-                  <InputLabel shrink htmlFor="company.minQty">
-                    Price
-                  </InputLabel>
-                  <TextField
-                    id="company.price"
-                    className="w-full"
-                    placeholder="Price"
-                    variant="filled"
-                    name="price"
-                    type="number"
-                    sx={{ width: "100%" }}
-                    value={company?.price || ""}
-                    onChange={(e) => onChange("price", e.target.value)}
-                    error={!!validationErrors["company.price"]}
-                    helperText={validationErrors["company.price"]}
-                  />
-                </FormControl>
-              </Grid>
 
-              <Grid item xs={4} sm={4}>
+              <Grid item xs={6} sm={6}>
                 <FormControl fullWidth>
                   <InputLabel shrink htmlFor="company.lot">
                     Lot

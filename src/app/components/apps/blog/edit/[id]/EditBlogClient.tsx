@@ -44,7 +44,7 @@ const EditBlogClient: React.FC<EditProps> = ({ data }) => {
     const [slug, setSlug] = useState(data.slug || '');
     const [content, setContent] = useState(data.content || '');
     const [excerpt, setExcerpt] = useState(data.excerpt || '');
-    const [categories, setCategories] = useState<string[]>(data.categories || []);
+    // const [categories, setCategories] = useState<ICate[]>(data.categories || []);
     const [categoryInput, setCategoryInput] = useState('');
     const [tags, setTags] = useState<string[]>(data.tags || []);
     const [tagInput, setTagInput] = useState('');
@@ -118,7 +118,10 @@ const EditBlogClient: React.FC<EditProps> = ({ data }) => {
             slug,
             content,
             excerpt,
-            categories: categories,
+            categories: [{
+                name:"blog",
+                description:"blog"
+            }],
             tags,
             status,
             relatedStocks,
@@ -137,7 +140,7 @@ const EditBlogClient: React.FC<EditProps> = ({ data }) => {
                 newErrors[error.path[0]] = error.message;
             });
 
-            if (categories.length === 0) newErrors.categories = 'At least one category is required';
+            // if (categories.length === 0) newErrors.categories = 'At least one category is required';
             if (tags.length === 0) newErrors.tags = 'At least one tag is required';
 
             setErrors(newErrors);
@@ -271,7 +274,7 @@ const EditBlogClient: React.FC<EditProps> = ({ data }) => {
                                 <MenuItem value="published">Published</MenuItem>
                             </Select>
                         </FormControl>
-{/* 
+                        {/* 
                         {
                             data.featuredImage && data.featuredImage.startsWith("https") &&
                             <Box>
@@ -295,16 +298,16 @@ const EditBlogClient: React.FC<EditProps> = ({ data }) => {
                             <Typography variant="body2">{featuredImage.name}</Typography>
                         )}
 
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <TextField label="Add Category" variant="outlined" fullWidth value={categoryInput} onChange={(e) => setCategoryInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleAddCategory(); }} error={!!errors.categories} helperText={errors.categories} />
                             <IconButton onClick={handleAddCategory}><AddIcon /></IconButton>
-                        </Box>
+                        </Box> */}
 
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {/* <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                             {categories.map((category) => (
-                                <Chip key={category} label={category} onDelete={() => setCategories(categories.filter(c => c !== category))} />
+                                <Chip key={category._id} label={category} onDelete={() => setCategories(categories.filter(c => c !== category))} />
                             ))}
-                        </Box>
+                        </Box> */}
 
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <TextField label="Add Tags" variant="outlined" fullWidth value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleAddTag(); }} error={!!errors.tags} helperText={errors.tags} />
@@ -316,7 +319,6 @@ const EditBlogClient: React.FC<EditProps> = ({ data }) => {
                                 <Chip key={tag} label={tag} onDelete={() => setTags(tags.filter(t => t !== tag))} />
                             ))}
                         </Box>
-
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                             <FormControl fullWidth>
                                 <CustomSelect id="company.id" name="Company" value={relatedStocks?.[0]} onChange={(value: any) => setRelatedStocks([value])} error={!!errors.relatedStocks} helperText={errors.relatedStocks} />

@@ -4,7 +4,6 @@ import React from "react";
 import CreatePerformanceApp from "@/app/components/apps/performance/Add-performance";
 import BlankCard from "@/app/components/shared/BlankCard";
 import { CardContent } from "@mui/material";
-import { PerformanceProvider } from "@/app/context/PerformanceContext";
 
 const BCrumb = [
   {
@@ -18,7 +17,6 @@ const BCrumb = [
 
 const CreatePerformance = () => {
   return (
-    <PerformanceProvider>
       <PageContainer
         title="Create Performance"
         description="this is Create Performance"
@@ -31,7 +29,6 @@ const CreatePerformance = () => {
           </CardContent>
         </BlankCard>
       </PageContainer>
-    </PerformanceProvider>
   );
 };
 export default CreatePerformance;

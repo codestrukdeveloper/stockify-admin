@@ -16,7 +16,7 @@ export async function fetchBlogs(page: number, limit: number): Promise<
     try {
         const response = await blogService.fetchBlogs(page, limit);
         console.log("Response",response.data.data);
-        return { data: response.data.data.data, totalPage: response.data.totalPage };
+        return { data: response.data.data.data, totalPage: response.data.data.totalPage };
     } catch (error: any) {
         console.error("Error fetching blogs:", error);
         return handleErrorResponse(error);
@@ -115,7 +115,7 @@ function handleErrorResponse(error: any): IServerResponse<any> {
     return {
         error: {
             message: error.response?.data?.message || "An error occurred",
-            errors: error.response?.data?.errors || [],
+            errors: error?.response?.data?.errors || [],
         },
     };
 }

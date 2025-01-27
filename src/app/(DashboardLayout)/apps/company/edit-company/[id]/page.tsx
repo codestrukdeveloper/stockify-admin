@@ -1,11 +1,9 @@
 import { fetchSectors } from "../../../sector/action";
 import { fetchIndustries } from "../../../industry/action";
 import { fetchPerformances } from "../../../performance/action";
-import { fetchCategories } from "@/app/components/apps/category/action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";
 import { fetchDeposits } from "../../../deposit/action";
-import { fetchDhrp } from "@/app/components/apps/dhrps/action";
 import { fetchCompanyById } from "../../action";
 import { ICashflowSum } from "@/app/(DashboardLayout)/types/apps/ICashflowSum";
 import { IPriceTrend } from "@/app/(DashboardLayout)/types/apps/IPricingTrend.interface";
@@ -14,6 +12,8 @@ import { IBalanceSheet } from "@/app/(DashboardLayout)/types/apps/IBalanceSheet"
 import { IKeyIndicators } from "@/app/(DashboardLayout)/types/apps/IKeyIndicators";
 import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import EditCompanyClient from "@/app/components/apps/ecommerce/productAdd/EditCompany";
+import { fetchCategories } from "../../../category/action";
+import { fetchDhrps } from "../../../dhrps/action";
 
 const keyIndicatorsInitialValue: IKeyIndicators = {
   period: "2025",
@@ -95,14 +95,14 @@ export default async function AddCompany({ params }: { params: { id: string } })
   const depositsResponse = await fetchDeposits(1, 100);
   const performancesResponse = await fetchPerformances(1, 100);
   const categoriesResponse = await fetchCategories(1, 100);
-  const dhrpResponse = await fetchDhrp(1, 100);
+  const dhrpResponse = await fetchDhrps(1, 100);
   const companyData = await fetchCompanyById(params.id);
 
-  console.log("industriesResponse", industriesResponse);
-  console.log("depositsResponse", depositsResponse);
-  console.log("performancesResponse", performancesResponse);
-  console.log("categoriesResponse", categoriesResponse);
-  console.log("dhrpResponse", dhrpResponse);
+  // console.log("industriesResponse", industriesResponse);
+  // console.log("depositsResponse", depositsResponse);
+  // console.log("performancesResponse", performancesResponse);
+  // console.log("categoriesResponse", categoriesResponse);
+  // console.log("dhrpResponse", dhrpResponse);
 
 
 
@@ -142,10 +142,10 @@ export default async function AddCompany({ params }: { params: { id: string } })
 
 
   const companyDataHere: ICompanyFull = {
-    profitLoss: companyData.profitLoss || [initialProfitLosses],
-    cashFlow: [initialCashflowSum],
-    keyIndicators: [keyIndicatorsInitialValue],
-    balanceSheet: [initialBalanceSheet],
+    profitLoss: companyData.profitLosses || [initialProfitLosses],
+    cashFlow: companyData.cashFlow || [initialCashflowSum],
+    keyIndicators: companyData.keyIndicators || [keyIndicatorsInitialValue],
+    balanceSheet: companyData.balanceSheets || [initialBalanceSheet],
     company: {
       _id: companyData._id,
       name: companyData.name || "",
@@ -154,7 +154,7 @@ export default async function AddCompany({ params }: { params: { id: string } })
       location: companyData.location || "",
       rating: companyData.rating,
       price: companyData.price,
-      pan:companyData.pan,
+      pan: companyData.pan,
       qty: companyData.qty,
       minQty: companyData.minQty,
       maxQty: companyData.maxQty,
@@ -182,6 +182,7 @@ export default async function AddCompany({ params }: { params: { id: string } })
     },
     priceTrend: [initialPriceTrend],
   };
+  console.log("profitLoss", companyDataHere.profitLoss)
 
   return (
     <EditCompanyClient

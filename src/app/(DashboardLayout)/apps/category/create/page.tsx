@@ -4,7 +4,6 @@ import React from "react";
 import CreateCategoryApp from "@/app/components/apps/category/Add-category";
 import BlankCard from "@/app/components/shared/BlankCard";
 import { CardContent } from "@mui/material";
-import { CategoryProvider } from "@/app/context/CategoryContext";
 
 const BCrumb = [
   {
@@ -18,7 +17,6 @@ const BCrumb = [
 
 const CreateCategory = () => {
   return (
-    <CategoryProvider>
       <PageContainer
         title="Create Category"
         description="this is Create Category"
@@ -31,7 +29,6 @@ const CreateCategory = () => {
           </CardContent>
         </BlankCard>
       </PageContainer>
-    </CategoryProvider>
   );
 };
 export default CreateCategory;

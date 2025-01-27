@@ -9,7 +9,6 @@ export default async function EditBlog({ params }: { params: { slug: string } })
   console.log("data", data);
 
   if (isServerError(data)) {
-    // Return a valid React component for the error message
     return (
       <div>
         <ErrorMessage error={data.error} />

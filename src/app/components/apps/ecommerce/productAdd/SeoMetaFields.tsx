@@ -29,6 +29,7 @@ const SEOMetaFields: React.FC<SEOMetaFieldsProps> = ({
       <Typography variant="h6" gutterBottom>
         SEO Meta Fields
       </Typography>
+      <br />
 
       {/* Meta Title */}
       <TextField

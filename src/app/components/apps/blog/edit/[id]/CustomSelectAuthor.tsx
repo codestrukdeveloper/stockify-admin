@@ -27,7 +27,7 @@ export const CustomSelectAuthor: React.FC<SelectProps> = ({
     const [authors, setAuthors] = useState<IAuthor[]>([]);
     const [search, setSearch] = useState<string>('');
     // Find the selected option based on the value
-    const selectedOption = authors.find((option) => option._id === value) || null;
+    const selectedOption = authors?.find((option) => option._id === value) || null;
 
     useEffect(() => {
         const fetchAuthor = async () => {

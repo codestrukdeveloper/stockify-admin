@@ -17,11 +17,10 @@ const BCrumb = [
   },
 ];
 
-export default async function BlogList({ searchParams }: { searchParams?: { page?: string, limit?: string; search?: string } }) {
-  const page = searchParams?.page ? parseInt(searchParams.page) : 1;
-  const limit = searchParams?.limit ? parseInt(searchParams.limit) : 20;
+export default async function BlogList() {
+  const page =  1;
+  const limit =10;
 
-  const search = searchParams?.search || "";
 
   const blogs = await fetchBlogs(page, limit);
 
@@ -38,7 +37,7 @@ export default async function BlogList({ searchParams }: { searchParams?: { page
       {/* Breadcrumb */}
       <Breadcrumb title="Blogs" items={BCrumb} />
       <BlankCard>
-        <BlogTableList initialBlogs={blogs.data} initialPage={page} initialSearch={search} />
+        <BlogTableList initialBlogs={blogs.data} totalPages={blogs.totalPage} />
       </BlankCard>
     </PageContainer>
   );

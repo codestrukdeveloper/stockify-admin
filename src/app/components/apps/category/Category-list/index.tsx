@@ -1,6 +1,6 @@
 "use client";
-import React, { useContext, useState } from "react";
-import { CategoryContext } from "@/app/context/CategoryContext/index";
+
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TextField,
@@ -9,127 +9,179 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Badge,
   Tooltip,
   IconButton,
-  Tabs,
-  Tab,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
   Box,
   Typography,
-  Grid,
   Stack,
   InputAdornment,
-  Chip,
+  TablePagination,
 } from "@mui/material";
 import Link from "next/link";
-import EditIcon from "@mui/icons-material/Edit";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  IconEdit,
-  IconEye,
-  IconListDetails,
-  IconSearch,
-  IconShoppingBag,
-  IconSortAscending,
-  IconTrash,
-  IconTruck,
-} from "@tabler/icons-react";
+import { IconEdit, IconEye, IconSearch, IconTrash } from "@tabler/icons-react";
 import CustomCheckbox from "@/app/components/forms/theme-elements/CustomCheckbox";
+import Loading from "@/app/loading";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { useRouter } from "next/navigation";
+import { getDaysAgo } from "@/utils/utils";
+import toast from "react-hot-toast";
+import { ICategory } from "@/app/(DashboardLayout)/types/apps/category";
+import { deleteCategory, fetchCategories } from "@/app/(DashboardLayout)/apps/category/action";
+import { IError } from "@/app/(DashboardLayout)/types/apps/error";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
 
-function ICategory() {
-  const { categories, deleteCategory } = useContext(CategoryContext);
+function CategoryList({ categories: initialcategories, totalPages, currentPage }: { categories: ICategory[], currentPage: number, totalPages: number }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
+  const [pageNo, setPageNo] = useState(currentPage);
+  const [loading, setLoading] = useState(false);
+  const [totalPage, setTotalPages] = useState(totalPages);
+  const [error, setError] = useState<IError>();
+
+
+  const [categories, setcategories] = useState<ICategory[]>(initialcategories || []);
+
+  const [limit, setLimit] = useState(10);
+
+
   const [activeTab, setActiveTab] = useState("All");
-  const [selectedProducts, setSelectedProducts] = useState<any>([]);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
-  const tabItem = ["All", "Shipped", "Delivered", "Pending"];
+
+  const fetchCategoriesWithPage = async (pageNo: number) => {
+    setLoading(true);
+    try {
+
+      const data = await fetchCategories(pageNo, limit);
+
+      if (isServerError(data)) {
+        return <div>
+          <ErrorMessage error={data.error} />
+        </div>
+      }
+
+      setcategories(data.data);
+      // setTotalPages(data.totalPage);
+    } catch (error) {
+
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
+
+  useEffect(() => {
+    fetchCategoriesWithPage(0);
+  }, [])
+
+  const onSearch = async (search: string) => {
+
+    setSearchTerm(search);
+
+    const data = await fetchCategories(1, 20, search);
+
+    if (isServerError(data)) {
+      setError(data.error);
+      return
+    }
+
+    setcategories(data.data);
+    setTotalPages(data.totalPage);
+
+  }
+
+  const tabItems = ["All", "Shipped", "Delivered", "Pending"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
-
-  // Handle status filter change
   const handleClick = (status: string) => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % tabItem.length);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % tabItems.length);
     setActiveTab(status);
   };
 
 
 
-  // Filter categories based on search term
-  const filteredCategories = categories.filter(
-    (category: { name: string; }) => {
-      return (
-        (category.name.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (activeTab === "All")
-      );
-    }
-  );
-
-
-
-  // Calculate the counts for different statuses
-  const Shipped = categories.filter(
-    (t: { status: string }) => t.status === "Shipped"
-  ).length;
-  const Delivered = categories.filter(
-    (t: { status: string }) => t.status === "Delivered"
-  ).length;
-  const Pending = categories.filter(
-    (t: { status: string }) => t.status === "Pending"
-  ).length;
-
-  // Toggle all checkboxes
   const toggleSelectAll = () => {
     const selectAllValue = !selectAll;
     setSelectAll(selectAllValue);
     if (selectAllValue) {
-      setSelectedProducts(categories.map((category: { id: any }) => category.id));
+      setSelectedProducts(categories.map((category: ICategory) => category._id!));
     } else {
       setSelectedProducts([]);
     }
   };
 
-  // Toggle individual product selection
-  const toggleSelectProduct = (productId: any) => {
-    const index = selectedProducts.indexOf(productId);
-    if (index === -1) {
-      setSelectedProducts([...selectedProducts, productId]);
-    } else {
-      setSelectedProducts(
-        selectedProducts.filter((id: any) => id !== productId)
-      );
-    }
+  const toggleSelectProduct = (productId: string) => {
+    setSelectedProducts((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
   };
 
-  // Handle opening delete confirmation dialog
   const handleDelete = () => {
     setOpenDeleteDialog(true);
   };
 
-  // Handle confirming deletion of selected products
   const handleConfirmDelete = async () => {
     for (const productId of selectedProducts) {
-      await deleteCategory(productId);
+
+      const deleted = await deleteCategory(productId);
+      if (isServerError(deleted)) {
+        return <div>
+          <ErrorMessage error={deleted.error} />
+        </div>
+      }
+
     }
+
+    setcategories((prev) =>
+      prev.filter((category) => !selectedProducts.includes(category._id!))
+    );
     setSelectedProducts([]);
+    toast.success("deleted successfully")
     setSelectAll(false);
     setOpenDeleteDialog(false);
+    onSearch("");
   };
 
-  // Handle closing delete confirmation dialog
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
   };
 
+  const handleChangePage = async (event: unknown, newPage: number) => {
+    console.log("pageNo", newPage, totalPages * limit);
+    setPageNo(newPage + 1);
+    await fetchCategoriesWithPage(newPage + 1)
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLimit(parseInt(event.target.value));
+    setPageNo(1);
+  };
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  console.log("categories", categories);
+  console.log("currentPage", currentPage);
+  console.log("totalPage", currentPage);
+
   return (
     <Box>
-    
+
+      {
+        error &&
+        <ServerErrorRender error={error} toastMessage />
+      }
       <Stack
         mt={3}
         justifyContent="space-between"
@@ -143,11 +195,11 @@ function ICategory() {
           variant="outlined"
           placeholder="Search"
           value={searchTerm}
-          onChange={(e: any) => setSearchTerm(e.target.value)}
+          onChange={(e) => onSearch(e.target.value)}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <IconSearch size={"16"} />
+                <IconSearch size={16} />
               </InputAdornment>
             ),
           }}
@@ -169,7 +221,7 @@ function ICategory() {
             component={Link}
             href="/apps/category/create"
           >
-            New Category
+            New categories
           </Button>
         </Box>
       </Stack>
@@ -194,73 +246,73 @@ function ICategory() {
                   Name
                 </Typography>
               </TableCell>
-              <TableCell align="center">
+              <TableCell >
                 <Typography variant="h6" fontSize="14px">
-                  Action
+                  Updated
                 </Typography>
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredCategories.map(
-              (category: {
-                id: any;
-                name: any;
-              }) => (
-                <TableRow key={category.id}>
-                  <TableCell padding="checkbox">
-                    <CustomCheckbox
-                      checked={selectedProducts.includes(category.id)}
-                      onChange={() => toggleSelectProduct(category.id)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="h6" fontSize="14px">
-                      {category.id}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="h6" fontSize="14px">
-                      {category.name}
-                    </Typography>
-                  </TableCell>
-               
-                  <TableCell align="center">
-                    <Tooltip title="Edit Category">
-                      <IconButton
-                        color="success"
-                        component={Link}
-                        href={`/apps/category/edit/${category.name}`}
-                      >
-                        <IconEdit width={22} />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="View Category">
-                      <IconButton
-                        color="primary"
-                        component={Link}
-                        href={`/apps/category/detail/${category.name}`}
-                      >
-                        <IconEye width={22} />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete Category">
-                      <IconButton
-                        color="error"
-                        onClick={() => {
-                          setSelectedProducts([category.id]);
-                          handleDelete();
-                        }}
-                      >
-                        <IconTrash width={22} />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              )
-            )}
+            {categories && categories.length > 0 && categories.map((category: ICategory) => (
+              <TableRow key={category._id}>
+                <TableCell padding="checkbox">
+                  <CustomCheckbox
+                    checked={selectedProducts.includes(category._id!)}
+                    onChange={() => toggleSelectProduct(category._id!)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Typography variant="h6" fontSize="14px">
+                    {category._id}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="h6" fontSize="14px">
+                    {category.name}
+                  </Typography>
+                </TableCell>
+
+                <TableCell>
+                  <Typography variant="h6" fontSize="14px">
+                    {category.updatedAt && getDaysAgo(category.updatedAt)}
+                  </Typography>
+                </TableCell>
+                <TableCell align="center">
+                  <Tooltip title="Edit Deposit">
+                    <IconButton
+                      color="success"
+                      component={Link}
+                      href={`/apps/category/edit/${category._id}`}
+                    >
+                      <IconEdit width={22} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete Deposit">
+                    <IconButton
+                      color="error"
+                      onClick={() => {
+                        setSelectedProducts([category._id!]);
+                        handleDelete();
+                      }}
+                    >
+                      <IconTrash width={22} />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
+        <TablePagination
+          rowsPerPageOptions={[10]}
+          component="div"
+          count={totalPage * limit}
+          rowsPerPage={limit}
+          page={pageNo - 1}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Box>
       <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirm Delete</DialogTitle>
@@ -271,16 +323,13 @@ function ICategory() {
           <Button variant="contained" onClick={handleCloseDeleteDialog}>
             Cancel
           </Button>
-          <Button
-            color="error"
-            variant="outlined"
-            onClick={handleConfirmDelete}
-          >
+          <Button color="error" variant="outlined" onClick={handleConfirmDelete}>
             Delete
           </Button>
         </DialogActions>
       </Dialog>
-    </Box >
+    </Box>
   );
 }
-export default ICategory;
+
+export default CategoryList;

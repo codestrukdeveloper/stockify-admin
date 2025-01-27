@@ -4,7 +4,6 @@ import React from "react";
 import CreateIndustryApp from "@/app/components/apps/industry/Add-industry";
 import BlankCard from "@/app/components/shared/BlankCard";
 import { CardContent } from "@mui/material";
-import { IndustryProvider } from "@/app/context/IndustryContext";
 
 const BCrumb = [
   {
@@ -18,7 +17,6 @@ const BCrumb = [
 
 const CreateIndustry = () => {
   return (
-    <IndustryProvider>
       <PageContainer
         title="Create Industry"
         description="this is Create Industry"
@@ -31,7 +29,6 @@ const CreateIndustry = () => {
           </CardContent>
         </BlankCard>
       </PageContainer>
-    </IndustryProvider>
   );
 };
 export default CreateIndustry;

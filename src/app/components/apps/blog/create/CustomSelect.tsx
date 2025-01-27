@@ -27,7 +27,7 @@ export const CustomSelect: React.FC<SelectProps> = ({
     const [relatedStocks, setRelatedStocks] = useState<ICompany[]>([]);
     const [search, setSearch] = useState<string>('');
     // Find the selected option based on the value
-    const selectedOption = relatedStocks.find((option) => option._id === value) || null;
+    const selectedOption = Array.isArray(relatedStocks) ? relatedStocks?.find((option) => option._id === value) || null : null;
 
     useEffect(() => {
         const fetchRelatedStocks = async () => {

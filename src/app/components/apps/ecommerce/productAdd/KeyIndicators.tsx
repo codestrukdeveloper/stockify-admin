@@ -219,7 +219,7 @@ const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data,id, 
                         <TextField
                           value={indicator[key as keyof IKeyIndicators] || "0"}
                           variant="standard"
-                          type="number"
+                          type="text"
                           onChange={(e) => handleEditIndicator(
                             periodIndex,
                             key as keyof IKeyIndicators,

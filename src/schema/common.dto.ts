@@ -7,7 +7,7 @@ export const objectIdSchema = z.string()
     // If the string is empty, return true (valid)
     if (id === "") return true;
     // Otherwise, validate the length
-    return id&& id?.length > 20;
+    return id && id?.length > 20;
   }, {
     message: "Invalid id", // Custom error message
   });
@@ -59,17 +59,21 @@ export const commonString = z.union([z.string(), z.number()]).transform((value) 
   // Return the string as-is
   return value;
 });
+
 export const periodString = z.string().transform((data) => {
-  const year = Number(data);
-  console.log("year", year);
-  if (!Number.isInteger(year) || year < 1900 || year > new Date().getFullYear() + 1) {
-    throw new Error("Period must be a valid year");
+  // Try to parse the input as a date
+  const date = new Date(data);
+
+  // Check if the parsed date is valid
+  if (!isNaN(date.getTime())) {
+    // If it's a valid date, extract and return the year
+    const year = date.getFullYear();
+    return year;
   }
-  return data;
-});
 
-
-
+  // If the input is not a valid date, return undefined (or null)
+  return undefined;
+}); 
 
 export const searchDto = z.object({
   search: z.string().optional(),

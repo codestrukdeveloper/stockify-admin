@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useState } from "react";
-import { IAuthor } from "@/app/(DashboardLayout)/types/apps/author";
 import { Box, FormControl, InputLabel, TextField, Autocomplete, FormHelperText } from "@mui/material";
+import { IAuthor } from "@/app/(DashboardLayout)/types/apps/IAuthor";
 import { fetchAuthors } from "@/app/(DashboardLayout)/apps/author/action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
+import { IError } from "@/app/(DashboardLayout)/types/apps/error";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
 
 export interface SelectProps {
     name: string;
@@ -26,19 +28,30 @@ export const CustomSelectAuthor: React.FC<SelectProps> = ({
 }) => {
     const [authors, setAuthors] = useState<IAuthor[]>([]);
     const [search, setSearch] = useState<string>('');
-    // Find the selected option based on the value
-    const selectedOption = authors.find((option) => option._id === value) || null;
+    const [errors, setError] = useState<IError>();
 
+    // Find the selected option based on the value
+    const selectedOption = Array.isArray(authors) ? authors?.find((option) => option._id === value) || null : null;
     useEffect(() => {
         const fetchAuthor = async () => {
-
-            const response = await fetchAuthors(1, 100);
-            if (isServerError(response)) {
-                return response?.error;
+            try {
+                const response = await fetchAuthors(1, 100);
+                if (isServerError(response)) {
+                    setError(response.error);
+                    setAuthors([]); // Set authors to an empty array in case of error
+                    return;
+                }
+                if (Array.isArray(response.data)) {
+                    setAuthors(response.data);
+                } else {
+                    console.error("Expected an array of authors, but received:", response.data);
+                    setAuthors([]); // Set authors to an empty array if the response is not an array
+                }
+            } catch (error) {
+                console.error("Error fetching authors:", error);
+                setAuthors([]); // Set authors to an empty array in case of unexpected errors
             }
-            setAuthors(response.data);
-
-        }
+        };
         fetchAuthor();
     }, [search]);
     const handleChange = (event: React.SyntheticEvent, newValue: IAuthor | null) => {
@@ -75,6 +88,8 @@ export const CustomSelectAuthor: React.FC<SelectProps> = ({
                     />
                     {/* Display error message if error is true */}
                     {error && <FormHelperText>{helperText}</FormHelperText>}
+                    {errors && <ServerErrorRender error={errors}/>}
+                    
                 </FormControl>
             </Box>
         </div>

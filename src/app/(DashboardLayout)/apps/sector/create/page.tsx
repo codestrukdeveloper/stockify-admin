@@ -4,7 +4,6 @@ import React from "react";
 import CreateSectorApp from "@/app/components/apps/sector/Add-sector";
 import BlankCard from "@/app/components/shared/BlankCard";
 import { CardContent } from "@mui/material";
-import { SectorProvider } from "@/app/context/SectorContext";
 
 const BCrumb = [
   {
@@ -18,7 +17,6 @@ const BCrumb = [
 
 const CreateSector = () => {
   return (
-    <SectorProvider>
       <PageContainer
         title="Create Sector"
         description="this is Create Sector"
@@ -31,7 +29,6 @@ const CreateSector = () => {
           </CardContent>
         </BlankCard>
       </PageContainer>
-    </SectorProvider>
   );
 };
 export default CreateSector;

@@ -30,23 +30,73 @@ import { IIndustry as IIndustryType } from "@/app/(DashboardLayout)/types/apps/i
 import { RootState } from "@/store/store";
 import Loading from "@/app/loading";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";
-import { fetchIndustries, deleteIndustryAction } from "@/store/apps/industry/industry-action";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { ISector } from "@/app/(DashboardLayout)/types/apps/sector";
+import { useRouter } from "next/navigation";
+import { deleteIndustry, fetchIndustries } from "@/app/(DashboardLayout)/apps/industry/action";
+import { IError } from "@/app/(DashboardLayout)/types/apps/error";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
+import toast from "react-hot-toast";
 
-function IndustryList({ industries: initialIndustries }: { industries: IIndustryType[] }) {
+function IndustryList({ industries: initialindustries, totalPages, currentPage }: { industries: IIndustryType[], currentPage: number, totalPages: number }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [pageNo, setPageNo] = useState(1);
+  const router = useRouter();
+  const [pageNo, setPageNo] = useState(currentPage);
+  const [loading, setLoading] = useState(false);
+  const [totalPage, setTotalPages] = useState(totalPages);
+  const [error, setError] = useState<IError | null>();
+
+  const [industries, setindustries] = useState<ISector[]>(initialindustries || []);
+
   const [limit, setLimit] = useState(10);
-  const { loading, total, totalPage, error } = useSelector((state: RootState) => state.industryReducer);
 
   const [activeTab, setActiveTab] = useState("All");
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const dispatch = useDispatch();
+
 
   useEffect(() => {
-    dispatch(fetchIndustries(pageNo, limit));
-  }, [dispatch, pageNo, limit]);
+    fetchindustriesWithPage(0);
+  }, [])
+
+  const fetchindustriesWithPage = async (pageNo: number) => {
+    setLoading(true);
+    try {
+
+      const data = await fetchIndustries(pageNo, limit);
+
+      if (isServerError(data)) {
+        setError(data.error);
+        return
+      }
+
+      setindustries(data.data);
+      // setTotalPages(data.totalPage);
+    } catch (error) {
+
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
+
+
+  const onSearch = async (search: string) => {
+
+    setSearchTerm(search);
+
+    const data = await fetchIndustries(1, 20, search);
+
+    if (isServerError(data)) {
+      setError(data.error);
+      return
+    }
+    setindustries(data.data);
+    setTotalPages(data.totalPage);
+
+  }
 
   const tabItems = ["All", "Shipped", "Delivered", "Pending"];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,35 +106,7 @@ function IndustryList({ industries: initialIndustries }: { industries: IIndustry
     setActiveTab(status);
   };
 
-  const getVisibleProduct = (
-    industries: IIndustryType[],
-    sortBy: string,
-    search: string
-  ): IIndustryType[] => {
-    let filteredIndustries = industries;
 
-    if (sortBy === "newest") {
-      filteredIndustries = orderBy(filteredIndustries, ["created"], ["desc"]);
-    } else if (sortBy === "priceAsc") {
-      filteredIndustries = orderBy(filteredIndustries, ["price"], ["asc"]);
-    }
-
-    if (search !== "") {
-      filteredIndustries = filteredIndustries.filter((industry) =>
-        industry.name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    return filteredIndustries;
-  };
-
-  const industries = useSelector((state: RootState) =>
-    getVisibleProduct(
-      state.industryReducer.industries,
-      state.industryReducer.sortBy,
-      searchTerm
-    )
-  );
 
   const toggleSelectAll = () => {
     const selectAllValue = !selectAll;
@@ -110,19 +132,37 @@ function IndustryList({ industries: initialIndustries }: { industries: IIndustry
 
   const handleConfirmDelete = async () => {
     for (const productId of selectedProducts) {
-      dispatch(deleteIndustryAction(productId));
+
+      const deleted = await deleteIndustry(productId);
+      if (isServerError(deleted)) {
+        setError(deleted.error);
+        setSelectAll(false);
+        setOpenDeleteDialog(false);
+        onSearch("");
+        return
+      }
+
     }
+    toast.success("removed")
     setSelectedProducts([]);
+
+    setindustries((prev) =>
+      prev.filter((industry) => !selectedProducts.includes(industry._id!))
+    );
     setSelectAll(false);
     setOpenDeleteDialog(false);
+    onSearch("");
+
   };
 
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPageNo(newPage);
+  const handleChangePage = async (event: unknown, newPage: number) => {
+    console.log("pageNo", newPage, totalPages * limit);
+    setPageNo(newPage + 1);
+    await fetchindustriesWithPage(newPage + 1)
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,12 +174,17 @@ function IndustryList({ industries: initialIndustries }: { industries: IIndustry
     return <Loading />;
   }
 
-  console.log("Industries", industries);
-  console.log("total", total);
-  console.log("totalPage", totalPage);
+  console.log("industries", industries);
+  console.log("currentPage", currentPage);
+  console.log("totalPage", currentPage);
 
   return (
     <Box>
+
+      {
+        error &&
+        <ServerErrorRender error={error} toastMessage />
+      }
       <Stack
         mt={3}
         justifyContent="space-between"
@@ -153,7 +198,7 @@ function IndustryList({ industries: initialIndustries }: { industries: IIndustry
           variant="outlined"
           placeholder="Search"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => onSearch(e.target.value)}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -235,18 +280,9 @@ function IndustryList({ industries: initialIndustries }: { industries: IIndustry
                     <IconButton
                       color="success"
                       component={Link}
-                      href={`/apps/industry/edit/${industry.name}`}
+                      href={`/apps/industry/edit/${industry._id}`}
                     >
                       <IconEdit width={22} />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="View Industry">
-                    <IconButton
-                      color="primary"
-                      component={Link}
-                      href={`/apps/industry/detail/${industry.name}`}
-                    >
-                      <IconEye width={22} />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Delete Industry">
@@ -265,13 +301,12 @@ function IndustryList({ industries: initialIndustries }: { industries: IIndustry
             ))}
           </TableBody>
         </Table>
-        {error && <ErrorMessage error={error} />}
         <TablePagination
-          rowsPerPageOptions={[10, 25, 50, 100]}
+          rowsPerPageOptions={[10]}
           component="div"
-          count={total}
+          count={totalPage * limit}
           rowsPerPage={limit}
-          page={pageNo - 1} // Page is zero-based in TablePagination
+          page={pageNo - 1}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />

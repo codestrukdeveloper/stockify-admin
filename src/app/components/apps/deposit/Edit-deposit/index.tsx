@@ -1,6 +1,5 @@
 "use client";
 import React, { useContext, useState, useEffect } from "react";
-import { DepositContext } from "@/app/context/DepositContext/index";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Button,
@@ -20,59 +19,43 @@ import {
   Stack,
   Divider,
   Grid,
+  TextField,
 } from "@mui/material";
-import { format, isValid } from "date-fns";
 import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
-import CustomSelect from "@/app/components/forms/theme-elements/CustomSelect";
-import CustomTextField from "@/app/components/forms/theme-elements/CustomTextField";
-import { IconSquareRoundedPlus, IconTrash } from "@tabler/icons-react";
+import { updateDepositById } from "@/app/(DashboardLayout)/apps/deposit/action";
+import ErrorMessage from "@/app/components/shared/ErrorMessage";
+import { isServerError } from "@/app/(DashboardLayout)/action";
+import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
+import toast from "react-hot-toast";
+import { IDeposit } from "@/app/(DashboardLayout)/types/apps/deposit";
 
-const EditDepositPage = () => {
-  const { deposits, updateDeposit } = useContext(DepositContext);
+const EditDepositPage = ({ depositData: initialData }: { depositData: IDeposit }) => {
+
+  const [depositData, setDepositData] = useState<IDeposit>(initialData);
   const [showAlert, setShowAlert] = useState(false);
-  const [selectedDeposit, setSelectedDeposit] = useState<any>(null);
   const [editing, setEditing] = useState(false);
-  const [editedDeposit, setEditedDeposit]: any = useState(null);
 
   const pathName = usePathname();
   const getTitle = pathName.split("/").pop();
-
-  useEffect(() => {
-    if (deposits.length > 0) {
-      // If there's a specific item to edit, use it
-      if (getTitle) {
-        const deposit = deposits.find(
-          (inv: { name: string }) => inv.name === getTitle
-        );
-        if (deposit) {
-          setSelectedDeposit(deposit);
-          setEditedDeposit({ ...deposit });
-          setEditing(true);
-        } else {
-          // If specific item not found, fallback to default
-          setSelectedDeposit(deposits[0]);
-          setEditedDeposit({ ...deposits[0] });
-          setEditing(true);
-        }
-      } else {
-        // No specific item, default to the first deposit
-        setSelectedDeposit(deposits[0]);
-        setEditedDeposit({ ...deposits[0] });
-        setEditing(true);
-      }
-    }
-  }, [getTitle, deposits]);
-
   const router = useRouter();
-
+  console.log("depositData", depositData);
   const handleSave = async () => {
     try {
-      await updateDeposit(editedDeposit);
-      setSelectedDeposit({ ...editedDeposit });
+      const isUpdated = await updateDepositById(depositData._id!, depositData);
+
+
+      if (isServerError(isUpdated)) {
+
+        return <ServerErrorRender error={isUpdated.error} />
+
+      }
+
+
       setEditing(false); // Exit editing mode
       setShowAlert(true);
 
       // Navigate to the list page
+      toast.success("updated");
       router.push("/apps/deposit/list");
     } catch (error) {
       console.error("Error updating deposit:", error);
@@ -87,15 +70,11 @@ const EditDepositPage = () => {
     setEditing(false);
   };
 
-  if (!selectedDeposit) {
-    return <div>Please select an deposit.</div>;
+  if (!depositData) {
+    return <ErrorMessage error={{ message: "Data Not Found" }} />;
   }
 
-  const orderDate = selectedDeposit.orderDate;
-  const parsedDate = isValid(new Date(orderDate))
-    ? new Date(orderDate)
-    : new Date();
-  const formattedOrderDate = format(parsedDate, "EEEE, MMMM dd, yyyy");
+
 
   return (
     <Box>
@@ -106,7 +85,7 @@ const EditDepositPage = () => {
         alignItems="center"
         mb={3}
       >
-        <Typography variant="h5"># {editedDeposit.id}</Typography>
+        <Typography variant="h5"># {depositData._id}</Typography>
         <Box display="flex" gap={1}>
           {editing ? (
             <>
@@ -133,15 +112,18 @@ const EditDepositPage = () => {
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} sm={6}>
           <CustomFormLabel>Name</CustomFormLabel>
-          <CustomTextField
-            value={editedDeposit.name}
+
+          <TextField
+
+            disabled={!editing}
+            value={depositData.name}
             onChange={(e: any) =>
-              setEditedDeposit({ ...editedDeposit, name: e.target.value })
+              setDepositData({ ...depositData, name: e.target.value })
             }
             fullWidth
           />
         </Grid>
-       
+
       </Grid>
 
 

@@ -50,6 +50,8 @@ export interface ICompany {
     dhrpLink?: string;
     aboutus?: string;
     categoryId?: string;
+    ipoPrice?:number;
+    ipoDate?:string;
     depositsId?: string[];
     management: IManagement[]
     industryId?: string;
@@ -80,10 +82,10 @@ export interface ICompanyFull{
 };
 
 export interface ICompanyFullExtended extends ICompany {
-    profitLoss: IProfitLosses[],
+    profitLosses: IProfitLosses[],
     priceTrend: IPriceTrend[],
     keyIndicators: IKeyIndicators[],
-    balanceSheet: IBalanceSheet[],
+    balanceSheets: IBalanceSheet[],
     cashFlow: ICashflowSum[],
 }
 

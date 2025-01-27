@@ -18,7 +18,7 @@ const BCrumb = [
 
 export default async function EcomProductList({ searchParams }: { searchParams?: { page?: string, limit?: string; search?: string } }) {
   const page = searchParams?.page ? parseInt(searchParams.page) : 1;
-  const limit = searchParams?.limit ? parseInt(searchParams.limit) : 20;
+  const limit = searchParams?.limit ? parseInt(searchParams.limit) : 10;
 
   const search = searchParams?.search || "";
 
@@ -42,7 +42,7 @@ export default async function EcomProductList({ searchParams }: { searchParams?:
       {/* Breadcrumb */}
       <Breadcrumb title="Stocks" items={BCrumb} />
       <BlankCard>
-        <ProductTableList initialCompanies={companies.data} initialPage={page} initialSearch={search} />
+        <ProductTableList initialCompanies={companies.data} totalPages={companies.totalPage}   initialPage={page} initialSearch={search} />
       </BlankCard>
     </PageContainer>
   );

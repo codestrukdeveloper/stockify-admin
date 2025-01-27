@@ -1,5 +1,5 @@
 import { Common } from '@/app/(DashboardLayout)/types/apps/common';
-import { IDeposit } from '@/app/(DashboardLayout)/types/apps/industry';
+import { IDeposit } from '@/app/(DashboardLayout)/types/apps/deposit';
 import { Box, Select, MenuItem, InputLabel, FormControl, Chip, Checkbox, ListItemText, SelectChangeEvent, FormHelperText } from '@mui/material';
 import React, { useState } from 'react';
 
@@ -51,12 +51,12 @@ const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({
                     </Box>
                 )}
             >
-                {options.map((option:IDeposit) => (
+                {Array.isArray(options) ? options?.map((option:IDeposit) => (
                     <MenuItem key={option._id} value={option._id}>
                         <Checkbox checked={selectedValues.indexOf(option._id!) > -1} />
                         <ListItemText primary={option.name} />
                     </MenuItem>
-                ))}
+                )):null}
             </Select>
             {error && <FormHelperText>{helperText}</FormHelperText>}
         </FormControl>

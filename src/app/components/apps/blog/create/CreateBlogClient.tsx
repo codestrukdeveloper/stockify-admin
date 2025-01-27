@@ -33,6 +33,7 @@ import { isServerError } from '@/app/(DashboardLayout)/action';
 import { IBlog } from '@/app/(DashboardLayout)/types/apps/IBlog';
 import toast from 'react-hot-toast';
 import { uploadFile } from '@/utils/api/uploadAction';
+import Image from 'next/image';
 
 const CreateBlogClient: React.FC = () => {
     const [title, setTitle] = useState('');
@@ -156,11 +157,11 @@ const CreateBlogClient: React.FC = () => {
                 // Upload the featured image if it exists
                 let uploadedImageUrl = '';
                 if (featuredImage) {
-                  console.log("featuredImage",featuredImage);
-                    const uploadResponse = await uploadFile([featuredImage],'stocks');
+                    console.log("featuredImage", featuredImage);
+                    const uploadResponse = await uploadFile([featuredImage], 'stocks');
                     if (isServerError(uploadResponse)) {
                         console.log("isServerError", uploadResponse);
-                        toast.error(uploadResponse.error.message||"Image upload failed");
+                        toast.error(uploadResponse.error.message || "Image upload failed");
                         return;
                     }
                     console.log("uploadre", uploadResponse);
@@ -261,6 +262,22 @@ const CreateBlogClient: React.FC = () => {
                     />
                 </Grid>
                 <Grid item xs={12} md={4}>
+                    {featuredImage && (
+                        <Box style={{ position: "relative", width: "100%", height: "150px" }}>
+                            <Image
+                                src={URL.createObjectURL(featuredImage)}
+                                alt="featured_image"
+                                fill
+                                style={{ objectFit: "cover" }} // Ensures the image covers the container
+                            />
+                        </Box>
+                    )}
+                    <br />
+                    <Button component="label" variant="contained" startIcon={<CloudUploadIcon />} fullWidth>
+                        Upload Featured Image
+                        <input type="file" hidden accept="image/*" onChange={handleImageUpload} required />
+                    </Button>
+
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }} mb={2}>
                         <TextField
                             fullWidth
@@ -294,10 +311,6 @@ const CreateBlogClient: React.FC = () => {
                             </Select>
                         </FormControl>
 
-                        <Button component="label" variant="contained" startIcon={<CloudUploadIcon />} fullWidth>
-                            Upload Featured Image
-                            <input type="file" hidden accept="image/*" onChange={handleImageUpload} required />
-                        </Button>
 
                         {featuredImage && (
                             <Typography variant="body2">{featuredImage.name}</Typography>

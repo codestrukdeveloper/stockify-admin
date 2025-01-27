@@ -7,7 +7,7 @@ const API_URL = BASE_URL+'/admin/company';
 export const companyService = {
   fetchCompanies: async (page: number, limit: number) => {
     const response = await axiosServices.get(`${API_URL}?page=${page}&limit=${limit}`);
-    return response.data.data;
+    return response;
   },
 
   uploadImage: async (folder: string, files: File[]) => {
@@ -33,7 +33,7 @@ export const companyService = {
 
   fetchCompanyById: async (id: string) => {
     const response = await axiosServices.get(`${API_URL}/${id}`);
-    return response.data.data;
+    return response;
   },
   deleteCompanyById: async (id: string) => {
     const response = await axiosServices.delete(`${API_URL}/${id}`);
