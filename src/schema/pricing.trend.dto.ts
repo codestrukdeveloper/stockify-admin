@@ -8,7 +8,7 @@ export const createPriceTrendDto = z.object({
     period:periodString,
 });
 
-export const updatePriceTrendDto = createPriceTrendDto.partial().extend({
+export const updatePriceTrendDto = createPriceTrendDto.extend({
     _id: objectIdSchema.optional(),
 });
 

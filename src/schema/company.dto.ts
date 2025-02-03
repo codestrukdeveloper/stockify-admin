@@ -76,8 +76,8 @@ const companyBaseSchema = z.object({
   qty: commonNumber.refine(val => !isNaN(Number(val)), { message: "Quantity must be a valid number" }),
   sectorId: objectIdSchema,
   dhrpId: objectIdSchema,
-  ipoPrice: z.string().optional(),
-  ipoDate: z.string().optional(),
+  ipoPrice: commonNumber,
+  ipoDate: periodString,
   depositsId: z.array(objectIdSchema).min(1, "At least one deposit is required"),
   performanceId: objectIdSchema.optional(),
   isin: z.string().max(50, "ISIN must be at most 50 characters"),
@@ -156,13 +156,13 @@ const companyBaseSchemaUpdate = z.object({
 });
 
 const updateCompanyBaseSchema = z.object({
-  company: companyBaseSchemaUpdate.optional(),
-  priceTrend: z.array(updatePriceTrendDto).optional(),
-  shareHolders: z.array(updateShareholderDto).optional(),
-  profitLoss: z.array(updateProfitLossesDto).optional(),
-  balanceSheet: z.array(UpdateBalanceSheetDto).optional(),
+  company: companyBaseSchemaUpdate,
+  priceTrend: z.array(updatePriceTrendDto),
+  shareHolders: z.array(updateShareholderDto),
+  profitLoss: z.array(updateProfitLossesDto),
+  balanceSheet: z.array(UpdateBalanceSheetDto),
   cashFlow: z.array(updateCashflowSumDto).optional(),
-  keyIndicators: z.array(UpdateKeyIndicatorsDto).optional(),
+  keyIndicators: z.array(UpdateKeyIndicatorsDto),
 });
 
 

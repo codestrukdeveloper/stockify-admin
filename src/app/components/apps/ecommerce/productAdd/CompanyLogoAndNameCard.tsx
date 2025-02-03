@@ -198,7 +198,7 @@ const CompanyLogoAndNameCard: React.FC<CompanyLogoAndNameCardProps> = ({
                     placeholder="Ipo Date"
                     variant="filled"
                     name="ipoDate"
-                    type="date"
+                    type="text"
                     sx={{ width: "100%" }}
                     value={company?.ipoDate || ""}
                     onChange={(e) => onChange("ipoDate", e.target.value)}
@@ -379,7 +379,7 @@ const CompanyLogoAndNameCard: React.FC<CompanyLogoAndNameCardProps> = ({
                   <CustomMultiSelect
                     name="depositsId"
                     id={'company.depositsId'}
-                    onChange={(value) => onChange("depositsId", value)} // Pass array of selected values
+                    onChange={(value) => onChange("depositsId", value)} 
                     options={deposits}
                     error={!!validationErrors["company.depositsId"]}
                     helperText={validationErrors["company.depositsId"]}

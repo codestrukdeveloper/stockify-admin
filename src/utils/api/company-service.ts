@@ -2,7 +2,7 @@ import { ICompanyFull, ICompanyFullExtended } from "@/app/(DashboardLayout)/type
 import { BASE_URL } from ".";
 import axiosServices from "../axios";
 
-const API_URL = BASE_URL+'/admin/company';
+const API_URL = '/admin/company';
 
 export const companyService = {
   fetchCompanies: async (page: number, limit: number) => {
@@ -32,7 +32,7 @@ export const companyService = {
   },
 
   fetchCompanyById: async (id: string) => {
-    const response = await axiosServices.get(`${API_URL}/${id}`);
+    const response = await axiosServices.get(`${API_URL}/${id}/company`);
     return response;
   },
   deleteCompanyById: async (id: string) => {

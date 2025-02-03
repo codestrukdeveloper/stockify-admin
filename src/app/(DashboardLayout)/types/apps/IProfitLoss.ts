@@ -3,8 +3,6 @@ export interface IProfitLosses {
   _id?: string;
   companyId?: string;
   period: string;
-  
-
   revenue?: string;
   expense?: string;
   ebdita?: string;

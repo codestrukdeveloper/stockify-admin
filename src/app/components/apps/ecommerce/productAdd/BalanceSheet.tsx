@@ -212,7 +212,7 @@ const EditableBalanceSheet: React.FC<EditableBalanceSheetProps> = ({
                       <TextField
                         value={balanceSheet.period}
                         variant="standard"
-                        type="number"
+                        type="text"
                         InputProps={{
                           style: { color: "white", textAlign: "center" },
                           inputProps: { min: 2000 },
@@ -275,7 +275,7 @@ const EditableBalanceSheet: React.FC<EditableBalanceSheetProps> = ({
                         <TextField
                           value={balanceSheet[key as keyof IBalanceSheet] || "0"}
                           variant="standard"
-                          type="number"
+                          type="2025"
                           onChange={(e) =>
                             handleEditIndicator(
                               periodIndex,

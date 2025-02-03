@@ -98,7 +98,7 @@ export async function updateCompany(
 ): Promise<IServerResponse<ICompanyFull>> {
     try {
         const response = await companyService.updateCompany(id, company);
-        console.log("Response", response)
+        console.log("Response", response.data.data)
         return response.data.data;
     } catch (error: any) {
         console.error("Error updating company:", error);

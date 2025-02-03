@@ -20,7 +20,7 @@ import { createCompanyAction, updateCompany, updateCompanyLogo, uploadImages } f
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import { IError } from "@/app/(DashboardLayout)/types/apps/error";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";
-import { createCompanyDto, updateCompanyDto } from "@/schema/company.dto";
+import { createCompanyDto, financialResultsSchema, updateCompanyDto } from "@/schema/company.dto";
 import ExcelUploader from "./ExcelUploader";
 import FinancialResultUploader from "./FinancialResultUpload";
 import { IShareholder } from "@/app/(DashboardLayout)/types/apps/IShareholder";
@@ -32,6 +32,13 @@ import ValidationErrors from "@/app/components/shared/ValidationError";
 import { uploadFile } from "@/utils/api/uploadAction";
 import SEOMetaFields from "./SeoMetaFields";
 import { IDeposit } from "@/app/(DashboardLayout)/types/apps/deposit";
+import { initialBalanceSheet, initialCashflowSum, initialPriceTrend, initialProfitLosses, keyIndicatorsInitialValue } from "@/app/(DashboardLayout)/apps/company/edit-company/[id]/page";
+import { CreateProfitLossesDto, updateProfitLossesDto } from "@/schema/profitloss.dto";
+import { z } from "zod";
+import { UpdateKeyIndicatorsDto } from "@/schema/keyIndicators.dto";
+import { updateCashflowSumDto } from "@/schema/cashflow.dto";
+import { updatePriceTrendDto } from "@/schema/pricing.trend.dto";
+import { UpdateBalanceSheetDto } from "@/schema/balanceSheet.dto";
 
 
 
@@ -198,7 +205,26 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
 
 
   const handleInputChange = (key: keyof ICompanyFull, value: any) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    setFormData((prev) => {
+      if (key === "keyIndicators" && Array.isArray(value)) {
+        const existingKeyIndicators = prev[key] || [];
+        const updatedKeyIndicators = value.map((newItem) => {
+          const existingItem = existingKeyIndicators.find(
+            (item) => item._id === newItem._id
+          );
+          return existingItem ? { ...existingItem, ...newItem } : newItem;
+        });
+        return {
+          ...prev,
+          [key]: updatedKeyIndicators,
+        };
+      }
+  
+      return {
+        ...prev,
+        [key]: value,
+      };
+    });
   };
 
 
@@ -236,20 +262,21 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
     console.log("formData", formData);
     delete formData.company.logo;
 
+
     if (!formData.company._id) {
       toast.error("Invali Id");
       return
     }
 
-    let validationResult;
+    let   validationResult = updateCompanyDto.safeParse({
+      _id: formData.company._id,
+      ...formData
+    });
 
 
     console.log("fromadata", formData);
 
-    validationResult = updateCompanyDto.safeParse({
-      _id: formData.company._id,
-      ...formData
-    });
+  
 
 
 
@@ -274,17 +301,24 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
     try {
 
       const data = validationResult.data.company as unknown as ICompany;
+      console.log("data",data);
+      const validatedProfitLoss = z.array(updateProfitLossesDto).parse(validationResult.data.profitLoss || [initialProfitLosses]);
+      const validatedKeyIndicators = z.array(UpdateKeyIndicatorsDto).parse(validationResult.data.keyIndicators || [keyIndicatorsInitialValue]);
+      const validatedCashFlow = z.array(updateCashflowSumDto).parse(validationResult.data.cashFlow || [initialCashflowSum]);
+      const validatedPriceTrend = z.array(updatePriceTrendDto).parse(validationResult.data.priceTrend || [initialPriceTrend]);
+      const validatedBalanceSheet = z.array(UpdateBalanceSheetDto).parse(validationResult.data.balanceSheet || [initialBalanceSheet]);
+
+
       const updatedData: ICompanyFullExtended = {
         ...data,
         _id: formData.company._id,
-        profitLoss: validationResult.data.profitLoss || [],
-        keyIndicators: validationResult.data.keyIndicators || [],
-        balanceSheet: validationResult.data.balanceSheet || [],
-        cashFlow: validationResult.data.cashFlow || [],
-        priceTrend: validationResult.data.priceTrend || [],
+        profitLoss: validatedProfitLoss,
+        keyIndicators:validatedKeyIndicators,
+        balanceSheets:validatedBalanceSheet,
+        cashFlow: validatedCashFlow,
+        priceTrend: validatedPriceTrend,
       };
-
-      console.log("formData", formData)
+      console.log("updatedDataformData", formData)
 
 
       const created = await updateCompany(formData.company._id!, updatedData);
@@ -330,7 +364,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         console.log("uploadedLogo created", uploadedLogo);
 
         if (Array.isArray(uploadedLogo)) {
-          const updatedCompanyWithLogo = await updateCompanyLogo(created._id!, uploadedLogo[0]);
+          const updatedCompanyWithLogo = await updateCompanyLogo(formData.company._id!, uploadedLogo[0]);
           if (isServerError(updatedCompanyWithLogo)) {
             toast.error("Failed to update company logo");
             return;
@@ -358,11 +392,12 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
             };
           })
         );
+
+        const validateFinancialResults=financialResultsSchema.parse(uploadedFinancialResults);
         console.log("Uploaded financial results:", uploadedFinancialResults);
 
-        // Update company with financial results
-        const updatedCompanyWithFinancialResults = await updateCompany(created._id!, {
-          financialResults: uploadedFinancialResults,
+        const updatedCompanyWithFinancialResults = await updateCompany(formData.company._id!, {
+          financialResults: [validateFinancialResults],
         });
         if (isServerError(updatedCompanyWithFinancialResults)) {
           toast.error("Failed to update company with financial results");
@@ -374,7 +409,8 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
       toast.success("Company created and files uploaded successfully!");
       setValidationErrors({})
 
-    } catch (error) {
+    } catch (error:any) {
+      toast.error(`${error.message}`);
       console.log("ERROR", error);
     }
   };

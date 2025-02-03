@@ -9,7 +9,9 @@ const getRefreshTokenFromLocalStorage = () => {
 };
 
 
-const BASE_URL = 'http://13.232.10.252:3000/api/v1';
+// const BASE_URL = 'http://13.232.10.252:3000/api/v1';
+const BASE_URL = 'http://localhost:3001/api/v1';
+
 
 const axiosServices = axios.create({
   baseURL: BASE_URL,

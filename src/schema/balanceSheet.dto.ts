@@ -16,7 +16,7 @@ export const BalanceSheetDto = z.object({
     totalEqLiability: commonString.default("0"),
   });
 
-  export const UpdateBalanceSheetDto=BalanceSheetDto.partial().extend({
+  export const UpdateBalanceSheetDto=BalanceSheetDto.extend({
     _id:objectIdSchema.optional()
   })
   

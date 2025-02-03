@@ -68,11 +68,11 @@ export const periodString = z.string().transform((data) => {
   if (!isNaN(date.getTime())) {
     // If it's a valid date, extract and return the year
     const year = date.getFullYear();
-    return year;
+    return year.toString();
   }
 
   // If the input is not a valid date, return undefined (or null)
-  return undefined;
+  throw new Error("invalid period")
 }); 
 
 export const searchDto = z.object({

@@ -203,7 +203,7 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({
                       <TextField
                         value={profitLoss.period}
                         variant="standard"
-                        type="number"
+                        type="text"
                         InputProps={{
                           style: {
                             color: 'white',
@@ -260,7 +260,7 @@ const EditableProfitLossSummary: React.FC<EditableProfitLossSummaryProps> = ({
                         <TextField
                           value={profitLoss[key as keyof IProfitLosses] || "0"}
                           variant="standard"
-                          type="number"
+                          type="text"
                           onChange={(e) => handleEditIndicator(
                             periodIndex,
                             key as keyof IProfitLosses,

@@ -162,7 +162,7 @@ const EditableKeyIndicators: React.FC<EditableKeyIndicatorsProps> = ({ data,id, 
                       <TextField
                         value={indicator.period}
                         variant="standard"
-                        type="number"
+                        type="text"
                         InputProps={{
                           style: {
                             color: 'white',

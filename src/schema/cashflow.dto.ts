@@ -10,7 +10,7 @@ export const createCashflowSumDto = z.object({
     companyId:  objectIdSchema.optional()
 });
 
-export const updateCashflowSumDto = createCashflowSumDto.partial().extend({
+export const updateCashflowSumDto = createCashflowSumDto.extend({
     _id:objectIdSchema.optional()
 });
 

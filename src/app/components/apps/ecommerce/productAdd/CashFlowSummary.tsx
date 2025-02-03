@@ -195,7 +195,7 @@ const EditableCashflowSummary: React.FC<EditableCashflowSummaryProps> = ({
                       <TextField
                         value={cashflow.period}
                         variant="standard"
-                        type="number"
+                        type="text"
                         InputProps={{
                           style: {
                             color: "white",
@@ -259,7 +259,7 @@ const EditableCashflowSummary: React.FC<EditableCashflowSummaryProps> = ({
                         <TextField
                           value={cashflow[key as keyof ICashflowSum] || "0"}
                           variant="standard"
-                          type="number"
+                          type="text"
                           onChange={(e) =>
                             handleEditField(
                               periodIndex,

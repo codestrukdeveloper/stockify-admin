@@ -15,7 +15,7 @@ import EditCompanyClient from "@/app/components/apps/ecommerce/productAdd/EditCo
 import { fetchCategories } from "../../../category/action";
 import { fetchDhrps } from "../../../dhrps/action";
 
-const keyIndicatorsInitialValue: IKeyIndicators = {
+export const keyIndicatorsInitialValue: IKeyIndicators = {
   period: "2025",
   currentSharePrice: "0",
   faceValuePerShare: "0",
@@ -33,7 +33,7 @@ const keyIndicatorsInitialValue: IKeyIndicators = {
   rowc: "0",
 };
 
-const initialBalanceSheet: IBalanceSheet = {
+export const initialBalanceSheet: IBalanceSheet = {
   period: new Date().getFullYear().toString(),
   cashEqlt: "0",
   nonCurrentAsset: "0",
@@ -49,7 +49,7 @@ const initialBalanceSheet: IBalanceSheet = {
   companyId: "",
 };
 
-const initialCashflowSum: ICashflowSum = {
+export const initialCashflowSum: ICashflowSum = {
   period: new Date().getFullYear().toString(),
   operatingAct: "0",
   investingAct: "0",
@@ -57,13 +57,13 @@ const initialCashflowSum: ICashflowSum = {
   netCashFlow: "0",
 };
 
-const initialPriceTrend: IPriceTrend = {
+export const initialPriceTrend: IPriceTrend = {
   price: "0",
   label: "",
   period: new Date().getFullYear().toString(),
 };
 
-const initialProfitLosses: IProfitLosses = {
+export const initialProfitLosses: IProfitLosses = {
   period: new Date().getFullYear().toString(),
   revenue: "0",
   expense: "0",
@@ -138,11 +138,11 @@ export default async function AddCompany({ params }: { params: { id: string } })
     return <ErrorMessage error={companyData.error} />
   }
 
-  console.log("companyData", companyData);
+  console.log("companyData", companyData.keyIndicators);
 
 
   const companyDataHere: ICompanyFull = {
-    profitLoss: companyData.profitLosses || [initialProfitLosses],
+    profitLoss: companyData.profitLoss || [initialProfitLosses],
     cashFlow: companyData.cashFlow || [initialCashflowSum],
     keyIndicators: companyData.keyIndicators || [keyIndicatorsInitialValue],
     balanceSheet: companyData.balanceSheets || [initialBalanceSheet],
@@ -172,6 +172,8 @@ export default async function AddCompany({ params }: { params: { id: string } })
       industryId: companyData.industryId || "",
       sectorId: companyData.sectorId || "",
       performanceId: companyData.performanceId || "",
+      ipoDate: companyData.ipoDate|| "",
+      ipoPrice: companyData.ipoPrice|| "",
       depositsId: companyData.depositsId || [],
       dhrpId: companyData.dhrpId || "",
       management: companyData.management || [],
