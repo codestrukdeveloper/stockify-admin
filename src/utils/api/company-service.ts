@@ -12,17 +12,17 @@ export const companyService = {
 
   uploadImage: async (folder: string, files: File[]) => {
     const formData = new FormData();
-  
+
     files.forEach(file => {
       formData.append("files", file);
     });
-  
+
     formData.append("folder", folder);
-  
+
     const response = await axiosServices.post(`${BASE_URL}/admin/upload`, formData);
     return response.data;
   },
-  
+
 
   searchCompanies: async (page: number, limit: number, search: string) => {
     const response = await axiosServices.get(
@@ -41,15 +41,16 @@ export const companyService = {
   },
 
   createCompany: async (company: ICompanyFullExtended) => {
-    const response = await axiosServices.post(API_URL+"/new", company);
+    const response = await axiosServices.post(API_URL + "/new", company);
     return response;
   },
-  updateCompany: async (id:string, company: Partial<ICompanyFull>) => {
+  updateCompany: async (id: string, company: Partial<ICompanyFull>) => {
+    console.log("comapnyUPdateData", company)
     const response = await axiosServices.put(`${API_URL}/${id}`, company);
     return response;
   },
-  updateCompanyLogo: async (id:string, logo: string) => {
-    const response = await axiosServices.put(`${API_URL}/${id}`, {logo});
+  updateCompanyLogo: async (id: string, logo: string) => {
+    const response = await axiosServices.put(`${API_URL}/${id}`, { logo });
     return response;
   },
 };

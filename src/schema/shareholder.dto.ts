@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { commonNumber } from "./common.dto";
 
 
 
 export const createShareholderDto = z.object({
     name: z.string().max(100, "Name must not exceed 100 characters"),
-    percent: z.string().max(50, "Percent must not exceed 50 characters"),
+    percent: commonNumber,
     asOf: z
     .string()
     .refine(

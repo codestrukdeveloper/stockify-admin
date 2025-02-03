@@ -57,17 +57,39 @@ const ShareHolder: React.FC<ShareHolderProps> = ({
 }) => {
   const [name, setName] = useState<string>("");
   const [asOf, setAsOfYear] = useState<string>("");
-  const [percent, setPercent] = useState<number>(0);
+  const [percent, setPercent] = useState<string>("");
+  const [percentError, setPercentError] = useState<string>(""); // State for percent validation error
 
   const handleAddShareholder = () => {
-    // Add shareholder without validation
+    // Validate percent
+    const percentValue = parseFloat(percent);
+    if (isNaN(percentValue) || percentValue < 0 || percentValue > 100) {
+      setPercentError("Percentage must be a valid number between 0 and 100.");
+      return;
+    } else {
+      setPercentError(""); // Clear error if validation passes
+    }
+
+    // Add shareholder
     onAdd({ name, asOf: new Date(asOf).getFullYear().toString(), percent: percent.toString() });
     setName("");
     setAsOfYear("");
-    setPercent(0);
+    setPercent("");
   };
 
-  // Calculate total percentage of known shareholders
+  const handlePercent = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const percent = e.target.value; 
+    
+    const percentValue = parseFloat(percent);
+    
+    if (isNaN(percentValue) || percentValue < 0 || percentValue > 100) {
+      setPercentError("Percentage must be a valid number between 0 and 100.");
+    } else {
+      setPercentError("");
+    }
+    setPercent(percent);
+  };
+
   const totalKnownPercentage = shareholders.reduce(
     (sum, shareholder) => sum + parseFloat(shareholder.percent),
     0
@@ -126,13 +148,12 @@ const ShareHolder: React.FC<ShareHolderProps> = ({
             <TextField
               fullWidth
               label="Percentage"
-              type="number"
+              type="text"
               value={percent}
-              onChange={(e) => setPercent(parseFloat(e.target.value))}
+              onChange={handlePercent}
               variant="outlined"
-              inputProps={{ min: 1, max: 100 }}
-            // error={!!validationErrors?.["shareholders.percent"]} // Display error for percent
-            // helperText={validationErrors?.["shareholders.percent"]} // Error message for percent
+              error={!!percentError} // Display error for percent
+              helperText={percentError} // Error message for percent
             />
           </Grid>
           <Grid
@@ -150,7 +171,11 @@ const ShareHolder: React.FC<ShareHolderProps> = ({
         </Grid>
 
         {/* Display general shareholder error */}
-
+        {validationErrors?.["company.shareHolders"] && (
+          <FormHelperText error sx={{ mt: 2 }}>
+            {validationErrors["company.shareHolders"]}
+          </FormHelperText>
+        )}
 
         <Grid container marginTop={3} spacing={3}>
           <Grid item xs={12} md={6}>
@@ -194,11 +219,6 @@ const ShareHolder: React.FC<ShareHolderProps> = ({
             </Paper>
           </Grid>
         </Grid>
-        {validationErrors?.["company.shareHolders"] && (
-          <FormHelperText error sx={{ mt: 2 }}>
-            {validationErrors["company.shareHolders"]}
-          </FormHelperText>
-        )}
       </Box>
     </div>
   );

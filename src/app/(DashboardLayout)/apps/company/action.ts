@@ -47,8 +47,6 @@ export async function searchCompanies(
 > {
     try {
         const response = await companyService.searchCompanies(page, limit, search);
-        console.log("Response", response)
-
         return response.data.data;;
     } catch (error: any) {
         console.error("Error searching companies:", error);
@@ -60,7 +58,6 @@ export async function fetchCompanyById(id: string): Promise<IServerResponse<ICom
     try {
         const response = await companyService.fetchCompanyById(id);
         return response.data.data;
-
     } catch (error: any) {
         console.error("Error fetching company by ID:", error);
         return handleErrorResponse(error);
@@ -70,10 +67,7 @@ export async function fetchCompanyById(id: string): Promise<IServerResponse<ICom
 export async function deleteCompanyById(id: string): Promise<IServerResponse<string>> {
     try {
         const response = await companyService.deleteCompanyById(id);
-        console.log("Response", response)
-
         return response;
-
     } catch (error: any) {
         console.error("Error deleting company by ID:", error);
         return handleErrorResponse(error);
@@ -83,9 +77,7 @@ export async function deleteCompanyById(id: string): Promise<IServerResponse<str
 export async function createCompanyAction(company: ICompanyFullExtended): Promise<IServerResponse<ICompanyFullExtended>> {
     try {
         const response = await companyService.createCompany(company);
-        console.log("Response", response.data)
         return response.data.data;
-
     } catch (error: any) {
         console.error("Error creating company:", error.response.data);
         return handleErrorResponse(error);
@@ -98,7 +90,7 @@ export async function updateCompany(
 ): Promise<IServerResponse<ICompanyFull>> {
     try {
         const response = await companyService.updateCompany(id, company);
-        console.log("Response", response.data.data)
+        // console.log("Response", response.data.data)
         return response.data.data;
     } catch (error: any) {
         console.error("Error updating company:", error);
@@ -114,7 +106,6 @@ export async function updateCompanyLogo(
 ): Promise<IServerResponse<ICompanyFull>> {
     try {
         const response = await companyService.updateCompanyLogo(id, logo);
-        console.log("Response", response)
         return response.data.data;
     } catch (error: any) {
         console.error("Error updating company:", error);

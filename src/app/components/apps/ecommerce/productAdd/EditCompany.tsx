@@ -12,7 +12,7 @@ import AboutTheCompany from "@/app/components/apps/ecommerce/productAdd/AboutThe
 import React, { useEffect, useState } from "react";
 import { ICompany, ICompanyFull, ICompanyFullExtended, IFaq, IFinancialResults, IFinancialResultsWithFile } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { ISector } from "@/app/(DashboardLayout)/types/apps/sector";
-import {  IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
+import { IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
 import { IPerformance } from "@/app/(DashboardLayout)/types/apps/peformance";
 import { ICategory } from "@/app/(DashboardLayout)/types/apps/category";
 import EditableAddressAndManagement from "./EditableAddressManagement";
@@ -77,7 +77,10 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
   console.log("companyData", companyData)
   const [error, setError] = useState<IError>();
   const [logo, setLogo] = useState<File>();
+  const [loading, setLoading] = useState<boolean>(false);
+
   const [financialResults, setFinancialResults] = useState<IFinancialResultsWithFile[]>([]);
+  console.log("CompanyData",companyData)
   const [formData, setFormData] = useState<ICompanyFull>(companyData);
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -94,7 +97,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
       }
     }
 
-    if (validationErrors["company.industryId"]||validationErrors["company.ipoDate"] ||validationErrors["company.ipoPrice"]|| validationErrors["company.slug"] || validationErrors["company.logo"] || validationErrors["company.performanceId"] || validationErrors["company.sectorId"] || validationErrors["company.categoryId"] || validationErrors["company.depositsId"]) {
+    if (validationErrors["company.industryId"] || validationErrors["company.ipoDate"] || validationErrors["company.ipoPrice"] || validationErrors["company.slug"] || validationErrors["company.logo"] || validationErrors["company.performanceId"] || validationErrors["company.sectorId"] || validationErrors["company.categoryId"] || validationErrors["company.depositsId"]) {
       const shareholderSection = document.getElementById("company-section");
       if (shareholderSection) {
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -219,7 +222,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
           [key]: updatedKeyIndicators,
         };
       }
-  
+
       return {
         ...prev,
         [key]: value,
@@ -257,8 +260,9 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
 
+    e.preventDefault();
+    setLoading(true);
     console.log("formData", formData);
     delete formData.company.logo;
 
@@ -268,7 +272,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
       return
     }
 
-    let   validationResult = updateCompanyDto.safeParse({
+    let validationResult = updateCompanyDto.safeParse({
       _id: formData.company._id,
       ...formData
     });
@@ -276,7 +280,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
 
     console.log("fromadata", formData);
 
-  
+
 
 
 
@@ -301,7 +305,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
     try {
 
       const data = validationResult.data.company as unknown as ICompany;
-      console.log("data",data);
+      console.log("data", data);
       const validatedProfitLoss = z.array(updateProfitLossesDto).parse(validationResult.data.profitLoss || [initialProfitLosses]);
       const validatedKeyIndicators = z.array(UpdateKeyIndicatorsDto).parse(validationResult.data.keyIndicators || [keyIndicatorsInitialValue]);
       const validatedCashFlow = z.array(updateCashflowSumDto).parse(validationResult.data.cashFlow || [initialCashflowSum]);
@@ -313,13 +317,32 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         ...data,
         _id: formData.company._id,
         profitLoss: validatedProfitLoss,
-        keyIndicators:validatedKeyIndicators,
-        balanceSheets:validatedBalanceSheet,
+        keyIndicators: validatedKeyIndicators,
+        balanceSheets: validatedBalanceSheet,
         cashFlow: validatedCashFlow,
         priceTrend: validatedPriceTrend,
       };
       console.log("updatedDataformData", formData)
+      if (financialResults) {
 
+        const uploadedFinancialResults = await Promise.all(
+          financialResults.map(async (result) => {
+            const uploadedFile = await uploadFile([result.document], "financial-results");
+            if (isServerError(uploadedFile)) {
+              toast.error("Failed to update company logo");
+              return;
+            }
+            return {
+              title: result.title,
+              period: result.period,
+              document: uploadedFile[0], // Assuming uploadFile returns an array of URLs
+            };
+          })
+        );
+        const validateFinancialResults = z.array(financialResultsSchema).parse(uploadedFinancialResults);
+
+        updatedData.financialResults=validateFinancialResults;
+      }
 
       const created = await updateCompany(formData.company._id!, updatedData);
 
@@ -375,43 +398,17 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
 
       console.log("financialResults:", financialResults);
 
-      if (financialResults) {
-
-        // Upload financial results
-        const uploadedFinancialResults = await Promise.all(
-          financialResults.map(async (result) => {
-            const uploadedFile = await uploadFile([result.document], "financial-results");
-            if (isServerError(uploadedFile)) {
-              toast.error("Failed to update company logo");
-              return;
-            }
-            return {
-              title: result.title,
-              period: result.period,
-              document: uploadedFile[0], // Assuming uploadFile returns an array of URLs
-            };
-          })
-        );
-
-        const validateFinancialResults=financialResultsSchema.parse(uploadedFinancialResults);
-        console.log("Uploaded financial results:", uploadedFinancialResults);
-
-        const updatedCompanyWithFinancialResults = await updateCompany(formData.company._id!, {
-          financialResults: [validateFinancialResults],
-        });
-        if (isServerError(updatedCompanyWithFinancialResults)) {
-          toast.error("Failed to update company with financial results");
-          return;
-        }
-        console.log("Company updated with financial results:", updatedCompanyWithFinancialResults);
-      }
+   
 
       toast.success("Company created and files uploaded successfully!");
       setValidationErrors({})
 
-    } catch (error:any) {
+    } catch (error: any) {
       toast.error(`${error.message}`);
       console.log("ERROR", error);
+    }
+    finally{
+      setLoading(false);
     }
   };
 
@@ -640,8 +637,8 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         />
         <ValidationErrors errors={validationErrors} />
 
-        <Button variant="contained" color="primary" type="submit">
-          Submit
+        <Button disabled={loading} variant="contained" color="primary" type="submit">
+          {loading ? "saving...":"Submit"}
         </Button>
       </form>
     </PageContainer>
