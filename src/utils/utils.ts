@@ -10,3 +10,8 @@ export function getDaysAgo(dateString: string): string {
     
     return `${daysAgo} day(s) ago`;
 }
+
+
+export function isValidImage(image: string): string {
+    return (image.startsWith('http') || image.startsWith('https')) ? image : `/images/frontend-pages/notFound.jpg` ;
+}

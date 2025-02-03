@@ -72,9 +72,18 @@ import { Article } from "@mui/icons-material";
 import { useFormControl } from "@mui/material";
 
 const Menuitems: MenuitemsType[] = [
+
   {
     navlabel: true,
     subheader: "Home",
+  },
+  {
+    id: uniqueId(),
+    title: "Home",
+    icon: IconAperture,
+    href: "/apps/home/list",
+   
+    chipColor: "secondary",
   },
   {
     id: uniqueId(),
@@ -360,6 +369,26 @@ const Menuitems: MenuitemsType[] = [
         title: "create",
         icon: IconPoint,
         href: "/apps/blog/create",
+      },
+    ],
+  },
+  {
+    id: uniqueId(),
+    title: "News",
+    icon: IconChartDonut3,
+    href: "/apps/news/",
+    children: [
+      {
+        id: uniqueId(),
+        title: "list",
+        icon: IconPoint,
+        href: "/apps/news/list",
+      },
+      {
+        id: uniqueId(),
+        title: "create",
+        icon: IconPoint,
+        href: "/apps/news/create",
       },
     ],
   },
