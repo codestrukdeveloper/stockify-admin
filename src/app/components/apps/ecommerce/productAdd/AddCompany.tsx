@@ -249,7 +249,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     }
 
 
-    let validationResult= createCompanyDto.safeParse(formData);
+    let validationResult = createCompanyDto.safeParse(formData);
 
 
     console.log("formData", formData)
@@ -270,14 +270,56 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
 
     setValidationErrors({});
 
+    if (!logo) {
+
+      return;
+    }
+
     try {
+
+      const uploadedLogo = await uploadFile([logo], "stocks");
+      console.log("uploadedLogo created", uploadedLogo);
+      if (isServerError(uploadedLogo) || !uploadedLogo?.length) {
+        toast.error("Failed to upload logo");
+        return null; // Explicitly return null instead of undefined
+      }
+      
+
+      console.log("financialResults:", financialResults);
+
+      // Upload financial results
+      // Upload financial results
+      const uploadedFinancialResults: any[] = await Promise.all(
+        financialResults.map(async (result) => {
+          const uploadedFile = await uploadFile([result.document], "financial-results");
+
+          if (isServerError(uploadedFile) || !uploadedFile?.length) {
+            toast.error("Failed to upload financial result document");
+            return null; // Explicitly return null instead of undefined
+          }
+
+          return {
+            title: result.title,
+            period: result.period,
+            document: uploadedFile[0], // Assuming uploadFile returns an array of URLs
+          };
+        })
+      );
+
+      // Filter out any `null` values in case of upload failures
+      const validFinancialResults = uploadedFinancialResults.filter(Boolean);
+
+      // console.log("Company updated with financial results:", uploadedFinancialResults);
+
 
       const data = validationResult.data.company as unknown as ICompany;
       const formData: ICompanyFullExtended = {
         ...data,
+        logo:uploadedLogo[0]+"",
+        financialResults: uploadedFinancialResults,
         profitLoss: validationResult.data.profitLoss || [],
         keyIndicators: validationResult.data.keyIndicators || [],
-        balanceSheet: validationResult.data.balanceSheet || [],
+        balanceSheets: validationResult.data.balanceSheet || [],
         cashFlow: validationResult.data.cashFlow || [],
         priceTrend: validationResult.data.priceTrend || [],
       };
@@ -327,46 +369,6 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
 
       console.log("Succcesfully created", created);
 
-      const uploadedLogo = await uploadFile([logo], "stocks");
-      console.log("uploadedLogo created", uploadedLogo);
-
-      if (Array.isArray(uploadedLogo)) {
-        const updatedCompanyWithLogo = await updateCompanyLogo(created._id!, uploadedLogo[0]);
-        if (isServerError(updatedCompanyWithLogo)) {
-          toast.error("Failed to update company logo");
-          return;
-        }
-        console.log("Company logo updated:", updatedCompanyWithLogo);
-      }
-
-      console.log("financialResults:", financialResults);
-
-      // Upload financial results
-      const uploadedFinancialResults = await Promise.all(
-        financialResults.map(async (result) => {
-          const uploadedFile = await uploadFile([result.document], "financial-results");
-          if (isServerError(uploadedFile)) {
-            toast.error("Failed to update company logo");
-            return;
-          }
-          return {
-            title: result.title,
-            period: result.period,
-            document: uploadedFile[0], // Assuming uploadFile returns an array of URLs
-          };
-        })
-      );
-      console.log("Uploaded financial results:", uploadedFinancialResults);
-
-      // Update company with financial results
-      const updatedCompanyWithFinancialResults = await updateCompany(created._id!, {
-        financialResults: uploadedFinancialResults,
-      });
-      if (isServerError(updatedCompanyWithFinancialResults)) {
-        toast.error("Failed to update company with financial results");
-        return;
-      }
-      console.log("Company updated with financial results:", updatedCompanyWithFinancialResults);
 
       toast.success("Company created and files uploaded successfully!");
       setValidationErrors({})

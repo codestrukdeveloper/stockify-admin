@@ -16,6 +16,7 @@ export const idDto = z.object({
 });
 
 export const commonNumber = z.union([z.string(), z.number()]).transform((val) => {
+  console.log("val",val);
   if (typeof val === "string") {
     const parsed = parseFloat(val);
     if (isNaN(parsed)) {
