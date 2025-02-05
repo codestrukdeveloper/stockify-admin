@@ -24,10 +24,10 @@ import { visuallyHidden } from '@mui/utils';
 import CustomCheckbox from '../../../forms/theme-elements/CustomCheckbox';
 import CustomSwitch from '../../../forms/theme-elements/CustomSwitch';
 import { IconDotsVertical, IconFilter, IconSearch, IconTrash } from '@tabler/icons-react';
-import { INews } from '@/app/(DashboardLayout)/types/apps/INews';
+import { IVideo } from '@/app/(DashboardLayout)/types/apps/IVideo';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getDaysAgo } from '@/utils/utils';
-import { fetchNewss, searchNewss } from '@/app/(DashboardLayout)/apps/news/action';
+import { fetchVideos, searchVideos } from '@/app/(DashboardLayout)/apps/video/action';
 import { isServerError } from '@/app/(DashboardLayout)/action';
 import { ServerErrorRender } from '@/app/components/shared/ServerErrorRender';
 import Loading from '@/app/loading';
@@ -81,10 +81,10 @@ const headCells: readonly HeadCell[] = [
     id: 'Title',
     numeric: false,
     disablePadding: false,
-    label: 'News',
+    label: 'Title',
   },
   {
-    id: 'slug',
+    id: 'link',
     numeric: false,
     disablePadding: false,
     label: 'Link',
@@ -212,15 +212,13 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 };
 
 
-
-
 interface Props {
-  initialNewss: INews[];
+  initialVideos: IVideo[];
   totalPages: number;
 }
 
-export default function ProductTableList({ initialNewss, totalPages }: Props) {
-  const [newss, setNewss] = React.useState<INews[]>(initialNewss);
+export default function ProductTableList({ initialVideos, totalPages }: Props) {
+  const [videos, setVideos] = React.useState<IVideo[]>(initialVideos);
   const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [order, setOrder] = React.useState<Order>('asc');
@@ -237,17 +235,17 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
 
 
   
-  const fetchNewssWithPage = async (pageNo: number) => {
+  const fetchVideosWithPage = async (pageNo: number) => {
     setLoading(true);
     try {
 
-      const data = await fetchNewss(pageNo, rowsPerPage);
+      const data = await fetchVideos(pageNo, rowsPerPage);
 
       if (isServerError(data)) {
         return <ServerErrorRender error={data.error}/>
       }
 
-      setNewss(data.data);
+      setVideos(data.data);
       setTotalPages(data.totalPage);
     } catch (error) {
 
@@ -262,14 +260,14 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
   const onSearch = async (search: string) => {
 
 
-    const data = await searchNewss(1, 20, search);
+    const data = await searchVideos(1, 20, search);
 
     if (isServerError(data)) {
       return <ServerErrorRender error={data.error}/>
 
     }
 
-    setNewss(data.data);
+    setVideos(data.data);
     setTotalPages(data.totalPage);
 
   }
@@ -287,7 +285,7 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = newss.map((n) => n._id!);
+      const newSelecteds = videos.map((n) => n._id!);
       setSelected(newSelecteds);
       return;
     }
@@ -317,12 +315,12 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
   const handleChangePage = async (event: unknown, newPage: number) => {
     console.log("pageNo", newPage, totalPages * rowsPerPage);
     setPage(newPage + 1);
-    await fetchNewssWithPage(newPage + 1)
+    await fetchVideosWithPage(newPage + 1)
   };
 
 
   const edit = (id:string) => {
-    router.push(`/apps/news/edit/${id}`);
+    router.push(`/apps/video/edit/${id}`);
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -336,12 +334,12 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
 
   const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - newss.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - videos.length) : 0;
 
   const theme = useTheme();
   const borderColor = theme.palette.divider;
 
-  console.log("newss",newss);
+  console.log("videos",videos);
 
   if (loading) {
     return <Loading />;
@@ -368,10 +366,10 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
                 orderBy={orderBy}
                 onSelectAllClick={handleSelectAllClick}
                 onRequestSort={handleRequestSort}
-                rowCount={newss.length}
+                rowCount={videos.length}
               />
               <TableBody>
-                {newss.map((row, index) => {
+                {videos.map((row, index) => {
                   const isItemSelected = isSelected(row._id!);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -396,13 +394,10 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
                       </TableCell>
                       <TableCell>
                         <Box display="flex" alignItems="center">
-                          <Avatar src={row?.image} alt="product" sx={{ width: 56, height: 56 }} />
+                       
                           <Box sx={{ ml: 2 }}>
                             <Typography variant="h6" fontWeight="600">
                               {row.title}
-                            </Typography>
-                            <Typography color="textSecondary" variant="subtitle1">
-                              {row.type}
                             </Typography>
                           </Box>
                         </Box>

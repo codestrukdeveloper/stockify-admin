@@ -394,6 +394,26 @@ const Menuitems: MenuitemsType[] = [
   },
   {
     id: uniqueId(),
+    title: "Youtube Videos",
+    icon: IconChartDonut3,
+    href: "/apps/video/",
+    children: [
+      {
+        id: uniqueId(),
+        title: "list",
+        icon: IconPoint,
+        href: "/apps/video/list",
+      },
+      {
+        id: uniqueId(),
+        title: "create",
+        icon: IconPoint,
+        href: "/apps/video/create",
+      },
+    ],
+  },
+  {
+    id: uniqueId(),
     title: "Companies",
     icon: IconBasket,
     href: "/apps/company/",
