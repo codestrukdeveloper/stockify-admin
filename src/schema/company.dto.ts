@@ -87,8 +87,15 @@ const companyBaseSchema = z.object({
   price: commonNumber.refine(val => !isNaN(Number(val)), { message: "Price must be a valid number" }),
   lot: commonNumber.optional().refine(val => !isNaN(Number(val)), { message: "Lot must be a valid number" }),
   email: z.string().email("Invalid email format").max(50, "Email must be at most 50 characters"),
-  phone: z.string().max(50, "Phone number must be at most 50 characters"),
-  website: z.string().max(100, "Website URL must be at most 100 characters").optional(),
+  // phone: z.string().max(50, "Phone number must be at most 50 characters"),
+  // website: z.string().max(100, "Website URL must be at most 100 characters").optional(),
+  phone: z.string()
+  .regex(/^\d+$/, "Phone number must contain only digits")
+  .max(15, "Phone number must be at most 15 digits"),
+website: z.string()
+  .regex(/^www\./, "Website must start with 'www.'")
+  .max(100, "Website URL must be at most 100 characters")
+  .optional(),
   videoLink: z.string().url("Invalid URL format").max(100, "Video link must be at most 100 characters").optional(),
   shareholderFile: z.string().max(100, "Shareholder file URL must be at most 100 characters").optional(),
   dhrpLink: z.string().optional(),
@@ -143,8 +150,15 @@ const companyBaseSchemaUpdate = z.object({
   price: commonNumber.refine(val => !isNaN(Number(val)), { message: "Price must be a valid number" }),
   lot: commonNumber.optional().refine(val => !isNaN(Number(val)), { message: "Lot must be a valid number" }),
   email: z.string().email("Invalid email format").max(50, "Email must be at most 50 characters"),
-  phone: z.string().max(50, "Phone number must be at most 50 characters"),
-  website: z.string().max(100, "Website URL must be at most 100 characters").optional(),
+  // phone: z.string().max(50, "Phone number must be at most 50 characters"),
+  // website: z.string().max(100, "Website URL must be at most 100 characters").optional(),
+  phone: z.string()
+  .regex(/^\d+$/, "Phone number must contain only digits")
+  .max(15, "Phone number must be at most 15 digits"),
+website: z.string()
+  .regex(/^www\./, "Website must start with 'www.'")
+  .max(100, "Website URL must be at most 100 characters")
+  .optional(),
   videoLink: z.string().url("Invalid URL format").max(100, "Video link must be at most 100 characters").optional(),
   shareholderFile: z.string().max(100, "Shareholder file URL must be at most 100 characters").optional(),
   dhrpLink: z.string().optional(),
