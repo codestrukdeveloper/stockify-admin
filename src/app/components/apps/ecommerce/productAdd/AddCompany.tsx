@@ -243,8 +243,8 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     }
 
     if (financialResults.length < 1 && !formData.company._id) {
-      setValidationErrors({ "company.financialResults": "Financils Results is required" })
-      toast.error("Financils Results is required");
+      setValidationErrors({ "company.financialResults": "Financial Results is required" })
+      toast.error("Financial Results is required");
       return
     }
 

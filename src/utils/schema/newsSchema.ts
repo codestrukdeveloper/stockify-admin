@@ -7,6 +7,7 @@ export const NewsSchema = z.object({
   link: z.string().min(1, "Link is required"),
   type: z.string().min(1, "Type is required"),
   image: z.string().optional(), // ObjectId as string array
+  companyId: z.string().min(1, "Company Id is required"),
 });
 
 export const updateNewsSchema=NewsSchema.partial().extend({
