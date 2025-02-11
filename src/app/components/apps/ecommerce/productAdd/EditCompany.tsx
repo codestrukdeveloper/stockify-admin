@@ -80,7 +80,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   const [financialResults, setFinancialResults] = useState<IFinancialResultsWithFile[]>([]);
-  console.log("CompanyData",companyData)
+  console.log("CompanyData", companyData)
   const [formData, setFormData] = useState<ICompanyFull>(companyData);
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -97,7 +97,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
       }
     }
 
-    if (validationErrors["company.industryId"] || validationErrors["company.ipoDate"] || validationErrors["company.ipoPrice"] || validationErrors["company.slug"] || validationErrors["company.logo"] || validationErrors["company.performanceId"] || validationErrors["company.sectorId"] || validationErrors["company.categoryId"] || validationErrors["company.depositsId"]) {
+    if (validationErrors["company.industryId"] || validationErrors["company.ipoDate"] || validationErrors["company.preIpoDate"] || validationErrors["company.ipoPrice"] || validationErrors["company.slug"] || validationErrors["company.logo"] || validationErrors["company.performanceId"] || validationErrors["company.sectorId"] || validationErrors["company.categoryId"] || validationErrors["company.depositsId"]) {
       const shareholderSection = document.getElementById("company-section");
       if (shareholderSection) {
         shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -269,23 +269,15 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
 
     if (!formData.company._id) {
       toast.error("Invali Id");
+      setLoading(false);
       return
     }
+    console.log("formData..updated", formData);
 
     let validationResult = updateCompanyDto.safeParse({
       _id: formData.company._id,
       ...formData
     });
-
-
-    console.log("fromadata", formData);
-
-
-
-
-
-    console.log("formData", formData)
-
     console.log("ValidationResult", validationResult)
 
     if (!validationResult.success) {
@@ -295,10 +287,16 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         errors[err.path.join(".")] = err.message;
       });
       console.log("errors", errors)
-
+      setLoading(false);
       setValidationErrors(errors);
       return;
     }
+
+
+    console.log("formData", formData);
+
+    console.log("ValidationResult", validationResult)
+
 
     setValidationErrors({});
 
@@ -341,7 +339,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         );
         const validateFinancialResults = z.array(financialResultsSchema).parse(uploadedFinancialResults);
 
-        updatedData.financialResults=validateFinancialResults;
+        updatedData.financialResults = validateFinancialResults;
       }
 
       const created = await updateCompany(formData.company._id!, updatedData);
@@ -374,6 +372,8 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         console.log("created.error", created.error)
 
         setError(created.error);
+        setLoading(false);
+
         return
 
       };
@@ -390,6 +390,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
           const updatedCompanyWithLogo = await updateCompanyLogo(formData.company._id!, uploadedLogo[0]);
           if (isServerError(updatedCompanyWithLogo)) {
             toast.error("Failed to update company logo");
+            setLoading(false);
             return;
           }
           console.log("Company logo updated:", updatedCompanyWithLogo);
@@ -398,16 +399,28 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
 
       console.log("financialResults:", financialResults);
 
-   
+
 
       toast.success("Company created and files uploaded successfully!");
       setValidationErrors({})
 
     } catch (error: any) {
-      toast.error(`${error.message}`);
-      console.log("ERROR", error);
+      console.error("ERROR", error);
+
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          errors[err.path.join(".")] = err.message;
+        });
+        setValidationErrors(errors);
+        toast.error("Validation failed. Please check the form.");
+      } else {
+        // Handle other errors
+        toast.error(`An unexpected error occurred: ${error.message}`);
+        console.error("ERROR", error);
+      }
     }
-    finally{
+    finally {
       setLoading(false);
     }
   };
@@ -500,7 +513,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
       <form onSubmit={onSubmit} className="flex flex-col gap-5">
         <Box display={"flex"} justifyContent={"center"} alignItems={"center"}>
 
-          <ExcelUploader onUpload={handleExcelUpload} oldData={formData} /> {/* Add the ExcelUploader component */}
+          <ExcelUploader onUpload={handleExcelUpload} fileFor="company_details" oldData={formData} />
         </Box>
 
         <CompanyLogoAndNameCard
@@ -518,6 +531,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
           id="company-section"
 
         />
+        <ExcelUploader onUpload={handleExcelUpload} fileFor="key_indicators" oldData={formData} />
 
         <KeyIndicators
           data={formData.keyIndicators}
@@ -638,7 +652,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         <ValidationErrors errors={validationErrors} />
 
         <Button disabled={loading} variant="contained" color="primary" type="submit">
-          {loading ? "saving...":"Submit"}
+          {loading ? "saving..." : "Submit"}
         </Button>
       </form>
     </PageContainer>

@@ -7,6 +7,10 @@ const nextConfig = {
           protocol: 'https',
           hostname: 'd4shqic59jnei.cloudfront.net',
         },
+        {
+          protocol: 'https',
+          hostname: 'stockify.net.in',
+        },
       ],
     },
   };

@@ -58,6 +58,20 @@ const EditableAddressAndManagement: React.FC<EditableAddressAndManagementProps> 
     }
   };
 
+  const validatePhoneNumber = (phoneNumber: string): boolean => {
+    const phoneRegex = /^[0-9]{11||10||12}$/; 
+    return phoneRegex.test(phoneNumber);
+  };
+
+  const validateWebsite = (url: string): boolean => {
+    try {
+      const urlObject = new URL(url);
+      return urlObject.protocol=== "http" || urlObject.protocol === "https"||urlObject.protocol === "www";
+    } catch (e) {
+      return false;
+    }
+  };
+
   const handleRemoveManager = (index: number) => {
     const updatedManagement = management.filter((_, i) => i !== index);
     onManagementChange(updatedManagement);
@@ -105,7 +119,6 @@ const EditableAddressAndManagement: React.FC<EditableAddressAndManagementProps> 
         </Grid>
 
         <Grid container spacing={3}>
-          {/* Address Section */}
           <Grid item md={6} xs={12}>
 
             <Typography variant="subtitle1" sx={{ fontWeight: "bold", mt: 2 }}>
@@ -180,8 +193,12 @@ const EditableAddressAndManagement: React.FC<EditableAddressAndManagementProps> 
               variant="outlined"
               id="company.website"
 
-              error={!!validationErrors['company.website']}
-              helperText={validationErrors['company.website']}
+              error={!validateWebsite(website || "") && !!validationErrors["company.website"]}
+              helperText={
+                !validateWebsite(website || "")
+                  ? "Please enter a valid URL (e.g.,example.com)"
+                  : validationErrors["company.website"]
+              }
             />
 
             <Typography variant="subtitle1" sx={{ fontWeight: "bold", mt: 2 }}>
@@ -194,8 +211,12 @@ const EditableAddressAndManagement: React.FC<EditableAddressAndManagementProps> 
               onChange={(e) => onPhoneChange(e.target.value)}
               placeholder="Enter phone number"
               variant="outlined"
-              error={!!validationErrors['company.phone']}
-              helperText={validationErrors['company.phone']}
+              error={!validatePhoneNumber(phone || "") && !!validationErrors["company.phone"]}
+              helperText={
+                !validatePhoneNumber(phone || "")
+                  ? "Please enter a valid 10-digit phone number."
+                  : validationErrors["company.phone"]
+              }
             />
           </Grid>
 

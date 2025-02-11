@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { commonNumber, commonString, objectIdSchema, periodString } from "./common.dto";
+import { commonNumber, commonString, objectIdSchema, periodString, phoneSchema } from "./common.dto";
 import { createShareholderDto, updateShareholderDto } from "./shareholder.dto";
 import { CreateProfitLossesDto, updateProfitLossesDto } from "./profitloss.dto";
 import { createPriceTrendDto, updatePriceTrendDto } from "./pricing.trend.dto";
@@ -73,11 +73,13 @@ const companyBaseSchema = z.object({
   metaDescription: z.string().max(160),
   keywords: z.array(z.string()),
 
+
   qty: commonNumber.refine(val => !isNaN(Number(val)), { message: "Quantity must be a valid number" }),
   sectorId: objectIdSchema,
   dhrpId: objectIdSchema,
-  ipoPrice: commonNumber,
+  ipoPrice: commonString,
   ipoDate: periodString,
+  preIpoDate: periodString,
   depositsId: z.array(objectIdSchema).min(1, "At least one deposit is required"),
   performanceId: objectIdSchema.optional(),
   isin: z.string().max(50, "ISIN must be at most 50 characters"),
@@ -87,8 +89,18 @@ const companyBaseSchema = z.object({
   price: commonNumber.refine(val => !isNaN(Number(val)), { message: "Price must be a valid number" }),
   lot: commonNumber.optional().refine(val => !isNaN(Number(val)), { message: "Lot must be a valid number" }),
   email: z.string().email("Invalid email format").max(50, "Email must be at most 50 characters"),
-  phone: z.string().max(50, "Phone number must be at most 50 characters"),
-  website: z.string().max(100, "Website URL must be at most 100 characters").optional(),
+  phone: phoneSchema,
+  website: z
+    .string({ required_error: "Website URL is required" })
+    .max(100, "Website URL must be at most 100 characters")
+    .optional()
+    .refine(
+      (value) => {
+        if (!value) return true;
+        return isValidDomain(value);
+      },
+      { message: "Website must be a valid domain (e.g., example.com)" }
+  ),
   videoLink: z.string().url("Invalid URL format").max(100, "Video link must be at most 100 characters").optional(),
   shareholderFile: z.string().max(100, "Shareholder file URL must be at most 100 characters").optional(),
   dhrpLink: z.string().optional(),
@@ -99,7 +111,6 @@ const companyBaseSchema = z.object({
   shareHolders: z.array(createShareholderDto).min(1, "At least one shareholder is required"),
 });
 
-// Custom error messages for companyFullSchema
 const companyFullSchema = z.object({
   company: companyBaseSchema,
   priceTrend: z.array(createPriceTrendDto).min(1, "At least one price trend is required"),
@@ -112,7 +123,11 @@ const companyFullSchema = z.object({
 export const createCompanyDto = companyFullSchema.omit({});
 export type createCompanyDto = z.infer<typeof companyFullSchema>;
 
-
+const isValidDomain = (value: string): boolean => {
+  const domainRegex =
+    /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/; // Matches valid domain names
+  return domainRegex.test(value);
+};
 
 
 // Custom error messages for companyBaseSchema
@@ -129,8 +144,9 @@ const companyBaseSchemaUpdate = z.object({
   metaTitle: z.string().max(100),
   metaDescription: z.string().max(160),
   keywords: z.array(z.string()),
-  ipoPrice: z.string().optional(),
-  ipoDate: z.string().optional(),
+  ipoPrice: commonString,
+  ipoDate: periodString,
+  preIpoDate: periodString,
   qty: commonNumber.refine(val => !isNaN(Number(val)), { message: "Quantity must be a valid number" }),
   sectorId: objectIdSchema,
   dhrpId: objectIdSchema,
@@ -143,8 +159,18 @@ const companyBaseSchemaUpdate = z.object({
   price: commonNumber.refine(val => !isNaN(Number(val)), { message: "Price must be a valid number" }),
   lot: commonNumber.optional().refine(val => !isNaN(Number(val)), { message: "Lot must be a valid number" }),
   email: z.string().email("Invalid email format").max(50, "Email must be at most 50 characters"),
-  phone: z.string().max(50, "Phone number must be at most 50 characters"),
-  website: z.string().max(100, "Website URL must be at most 100 characters").optional(),
+  phone: phoneSchema,
+  website: z
+    .string({ required_error: "Website URL is required" })
+    .max(100, "Website URL must be at most 100 characters")
+    .optional()
+    .refine(
+      (value) => {
+        if (!value) return true; // Allow empty values for optional fields
+        return isValidDomain(value); // Validate the domain format
+      },
+      { message: "Website must be a valid domain (e.g., example.com)" }
+    ),
   videoLink: z.string().url("Invalid URL format").max(100, "Video link must be at most 100 characters").optional(),
   shareholderFile: z.string().max(100, "Shareholder file URL must be at most 100 characters").optional(),
   dhrpLink: z.string().optional(),

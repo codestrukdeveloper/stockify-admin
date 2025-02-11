@@ -464,7 +464,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       <Toaster />
       <Breadcrumb title="Add Product" items={BCrumb} />
       <form onSubmit={onSubmit} className="flex flex-col gap-5">
-        <ExcelUploader onUpload={handleExcelUpload} oldData={formData} /> {/* Add the ExcelUploader component */}
+        <ExcelUploader onUpload={handleExcelUpload} fileFor="company_details" oldData={formData} /> {/* Add the ExcelUploader component */}
 
         <CompanyLogoAndNameCard
           company={formData.company}
@@ -481,6 +481,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           id="company-section"
 
         />
+        <ExcelUploader onUpload={handleExcelUpload} fileFor="key_indicators" oldData={formData} /> 
 
         <KeyIndicators
           data={formData.keyIndicators}

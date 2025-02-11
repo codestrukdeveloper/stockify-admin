@@ -1,20 +1,32 @@
+// Interfaces.ts
 import React, { useState } from "react";
 import { Box, Button, Typography, CircularProgress } from "@mui/material";
 import * as XLSX from "xlsx";
-import { ICompany, ICompanyFull } from "@/app/(DashboardLayout)/types/apps/ICompany";
+import toast from "react-hot-toast";
+import { ICompany, ICompanyFull, IFaq, IFinancialResults } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { IProfitLosses } from "@/app/(DashboardLayout)/types/apps/IProfitLoss";
 import { IBalanceSheet } from "@/app/(DashboardLayout)/types/apps/IBalanceSheet";
 import { ICashflowSum } from "@/app/(DashboardLayout)/types/apps/ICashflowSum";
 import { IKeyIndicators } from "@/app/(DashboardLayout)/types/apps/IKeyIndicators";
+import { IPriceTrend } from "@/app/(DashboardLayout)/types/apps/IPricingTrend.interface";
+import { IShareholder } from "@/app/(DashboardLayout)/types/apps/IShareholder";
+import { IManagement } from "@/app/(DashboardLayout)/types/apps/IManagement";
+
+
+export type FILE_FOR = "company_details" | "pricing_trend" | "profit_loss" | "key_indicators" | "share_holder" | "cash_Flow" | "balanceSheet";
+
+
 
 interface ExcelUploaderProps {
     onUpload: (data: Partial<ICompanyFull>) => void;
-    oldData: Partial<ICompanyFull>
+    oldData: Partial<ICompanyFull>;
+    fileFor: FILE_FOR;
 }
 
-const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData }) => {
+const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData, fileFor }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -32,181 +44,360 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData }) => {
                 defval: "",
             });
 
-            // Process the Excel data
-            const processedData = processExcelData(jsonData as unknown as any[][], oldData);
-            onUpload(processedData); // Pass the processed data to the parent component
+            const processedData = processExcelData(jsonData as any[][], oldData);
+            onUpload(processedData);
         } catch (err) {
             setError("Failed to process the file. Please check the format.");
             console.error(err);
+            toast.error("Error processing file");
         } finally {
             setLoading(false);
         }
     };
 
+    const getValue = (data: any[][], header: string, index: number, defaultValue: string = "0", isPercentage: boolean = false, isFloat: boolean = false) => {
+
+        // // console.log("FILE_FOR",fileFor);
+
+        // if (fileFor === "company_details") {
+        //     const row = data[0].find((row) => row?.toString().trim().toLowerCase() === header.trim().toLowerCase());
+        //     console.log("DATA", data[0]);
+
+        //     console.log("DATA_ROW", index, row);
+        //     console.log("HEADER", index, header);
+        //     // console.log("DATA",index,data.find((row:string)=>row[0]?.toString().trim()));
+
+        //     console.log("ROW", row, index);
+
+        //     if (!row) {
+        //         console.warn(`Header "${header}" not found. Using default: ${defaultValue}`);
+        //         return defaultValue;
+        //     }
+
+        //     const value = data[1][index + 1];
+        //     console.log("value", value, data[1][index + 1]);
+
+        //     if (value === '#DIV/0!' || value === undefined || value === null) {
+        //         return defaultValue;
+        //     }
+
+        //     if (isPercentage) {
+        //         if (typeof value === 'string' && value.includes('%')) {
+        //             return value;
+        //         }
+        //         if (typeof value === 'number') {
+        //             return `${(value * 100).toFixed(1)}%`;
+        //         }
+        //     }
+
+        //     if (isFloat && typeof value === 'number') {
+        //         return value.toFixed(2);
+        //     }
+
+        //     return value.toString();
+
+        // }
+        // else {
+        const row = data.find((row) => row[0]?.toString().trim().toLowerCase() === header.trim().toLowerCase());
+        // console.log("DATA", index, data);
+        // console.log("HEADER", index, header);
+        // console.log("DATA",index,data.find((row:string)=>row[0]?.toString().trim()));
+
+        // console.log("ROW", row, index);
+
+        if (!row) {
+            console.warn(`Header "${header}" not found. Using default: ${defaultValue}`);
+            return defaultValue;
+        }
+
+        const value = row[index + 1];
+        console.log("value", value);
+        console.log("row", row);
+
+
+        if (value === '#DIV/0!' || value === undefined || value === null) {
+            return defaultValue;
+        }
+
+        if (isPercentage) {
+            if (typeof value === 'string' && value.includes('%')) {
+                return value;
+            }
+            if (typeof value === 'number') {
+                return `${(value * 100).toFixed(1)}%`;
+            }
+        }
+
+        if (isFloat && typeof value === 'number') {
+            return value.toFixed(2);
+        }
+
+        return value.toString();
+    };
+
+
+
+    const processProfitLoss = (data: any[][]): IProfitLosses[] => {
+        const profitLossHeader = data.find(row => row[0]?.toString().trim() === "PROFIT & LOSS");
+        if (!profitLossHeader) return [];
+
+        const years = profitLossHeader.slice(1).filter(Boolean);
+        return years.map((year, index) => ({
+            period: year.toString(),
+            revenue: getValue(data, "REVENUE", index),
+            expense: getValue(data, "EXPENSE", index),
+            ebdita: getValue(data, "EBDITA", index),
+            otherCost: getValue(data, "OTHER COST", index),
+            pbt: getValue(data, "PBT", index),
+            taxExpense: getValue(data, "TAX EXPENSE", index),
+            pat: getValue(data, "PAT", index),
+            otherIncExpense: getValue(data, "OTHER INCOME/EXP.", index),
+            incomeNet: getValue(data, "INCOME (NET OF TAXES)", index),
+            outstandingShare: getValue(data, "OUTSTANDING SHARE", index, "0", false, true),
+            epsPerShare: getValue(data, "EPS ( Rs/share)", index, "0", false, true),
+            revGrowth: getValue(data, "REVENUE GROWTH %", index, "0%", true),
+            ebitaMargin: getValue(data, "EBIDTA MARGIN %", index, "0%", true),
+            patMargin: getValue(data, "NET MARGIN %", index, "0%", true),
+            epsGrowth: getValue(data, "EPS GROWTH %", index, "0%", true)
+        }));
+    };
+
+    const processBalanceSheet = (data: any[][]): IBalanceSheet[] => {
+        const balanceSheetHeader = data.find(row => row[0]?.toString().trim() === "BALANCE SHEET");
+        if (!balanceSheetHeader) return [];
+
+        const years = balanceSheetHeader.slice(1).filter(Boolean);
+        return years.map((year, index) => ({
+            period: year.toString(),
+            cashEqlt: getValue(data, "CASH & CASH EQUIVALENT", index),
+            nonCurrentAsset: getValue(data, "NON CURRENT ASSET", index),
+            currentAsset: getValue(data, "CURRENT ASSET", index),
+            totalAsset: getValue(data, "TOTAL ASSET", index),
+            eqShareCap: getValue(data, "EQUITY SHARE CAPITAL", index),
+            reserves: getValue(data, "RESERVES", index),
+            totalEq: getValue(data, "TOTAL EQUITY", index),
+            nonCurrentLiability: getValue(data, "NON CURRENT LIABILITY", index),
+            currentLiability: getValue(data, "CURRENT LIABILITY", index),
+            totalLiability: getValue(data, "TOTAL LIABILITIES", index),
+            totalEqLiability: getValue(data, "TOTAL EQUITY & LIABILITY", index)
+        }));
+    };
+
+    const processCashFlow = (data: any[][]): ICashflowSum[] => {
+        const cashFlowHeader = data.find(row => row[0]?.toString().trim() === "CASH FLOW");
+        if (!cashFlowHeader) return [];
+
+        const years = cashFlowHeader.slice(1).filter(Boolean);
+        return years.map((year, index) => ({
+            period: year.toString(),
+            operatingAct: getValue(data, "OPERATING ACTIVITY", index),
+            investingAct: getValue(data, "INVESTING ACTIVITY", index),
+            financialAct: getValue(data, "FINANCING ACTIVITY", index),
+            netCashFlow: getValue(data, "NET CASH FLOW", index)
+        }));
+    };
+
+    const processKeyIndicators = (data: any[][]): IKeyIndicators[] => {
+        const keyIndicatorHeader = data.find(row => row[0]?.toString().trim() === "KEY INDICATOR");
+        if (!keyIndicatorHeader) return [];
+
+        const years = keyIndicatorHeader.slice(1).filter(Boolean);
+        return years.map((year, index) => ({
+            period: year.toString(),
+            currentSharePrice: getValue(data, "CURRENT SHARE PRICE", index, "0", false, true),
+            faceValuePerShare: getValue(data, "FACE VALUE/SHARE", index, "0", false, true),
+            bookValuePerShare: getValue(data, "BOOK VALUE/SHARE", index, "0", false, true),
+            priceToEarning: getValue(data, "PRICE TO EARNING (PE)", index, "0", false, true),
+            priceToSales: getValue(data, "PRICE/SALES", index, "0", false, true),
+            priceToBook: getValue(data, "PRICE/BOOK", index, "0", false, true),
+            outstandingSharesMillion: getValue(data, "OUTSTANDING SHARES (Million)", index, "0", false, true),
+            marketCapMillionRs: getValue(data, "MARKET CAP (Rs. Million)", index),
+            debtToEquity: getValue(data, "DEBT/EQUITY", index, "0", false, true),
+            dividendPerShare: getValue(data, "DIVIDEND/SHARE", index, "0"),
+            dividendPercentOnCMP: getValue(data, "DIVIDEND % (ON CMP)", index, "0%", true),
+            returnOnTotalAssets: getValue(data, "RETURN ON TOTAL ASSETS", index, "0%", true),
+            returnOnEquity: getValue(data, "RETURN ON EQUITY", index, "0%", true),
+            rowc: getValue(data, "ROWC", index, "0%", true)
+        }));
+    };
+
+    const processPriceTrend = (data: any[][]): IPriceTrend[] => {
+        const priceTrendHeader = data.find(row => row[0]?.toString().trim() === "PRICE TREND");
+        if (!priceTrendHeader) return [];
+
+        const dates = priceTrendHeader.slice(1).filter(Boolean);
+        return dates.map((date, index) => ({
+            date: date.toString(),
+            price: parseFloat(getValue(data, "PRICE", index, "0")),
+            volume: parseFloat(getValue(data, "VOLUME", index, "0"))
+        }));
+    };
+
+    const extractCompanyData = (data: any[][]): Partial<ICompany> => {
+        const headers = data[0]; // Extract headers (first row)
+        const values = data[1]; // Extract values (second row)
+
+        const getValue = (field: string): any => {
+            const index = headers.indexOf(field);
+            return index !== -1 ? values[index] : undefined;
+        };
+
+        return {
+            name: getValue("Title"),
+            ticker: getValue("Slug"),
+            isin: getValue("isin"),
+            metaTitle: getValue("Title"),
+            metaDescription: getValue("about"),
+            keywords: getValue("Category") ? getValue("Category").split(",") : [],
+            pan: getValue("pan"),
+            location: getValue("location"),
+            rating: getValue("rating") ? Number(getValue("rating")) : undefined,
+            price: getValue("price") ? Number(getValue("price")) : undefined,
+            email: getValue("email"),
+            phone: getValue("phone"),
+            website: getValue("website"),
+            videoLink: getValue("company-profile-video"),
+            aboutus: getValue("about"),
+            categoryId: getValue("Category"),
+            ipoPrice: getValue("price"),
+            ipoDate: getValue("Date"),
+            preIpoDate: getValue("period"),
+            industryId: getValue("Industry"),
+            sectorId: getValue("Market"),
+            dhrpId: getValue("dhrp_doc"),
+            performanceId: getValue("profit-and-loss"),
+            slug: getValue("Slug"),
+            logo: getValue("Image URL") ? getValue("Image URL").split("|")[0] : undefined, // Get first image URL
+            status: true,
+        };
+    };
+
+    const extractShareholders = (data: any[][]): IShareholder[] => {
+        const shareholders: IShareholder[] = [];
+        const headers = data[0]; // Column headers (first row)
+        const values = data[1]; // Corresponding values (second row)
+        const currentYear = new Date().getFullYear().toString();
+
+        for (let i = 0; i < headers.length; i++) {
+            const header = headers[i]?.toString().trim().toLowerCase();
+
+            if (header.endsWith("-shareholder-name")) {
+                const number = header.split("-")[0]; // Extracts "first", "second", etc.
+                const percentIndex = headers.indexOf(`${number}-shareholder-percent`);
+
+                if (percentIndex !== -1) {
+                    const name = values[i]?.trim();
+                    const percent = values[percentIndex];
+
+                    if (name.toLowerCase() !== "all others") {
+                        shareholders.push({
+                            name,
+                            percent,
+                            asOf: currentYear,
+                        });
+                    }
+
+                }
+            }
+        }
+
+        return shareholders;
+    };
+
+    const extractFaq = (data: any[][]) => {
+        const faq: { question: string; answer: string }[] = [];
+        const headers = data[0];
+        const values = data[1];
+
+        for (let i = 0; i < headers.length; i++) {
+            const header = headers[i]?.toString().trim().toLowerCase();
+
+            if (header.startsWith("comp_faq_q")) {
+                const answerIndex = headers.indexOf(`comp_faq_a${header.replace("comp_faq_q", "")}`);
+
+                if (answerIndex !== -1) {
+                    faq.push({
+                        question: values[i],
+                        answer: values[answerIndex],
+                    });
+                }
+            }
+        }
+
+        return faq;
+    };
+
     const processExcelData = (data: any[][], oldData: Partial<ICompanyFull>): Partial<ICompanyFull> => {
         const result: Partial<ICompanyFull> = {
             company: oldData.company,
-            profitLoss: [],
-            balanceSheet: [],
-            cashFlow: [],
-            keyIndicators: [],
+            profitLoss: oldData.profitLoss || [],
+            balanceSheet: oldData.balanceSheet || [],
+            cashFlow: oldData.cashFlow || [],
+            keyIndicators: oldData.keyIndicators || [],
+            priceTrend: oldData.priceTrend || []
         };
+        console.log("FILE_FOR", fileFor);
 
-        // Helper function to find rows by their header
-        const findRow = (header: string) => data.find((row) => row[0]?.toString().trim() === header.trim());
+        console.log("processExcelData", data);
+        const faq = extractFaq(data);
+        const shareHolders = extractShareholders(data);
+        const companyDataExtracted = extractCompanyData(data);
 
-        const getValue = (header: string, index: number, defaultValue: string = "0", isPercentage: boolean = false, isFloat: boolean = false) => {
-            const row = findRow(header);
-            if (!row) {
-                console.warn(`Header "${header}" not found in Excel file. Using default value: ${defaultValue}`);
-                return defaultValue;
-            }
 
-            const value = row[index + 1];
+        console.log("faq", faq);
+        console.log("shareHolder", shareHolders);
+        console.log("companyDataExtracted", companyDataExtracted);
 
-            // Handle special cases
-            if (value === '#DIV/0!' || value === undefined || value === null) {
-                return defaultValue;
-            }
 
-            // For percentage columns, convert to string with % sign
-            if (isPercentage) {
-                // If value is already a percentage string, return as is
-                if (typeof value === 'string' && value.includes('%')) {
-                    return value;
-                }
 
-                // Convert decimal to percentage string
-                if (typeof value === 'number') {
-                    return `${(value * 100).toFixed(1)}%`;
-                }
-            }
 
-            // Handle float conversion for specific columns
-            if (isFloat && typeof value === 'number') {
-                return value.toFixed(2);
-            }
-
-            // For other numeric values, convert to string
-            return value.toString();
-        };
-
-        // Company Data
-        const companyData: ICompany = {
+        const companyData: Partial<ICompany> = {
             ...oldData.company,
-            name: getValue("company name", 0, oldData.company?.name || ""),
-            ticker: getValue("Ticker", 0, oldData.company?.ticker || ""),
-            rating: parseFloat(getValue("Ratings", 0, oldData.company?.rating?.toString() || "0")),
-            isin: getValue("ISIN", 0, oldData.company?.isin || ""),
-            pan: getValue("PAN", 0, oldData.company?.pan || ""),
-            location: getValue("Address", 0, oldData.company?.location || ""),
-            email: getValue("Co. email", 0, oldData.company?.email || ""),
-            phone: getValue("Co. mobile number", 0, oldData.company?.phone || ""),
-            website: getValue("Co. website link", 0, oldData.company?.website || ""),
-            videoLink: getValue("company profile video link", 0, oldData.company?.videoLink || ""),
-            aboutus: getValue("About the company - content", 0, oldData.company?.aboutus || ""),
-        } as ICompany;
-        result.company = companyData;
+            ...companyDataExtracted,
+            faq,
+            shareHolders
+        };
 
-        // Profit & Loss
-        const profitLossHeader = findRow("PROFIT & LOSS");
-        if (profitLossHeader) {
-            const years = profitLossHeader.slice(1);
+        // Process Shareholders
 
-            const profitLossData: IProfitLosses[] = years.map((year, index) => ({
-                period: year.toString(),
-                revenue: getValue("REVENUE", index),
-                expense: getValue("EXPENSE", index),
-                ebdita: getValue("EBDITA", index),
-                otherCost: getValue("OTHER COST", index),
-                pbt: getValue("PBT", index),
-                taxExpense: getValue("TAX EXPENSE", index),
-                pat: getValue("PAT", index),
-                otherIncExpense: getValue("OTHER INCOME/EXP.", index),
-                incomeNet: getValue("INCOME (NET OF TAXES)", index),
-                outstandingShare: getValue("OUTSTANDING SHARE", index, "0", false, true),
-                epsPerShare: getValue("EPS ( Rs/share)", index, "0", false, true),
-                revGrowth: getValue("REVENUE GROWTH %", index, "0%", true),
-                ebitaMargin: getValue("EBIDTA MARGIN %", index, "0%", true),
-                patMargin: getValue("NET MARGIN %", index, "0%", true),
-                epsGrowth: getValue("EPS GROWTH %", index, "0%", true),
-            }));
 
-            result.profitLoss = profitLossData;
+
+        const financialResults: IFinancialResults[] = [];
+        let financialIndex = 1;
+        while (getValue(data, `Financial ${financialIndex} Title`, 0, "") !== "") {
+            financialResults.push({
+                title: getValue(data, `Financial ${financialIndex} Title`, 0, ""),
+                period: getValue(data, `Financial ${financialIndex} Period`, 0, ""),
+                document: getValue(data, `Financial ${financialIndex} Document`, 0, "")
+            });
+            financialIndex++;
+        }
+        if (financialResults.length > 0) {
+            companyData.financialResults = financialResults;
         }
 
-        // Balance Sheet
-        const balanceSheetHeader = findRow("BALANCE SHEET");
-        if (balanceSheetHeader) {
-            const years = balanceSheetHeader.slice(1);
-
-            const balanceSheetData: IBalanceSheet[] = years.map((year, index) => ({
-                period: year.toString(),
-                cashEqlt: getValue("CASH & CASH EQUIVALENT", index),
-                nonCurrentAsset: getValue("NON CURRENT ASSET", index),
-                currentAsset: getValue("CURRENT ASSET", index),
-                totalAsset: getValue("TOTAL ASSET", index),
-                eqShareCap: getValue("EQUITY SHARE CAPITAL", index),
-                reserves: getValue("RESERVES", index),
-                totalEq: getValue("TOTAL EQUITY", index),
-                nonCurrentLiability: getValue("NON CURRENT LIABILITY", index),
-                currentLiability: getValue("CURRENT LIABILITY", index),
-                totalLiability: getValue("TOTAL LIABILITIES", index),
-                totalEqLiability: getValue("TOTAL EQUITY & LIABILITY", index),
-            }));
-
-            result.balanceSheet = balanceSheetData;
+        if (fileFor === "company_details") {
+            result.company = companyData as ICompany;
         }
 
-        // Cash Flow
-        const cashFlowHeader = findRow("CASH FLOW");
-        if (cashFlowHeader) {
-            const years = cashFlowHeader.slice(1);
 
-            const cashFlowData: ICashflowSum[] = years.map((year, index) => ({
-                period: year.toString(),
-                operatingAct: getValue("OPERATING ACTIVITY", index),
-                investingAct: getValue("INVESTING ACTIVITY", index),
-                financialAct: getValue("FINANCING ACTIVITY", index),
-                netCashFlow: getValue("NET CASH FLOW", index),
-            }));
+        if (fileFor === "key_indicators") {
+            result.profitLoss = processProfitLoss(data);
 
-            result.cashFlow = cashFlowData;
-        }
-
-        // Key Indicators
-        const keyIndicatorHeader = findRow("KEY INDICATOR");
-        if (keyIndicatorHeader) {
-            const year = keyIndicatorHeader[1];
-
-            const keyIndicatorsData: IKeyIndicators[] = [
-                {
-                    period: year.toString(),
-                    currentSharePrice: getValue("CURRENT SHARE PRICE", 0, "0", false, true),
-                    faceValuePerShare: getValue("FACE VALUE/SHARE ", 0, "0", false, true),
-                    bookValuePerShare: getValue("BOOK VALUE/SHARE ", 0, "0", false, true),
-                    priceToEarning: getValue("PRICE TO EARNING (PE)", 0, "0", false, true),
-                    priceToSales: getValue("PRICE/SALES ", 0, "0", false, true),
-                    priceToBook: getValue("PRICE/BOOK", 0, "0", false, true),
-                    outstandingSharesMillion: getValue("OUTSTANDING SHARES (Million)", 0, "0", false, true),
-                    marketCapMillionRs: getValue("MARKET CAP (Rs. Million)", 0),
-                    debtToEquity: getValue("DEBT/EQUITY", 0, "0", false, true),
-                    dividendPerShare: getValue("DIVIDEND/SHARE ", 0, "0"),
-                    dividendPercentOnCMP: getValue("DIVIDEND % (ON CMP)", 0, "0%", true),
-                    returnOnTotalAssets: getValue("RETURN ON TOTAL ASSETS", 0, "0%", true),
-                    returnOnEquity: getValue("RETURN ON EQUITY", 0, "0%", true),
-                    rowc: getValue("ROWC", 0, "0%", true),
-                },
-            ];
-
-            result.keyIndicators = keyIndicatorsData;
-        }
-
+            result.balanceSheet = processBalanceSheet(data);
+            result.cashFlow = processCashFlow(data);
+            result.keyIndicators = processKeyIndicators(data);
+            result.priceTrend = processPriceTrend(data);
+        };
+        console.log("RESULT", result);
         return result;
     };
 
+
+
+
     return (
-        <Box sx={{ mt: 3,my: 3 }} display={"flex"} flexDirection={"column"} alignItems={"center"} justifyContent={"center"}>
+        <Box sx={{ mt: 3, my: 3 }} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
             <Typography variant="h6" gutterBottom>
                 Upload Excel File
             </Typography>
@@ -219,8 +410,27 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData }) => {
                 id="excel-upload"
             />
             <label htmlFor="excel-upload">
-                <Button variant="contained" component="span" disabled={loading}>
-                    {loading ? <CircularProgress size={24} /> : "Upload"}
+                <Button
+                    variant="contained"
+                    component="span"
+                    disabled={loading}
+                    sx={{
+                        minWidth: '120px',
+                        position: 'relative'
+                    }}
+                >
+                    {loading ? (
+                        <CircularProgress
+                            size={24}
+                            sx={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                marginTop: '-12px',
+                                marginLeft: '-12px'
+                            }}
+                        />
+                    ) : "Upload"}
                 </Button>
             </label>
             {error && (

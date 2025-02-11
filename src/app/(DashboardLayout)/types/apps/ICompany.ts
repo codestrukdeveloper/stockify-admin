@@ -52,6 +52,7 @@ export interface ICompany {
     categoryId?: string;
     ipoPrice?:string;
     ipoDate?:string;
+    preIpoDate?:string;
     depositsId?: string[];
     management: IManagement[]
     industryId?: string;
