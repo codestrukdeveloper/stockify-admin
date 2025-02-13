@@ -76,7 +76,10 @@ export async function deleteCompanyById(id: string): Promise<IServerResponse<str
 
 export async function createCompanyAction(company: ICompanyFullExtended): Promise<IServerResponse<ICompanyFullExtended>> {
     try {
-        const response = await companyService.createCompany(company);
+        const response = await companyService.createCompany({
+            ...company,
+            balanceSheets:company.balanceSheet
+          });
         return response.data.data;
     } catch (error: any) {
         console.error("Error creating company:", error.response.data);

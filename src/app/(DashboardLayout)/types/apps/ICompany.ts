@@ -33,6 +33,10 @@ export interface ICompany {
     isin: string;
     metaTitle: string;
     metaDescription: string;
+
+    seoHeader: string;
+    seoContent: string;
+
     keywords: string[];
     pan?: string;
     location?: string;
@@ -61,6 +65,7 @@ export interface ICompany {
     performanceId?: string;
     slug?: string;
     logo?: string;
+    logoAlt?: string;
     status?: boolean;
     createdAt?: string;
     updatedAt?: string;
@@ -86,7 +91,7 @@ export interface ICompanyFullExtended extends ICompany {
     profitLoss: IProfitLosses[],
     priceTrend: IPriceTrend[],
     keyIndicators: IKeyIndicators[],
-    balanceSheets: IBalanceSheet[],
+    balanceSheet: IBalanceSheet[],
     cashFlow: ICashflowSum[],
 }
 

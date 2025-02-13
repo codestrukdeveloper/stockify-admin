@@ -17,12 +17,9 @@ const BCrumb = [
 ];
 
 export default async function EcomProductList({ searchParams }: { searchParams?: { page?: string, limit?: string; search?: string } }) {
-  const page = searchParams?.page ? parseInt(searchParams.page) : 1;
-  const limit = searchParams?.limit ? parseInt(searchParams.limit) : 10;
 
-  const search = searchParams?.search || "";
 
-  const companies = await searchCompanies(page, limit, search);
+  const companies = await searchCompanies(1, 10, "");
 
   if (isServerError(companies)) {
     <ErrorMessage error={companies.error} />
@@ -30,11 +27,6 @@ export default async function EcomProductList({ searchParams }: { searchParams?:
     return
   }
 
-  console.log("companies", companies)
-
-  const searchCompaniesFunction = async () => {
-    await searchCompanies(page, limit, search)
-  }
 
 
   return (
@@ -42,7 +34,7 @@ export default async function EcomProductList({ searchParams }: { searchParams?:
       {/* Breadcrumb */}
       <Breadcrumb title="Stocks" items={BCrumb} />
       <BlankCard>
-        <ProductTableList initialCompanies={companies.data} totalPages={companies.totalPage}   initialPage={page} initialSearch={search} />
+        <ProductTableList initialSearch="" initialCompanies={companies.data} totalPages={companies.totalPage}   initialPage={1}  />
       </BlankCard>
     </PageContainer>
   );

@@ -138,18 +138,20 @@ export default async function AddCompany({ params }: { params: { id: string } })
     return <ErrorMessage error={companyData.error} />
   }
 
-  console.log("companyData", companyData.keyIndicators);
+  console.log("companyData", companyData);
 
 
   const companyDataHere: ICompanyFull = {
     profitLoss: companyData.profitLoss || [initialProfitLosses],
     cashFlow: companyData.cashFlow || [initialCashflowSum],
     keyIndicators: companyData.keyIndicators || [keyIndicatorsInitialValue],
-    balanceSheet: companyData.balanceSheets || [initialBalanceSheet],
+    balanceSheet: companyData.balanceSheet || [initialBalanceSheet],
     company: {
       _id: companyData._id,
       name: companyData.name || "",
       ticker: companyData.ticker || "",
+      seoHeader:companyData.seoHeader||"",
+      seoContent:companyData.seoContent||"",
       isin: companyData.isin || "",
       location: companyData.location || "",
       rating: companyData.rating,
@@ -173,6 +175,7 @@ export default async function AddCompany({ params }: { params: { id: string } })
       sectorId: companyData.sectorId || "",
       performanceId: companyData.performanceId || "",
       ipoDate: companyData.ipoDate|| "",
+      preIpoDate:companyData.preIpoDate||"",
       ipoPrice: companyData.ipoPrice|| "",
       depositsId: companyData.depositsId || [],
       dhrpId: companyData.dhrpId || "",
@@ -184,7 +187,7 @@ export default async function AddCompany({ params }: { params: { id: string } })
     },
     priceTrend: [initialPriceTrend],
   };
-  console.log("profitLoss", companyDataHere.profitLoss)
+  console.log("balanceSheet", companyData.balanceSheet)
 
   return (
     <EditCompanyClient

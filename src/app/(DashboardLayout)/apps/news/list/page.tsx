@@ -29,7 +29,6 @@ export default async function NewsList() {
     return
   }
 
-  console.log("news..........", news.data)
 
 
   return (

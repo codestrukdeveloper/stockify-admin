@@ -54,11 +54,11 @@ export const genderEnum = z.enum([GenderType.MALE, GenderType.FEMALE, GenderType
 
 export const phoneSchema = z
   .string({ required_error: "Phone number is required" })
-  .max(12, "Phone number must be at most 12 characters")
-  .refine(
-    (value) => /^[0-9]{10,12}$/.test(value),
-    { message: "Phone number must be a valid 10 to 12-digit number" }
-  );
+  .max(25, "Phone number must be at most 25 characters")
+  // .refine(
+  //   (value) => /^[0-9]{10,12}$/.test(value),
+  //   { message: "Phone number must be a valid 10 to 12-digit number" }
+  // );
 
 export const commonString = z.union([z.string(), z.number()]).transform((value) => {
   // Convert to string if it's a number

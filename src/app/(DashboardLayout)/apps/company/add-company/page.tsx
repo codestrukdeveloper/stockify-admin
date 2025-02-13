@@ -91,15 +91,15 @@ export default async function AddCompany() {
   const categoriesResponse = await fetchCategories(1, 100);
   const dhrpResponse = await fetchDhrps(1, 100);
 
-  console.log("industriesResponse", industriesResponse);
-  console.log("depositsResponse", depositsResponse);
-  console.log("performancesResponse", performancesResponse);
-  console.log("categoriesResponse", categoriesResponse);
-  console.log("dhrpResponse", dhrpResponse);
+  // console.log("industriesResponse", industriesResponse);
+  // console.log("depositsResponse", depositsResponse);
+  // console.log("performancesResponse", performancesResponse);
+  // console.log("categoriesResponse", categoriesResponse);
+  // console.log("dhrpResponse", dhrpResponse);
 
 
   if (isServerError(categoriesResponse)) {
-    console.log("categoriesResponse", categoriesResponse)
+    // console.log("categoriesResponse", categoriesResponse)
     return <ErrorMessage error={categoriesResponse.error} />
   }
 
@@ -125,6 +125,8 @@ export default async function AddCompany() {
     return <ErrorMessage error={sectorsResponse.error} />
   }
 
+  console.log("balanceSheet", );
+
   const companyData:ICompanyFull={
     profitLoss:[initialProfitLosses],
     cashFlow:[initialCashflowSum],
@@ -133,6 +135,8 @@ export default async function AddCompany() {
     company: {
       name: "",
       metaTitle:"",
+      seoHeader:"",
+      seoContent:"",
       metaDescription:"",
       keywords:[],
       ticker: "",

@@ -21,7 +21,6 @@ import { isServerError } from "@/app/(DashboardLayout)/action";
 import { IError } from "@/app/(DashboardLayout)/types/apps/error";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";
 import { createCompanyDto, financialResultsSchema, updateCompanyDto } from "@/schema/company.dto";
-import ExcelUploader from "./ExcelUploader";
 import FinancialResultUploader from "./FinancialResultUpload";
 import { IShareholder } from "@/app/(DashboardLayout)/types/apps/IShareholder";
 import ShareHolder from "./ShareHolders";
@@ -39,6 +38,10 @@ import { UpdateKeyIndicatorsDto } from "@/schema/keyIndicators.dto";
 import { updateCashflowSumDto } from "@/schema/cashflow.dto";
 import { updatePriceTrendDto } from "@/schema/pricing.trend.dto";
 import { UpdateBalanceSheetDto } from "@/schema/balanceSheet.dto";
+import { ExcelUploader } from "./ExcelUploader";
+import { CompanyOtherUploadData } from "./CompanyOtherUploadData";
+import CombinedExcelUploader from "./CombineUploader";
+
 
 
 
@@ -228,6 +231,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         [key]: value,
       };
     });
+    console.log("KeyIndiaors Updated", formData)
   };
 
 
@@ -303,24 +307,26 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
     try {
 
       const data = validationResult.data.company as unknown as ICompany;
-      console.log("data", data);
+      console.log("updatedDataformData", data);
       const validatedProfitLoss = z.array(updateProfitLossesDto).parse(validationResult.data.profitLoss || [initialProfitLosses]);
       const validatedKeyIndicators = z.array(UpdateKeyIndicatorsDto).parse(validationResult.data.keyIndicators || [keyIndicatorsInitialValue]);
       const validatedCashFlow = z.array(updateCashflowSumDto).parse(validationResult.data.cashFlow || [initialCashflowSum]);
       const validatedPriceTrend = z.array(updatePriceTrendDto).parse(validationResult.data.priceTrend || [initialPriceTrend]);
       const validatedBalanceSheet = z.array(UpdateBalanceSheetDto).parse(validationResult.data.balanceSheet || [initialBalanceSheet]);
 
-
+      
       const updatedData: ICompanyFullExtended = {
         ...data,
+        financialResults:formData.company.financialResults,
         _id: formData.company._id,
         profitLoss: validatedProfitLoss,
         keyIndicators: validatedKeyIndicators,
-        balanceSheets: validatedBalanceSheet,
+        balanceSheet: validatedBalanceSheet,
         cashFlow: validatedCashFlow,
         priceTrend: validatedPriceTrend,
       };
-      console.log("updatedDataformData", formData)
+      console.log("financialResults", formData.company.financialResults);
+      console.log("updatedDataformData", updatedData)
       if (financialResults) {
 
         const uploadedFinancialResults = await Promise.all(
@@ -339,7 +345,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         );
         const validateFinancialResults = z.array(financialResultsSchema).parse(uploadedFinancialResults);
 
-        updatedData.financialResults = validateFinancialResults;
+        updatedData.financialResults = [ ...formData.company.financialResults, ...validateFinancialResults];
       }
 
       const created = await updateCompany(formData.company._id!, updatedData);
@@ -424,9 +430,62 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
       setLoading(false);
     }
   };
-
   const handleExcelUpload = (data: Partial<ICompanyFull>) => {
     console.log("Excel Data:", data);
+
+    if (data.company) {
+      const dhrpName = Array.isArray(data.company.dhrpId) ? data.company.dhrpId[0] : data.company.dhrpId;
+      const industryName = Array.isArray(data.company.industryId) ? data.company.industryId[0] : data.company.industryId;
+      const sectorName = Array.isArray(data.company.sectorId) ? data.company.sectorId[0] : data.company.sectorId;
+      const categoryName = Array.isArray(data.company.categoryId) ? data.company.categoryId[0] : data.company.categoryId;
+
+      const depositsNames = Array.isArray(data.company.depositsId) ? data.company.depositsId : [data.company.depositsId];
+
+      console.log("categoryName", categoryName);
+
+      const dhrpId = dhrps?.find((d) => d.name.toLowerCase() === dhrpName?.toLowerCase())?._id;
+      const sectorId = sectors?.find((d) => d.name.toLowerCase() === sectorName?.toLowerCase())?._id;
+      const industryId = industries?.find((d) => d.name.toLowerCase() === industryName?.toLowerCase())?._id;
+      const categoryId = categories?.find((d) => d.name.toLowerCase() === categoryName?.toLowerCase())?._id;
+
+      const depositsIds = depositsNames
+        .map((name) => deposits?.find((d) => d.name.toLowerCase() === name?.toLowerCase())?._id)
+        .filter((id): id is string => Boolean(id));
+
+
+
+      console.log("categoryId", categoryId);
+
+      if (!dhrpId && dhrpName) {
+        toast.error("DHRP not found. Create DHRP first, then select it.");
+      } else {
+        data.company.dhrpId = dhrpId;
+      }
+
+      if (!industryId && industryName) {
+        toast.error("Industry not found. Create Industry first, then select it.");
+      } else {
+        data.company.industryId = industryId;
+      }
+
+      if (!sectorId && sectorName) {
+        toast.error("Sector not found. Create Sector first, then select it.");
+      } else {
+        data.company.sectorId = sectorId;
+      }
+
+      if (!depositsIds.length && depositsNames.some(name => name)) {
+        toast.error("Deposits not found. Create deposits first, then select them.");
+      } else {
+        data.company.depositsId = depositsIds;
+      }
+
+      if (!categoryId && !categoryName) {
+        toast.error("Category not found. Create category first, then select them.");
+      } else {
+        data.company.categoryId = categoryId;
+      }
+    }
 
     setFormData((prev) => {
       const updatedFormData = {
@@ -435,17 +494,32 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
           ...prev.company,
           ...data.company,
         },
+      };
+
+      console.log("Updated FormData:", updatedFormData);
+      return updatedFormData;
+    });
+
+    setValidationErrors({});
+  };
+
+  const handleExcelUploadData = (data: Partial<ICompanyFull>) => {
+
+
+    setFormData((prev) => {
+      const updatedFormData = {
+        ...prev,
         profitLoss: data.profitLoss || prev.profitLoss,
         balanceSheet: data.balanceSheet || prev.balanceSheet,
         cashFlow: data.cashFlow || prev.cashFlow,
         keyIndicators: data.keyIndicators || prev.keyIndicators,
       };
 
-      console.log("Updated FormData:", updatedFormData);
+      console.log("Updated Data FormData:", updatedFormData);
       return updatedFormData;
     });
-    setValidationErrors({})
 
+    setValidationErrors({});
   };
 
   const handleFinancialResultUpload = (data: { title: string; period: string; document: File }) => {
@@ -468,6 +542,18 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
     setValidationErrors({})
 
   };
+
+
+  const handleRemoveFinancialResults = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: {
+        ...prev.company,
+        financialResults: prev.company.financialResults?.filter((_, i) => i !== index) || [],
+      },
+    }));
+  };
+
 
   const handleFaqChange = (faqs: IFaq[]) => {
     setFormData((prev) => ({
@@ -496,6 +582,23 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
     setValidationErrors({})
   };
 
+  const handleSeoHeaderChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: { ...prev.company, seoHeader: value },
+    }));
+    setValidationErrors({})
+  };
+
+  const handleSeoContentChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: { ...prev.company, seoContent: value },
+    }));
+    setValidationErrors({})
+  };
+
+
   const handleKeywordsChange = (value: string[]) => {
     setFormData((prev) => ({
       ...prev,
@@ -511,11 +614,15 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
       <Toaster />
       <Breadcrumb title="Add Product" items={BCrumb} />
       <form onSubmit={onSubmit} className="flex flex-col gap-5">
-        <Box display={"flex"} justifyContent={"center"} alignItems={"center"}>
-
-          <ExcelUploader onUpload={handleExcelUpload} fileFor="company_details" oldData={formData} />
-        </Box>
-
+        <CombinedExcelUploader
+          onUpload={(data, type) => {
+            if (type === 'company') {
+              handleExcelUpload(data);
+            } else {
+              handleExcelUploadData(data);
+            }
+          }}
+          oldData={formData} />
         <CompanyLogoAndNameCard
           company={formData.company}
           onChange={(key, value) => onChangeCompany(key, value)}
@@ -531,7 +638,6 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
           id="company-section"
 
         />
-        <ExcelUploader onUpload={handleExcelUpload} fileFor="key_indicators" oldData={formData} />
 
         <KeyIndicators
           data={formData.keyIndicators}
@@ -621,7 +727,9 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         <FinancialResultUploader
           onUpload={handleFinancialResultUpload}
           onRemove={handleRemove}
+          handleRemoveFinancialResults={handleRemoveFinancialResults}
           financialResults={financialResults}
+          uploaded={formData.company.financialResults}
           id="financial-result-section"
           validationErrors={validationErrors}
 
@@ -642,13 +750,20 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
           metaTitle={formData.company.metaTitle || ""}
           metaDescription={formData.company.metaDescription || ""}
           keywords={formData.company.keywords || []}
+          seoHeader={formData.company.seoHeader || ""}
+          seoContent={formData.company.seoContent || ""}
           onMetaTitleChange={handleMetaTitleChange}
           onMetaDescriptionChange={handleMetaDescriptionChange}
           onKeywordsChange={handleKeywordsChange}
+          onSeoHeaderChange={handleSeoHeaderChange}
+          onSeoContentChange={handleSeoContentChange}
           validationErrors={validationErrors}
           id="seo-section"
-
         />
+
+
+
+
         <ValidationErrors errors={validationErrors} />
 
         <Button disabled={loading} variant="contained" color="primary" type="submit">

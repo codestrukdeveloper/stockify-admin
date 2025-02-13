@@ -12,26 +12,21 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
 import TextField from '@mui/material/TextField';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { visuallyHidden } from '@mui/utils';
 import { useSelector, useDispatch } from '@/store/hooks';
 import CustomCheckbox from '../../../forms/theme-elements/CustomCheckbox';
 import CustomSwitch from '../../../forms/theme-elements/CustomSwitch';
 import { IconDotsVertical, IconEdit, IconFilter, IconSearch, IconTrash } from '@tabler/icons-react';
-import { ProductType } from '../../../../(DashboardLayout)/types/apps/eCommerce';
 import { RootState } from '@/store/store';
 import { ICompany } from '@/app/(DashboardLayout)/types/apps/ICompany';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getDaysAgo } from '@/utils/utils';
 import { deleteCompanyById, fetchCompanies, searchCompanies } from '@/app/(DashboardLayout)/apps/company/action';
-import { Stack } from '@mui/material';
 import { isServerError } from '@/app/(DashboardLayout)/action';
 import { IError } from '@/app/(DashboardLayout)/types/apps/error';
 import { ServerErrorRender } from '@/app/components/shared/ServerErrorRender';
@@ -48,30 +43,6 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 }
 
 type Order = 'asc' | 'desc';
-
-function getComparator<Key extends keyof any>(
-  order: Order,
-  orderBy: Key,
-): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
-  console.log("array", array);
-  const stabilizedThis = array?.map((el, index) => [el, index] as [T, number]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-
-    return a[1] - b[1];
-  });
-
-  return stabilizedThis.map((el) => el[0]);
-}
 
 interface HeadCell {
   disablePadding: boolean;
@@ -114,51 +85,6 @@ interface EnhancedTableProps {
   order: Order;
   orderBy: string;
   rowCount: number;
-}
-
-function EnhancedTableHead(props: EnhancedTableProps) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
-  const createSortHandler = (property: any) => (event: React.MouseEvent<unknown>) => {
-    onRequestSort(event, property);
-  };
-
-  return (
-    <TableHead>
-      <TableRow>
-        <TableCell padding="checkbox">
-          <CustomCheckbox
-            color="primary"
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all desserts',
-            }}
-          />
-        </TableCell>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.numeric ? 'right' : 'left'}
-            padding={headCell.disablePadding ? 'none' : 'normal'}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
 }
 
 interface EnhancedTableToolbarProps {
@@ -242,13 +168,11 @@ interface Props {
   initialCompanies: ICompany[];
   initialPage: number;
   totalPages: number;
-
-  initialSearch: string;
 }
 
-export default function ProductTableList({ initialCompanies, initialPage, totalPages, initialSearch }: Props) {
+export default function ProductTableList({ initialCompanies, totalPages }: Props) {
   const [companies, setCompanies] = React.useState<ICompany[]>(initialCompanies);
-  const [search, setSearch] = React.useState(initialSearch);
+  const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [totalPage, setTotalPage] = React.useState(totalPages);
   const [error, setError] = React.useState<IError | null>();
@@ -259,18 +183,20 @@ export default function ProductTableList({ initialCompanies, initialPage, totalP
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const { companies: searchedCompanies } = useSelector((state: RootState) => state.companyReducer);
+  const [rows, setRows] = React.useState<any>(10);
 
 
-  const dispatch = useDispatch();
 
-  React.useEffect(() => {
-    fetchCWithPage(1);
-  }, [])
+  // React.useEffect(() => {
+  //   setTimeout(()=>{
+  //     fetchCWithPage(1,search);
+  //   },1000)
+  // }, [search])
 
-  const fetchCWithPage = async (pageNo: number) => {
+  const fetchCWithPage = async (pageNo: number,search:string="") => {
     try {
 
-      const data = await searchCompanies(pageNo, 10, "");
+      const data = await searchCompanies(pageNo, 10,search);
 
       if (isServerError(data)) {
         setError(data.error);
@@ -288,10 +214,11 @@ export default function ProductTableList({ initialCompanies, initialPage, totalP
   }
 
 
-  const [rows, setRows] = React.useState<any>(10);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
+    fetchCWithPage(1,event.target.value);
+
   };
 
 
@@ -383,12 +310,6 @@ export default function ProductTableList({ initialCompanies, initialPage, totalP
           handleSearch={(event: any) => handleSearch(event)}
         />
 
-        <EnhancedTableToolbar
-          onDeleteSuccess={handleDeleteSuccess}
-          numSelected={selected.length}
-          search={search}
-          handleSearch={(event: any) => handleSearch(event)}
-        />
         <Paper variant="outlined" sx={{ mx: 2, mt: 1, border: `1px solid ${borderColor}` }}>
           <TableContainer>
 

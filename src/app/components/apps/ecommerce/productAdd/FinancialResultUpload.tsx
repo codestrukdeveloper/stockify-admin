@@ -13,6 +13,7 @@ import {
     FormHelperText,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { IFinancialResults } from "@/app/(DashboardLayout)/types/apps/ICompany";
 
 
 interface IFinancialResultsWithFile {
@@ -24,7 +25,9 @@ interface IFinancialResultsWithFile {
 interface FinancialResultUploaderProps {
     onUpload: (data: IFinancialResultsWithFile) => void;
     onRemove: (index: number) => void;
+    handleRemoveFinancialResults:(index:number)=>void,
     financialResults: IFinancialResultsWithFile[];
+    uploaded?: IFinancialResults[];
     id: string;
     validationErrors?: Record<string, string>; // Add validationErrors prop
 
@@ -34,6 +37,8 @@ const FinancialResultUploader: React.FC<FinancialResultUploaderProps> = ({
     onUpload,
     onRemove,
     financialResults,
+    handleRemoveFinancialResults,
+    uploaded,
     validationErrors,
     id
 }) => {
@@ -47,6 +52,8 @@ const FinancialResultUploader: React.FC<FinancialResultUploaderProps> = ({
             setFinancialResultsLocal(financialResults);
         }
     }, [financialResults]);
+
+    console.log("uploadedfinancialResults", uploaded);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
@@ -165,6 +172,46 @@ const FinancialResultUploader: React.FC<FinancialResultUploaderProps> = ({
                                     <IconButton
                                         color="error"
                                         onClick={() => onRemove(index)}
+                                    >
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Paper>
+                            ))}
+                        </Stack>
+                    </Box>
+                )}
+
+
+                {uploaded&& uploaded?.length > 0 && (
+                    <Box sx={{ mt: 4 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Added Financial Results
+                        </Typography>
+                        <Stack spacing={2}>
+                            {uploaded.map((result, index) => (
+                                <Paper
+                                    key={index}
+                                    sx={{
+                                        p: 2,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        backgroundColor: "#fff",
+                                        borderRadius: "8px",
+                                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                                    }}
+                                >
+                                    <Box>
+                                        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                                            {result.title}
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            Year: {result.period} | File: {result.title}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        color="error"
+                                        onClick={() => handleRemoveFinancialResults(index)}
                                     >
                                         <CloseIcon />
                                     </IconButton>

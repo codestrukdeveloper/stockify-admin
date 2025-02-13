@@ -1,7 +1,7 @@
 import { Common } from '@/app/(DashboardLayout)/types/apps/common';
 import { IDeposit } from '@/app/(DashboardLayout)/types/apps/deposit';
 import { Box, Select, MenuItem, InputLabel, FormControl, Chip, Checkbox, ListItemText, SelectChangeEvent, FormHelperText } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface CustomMultiSelectProps {
     name: string;
@@ -10,6 +10,7 @@ interface CustomMultiSelectProps {
     error?: boolean;
     helperText?: string;
     id: string;
+    value: string[];
 
   }
   
@@ -18,10 +19,15 @@ const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({
     onChange,
     options,
     error,
+    value,
     helperText,
     id
 }) => {
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
+
+    useEffect(() => {
+        setSelectedValues(value || []);
+    }, [value]);
 
     const handleChange = (event: SelectChangeEvent<string[]>) => {
         const value = event.target.value as string[];

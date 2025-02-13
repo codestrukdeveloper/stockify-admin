@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -40,6 +40,16 @@ const AboutTheCompany: React.FC<AboutTheCompanyProps> = ({
     setLocalDescription(newDescription);
     onAboutChange(newDescription);
   };
+
+  useEffect(()=>{
+    if(aboutus){
+      setLocalDescription(aboutus);
+    }
+    if(videoLink){
+      setLocalVideoLink(videoLink)
+    }
+
+  },[aboutus,videoLink])
 
   const handleVideoLinkChange = (
     event: React.ChangeEvent<HTMLInputElement>

@@ -1,138 +1,23 @@
-// Interfaces.ts
-import React, { useState } from "react";
-import { Box, Button, Typography, CircularProgress } from "@mui/material";
-import * as XLSX from "xlsx";
-import toast from "react-hot-toast";
-import { ICompany, ICompanyFull, IFaq, IFinancialResults } from "@/app/(DashboardLayout)/types/apps/ICompany";
+import React, { useState } from 'react';
+import { Box, Button, Typography, CircularProgress, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import * as XLSX from 'xlsx';
+import { ICompany, ICompanyFull, IFinancialResults } from "@/app/(DashboardLayout)/types/apps/ICompany";
+import toast from 'react-hot-toast';
+import { IBalanceSheet } from '@/app/(DashboardLayout)/types/apps/IBalanceSheet';
+import { ICashflowSum } from '@/app/(DashboardLayout)/types/apps/ICashflowSum';
+import { IKeyIndicators } from '@/app/(DashboardLayout)/types/apps/IKeyIndicators';
+import { IProfitLosses } from '@/app/(DashboardLayout)/types/apps/IProfitLoss';
+import { IShareholder } from '@/app/(DashboardLayout)/types/apps/IShareholder';
 
-import { IShareholder } from "@/app/(DashboardLayout)/types/apps/IShareholder";
-import { IProfitLosses } from "@/app/(DashboardLayout)/types/apps/IProfitLoss";
-import { IBalanceSheet } from "@/app/(DashboardLayout)/types/apps/IBalanceSheet";
-import { ICashflowSum } from "@/app/(DashboardLayout)/types/apps/ICashflowSum";
-import { IKeyIndicators } from "@/app/(DashboardLayout)/types/apps/IKeyIndicators";
-
-
-
-const YEAR_MAPPING: Record<string, string> = {
-    "twenty-twenty-four": "2024",
-    "twenty-twenty-three": "2023",
-    "twenty-twenty-two": "2022",
-    "twenty-twenty-one": "2021",
-    "twenty-twenty": "2020",
-    "twenty-nineteen": "2019",
-    "twenty-eighteen": "2018",
-};
-
-interface ExcelUploaderProps {
-    onUpload: (data: Partial<ICompanyFull>) => void;
+interface CombinedExcelUploaderProps {
+    onUpload: (data: Partial<ICompanyFull>, type: 'company' | 'financial') => void;
     oldData: Partial<ICompanyFull>;
 }
 
-export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,  }) => {
+export const CombinedExcelUploader: React.FC<CombinedExcelUploaderProps> = ({ onUpload, oldData }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-
-    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        setLoading(true);
-        setError(null);
-
-        try {
-            const data = await file.arrayBuffer();
-            const workbook = XLSX.read(data);
-            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-                header: 1,
-                defval: "",
-            });
-
-            const processedData = processExcelData(jsonData as any[][], oldData);
-            onUpload(processedData);
-        } catch (err) {
-            setError("Failed to process the file. Please check the format.");
-            console.error(err);
-            toast.error("Error processing file");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const extractCompanyData = (data: any[][]): Partial<ICompany> => {
-        const headers = data[0]; // Extract headers (first row)
-        const values = data[1]; // Extract values (second row)
-
-        const getValue = (field: string): any => {
-            const index = headers.indexOf(field);
-            return index !== -1 ? values[index] : undefined;
-        };
-
-        const parsePhpSerializedArray = (str: string): string[] => {
-            const matches = Array.from(str.matchAll(/s:\d+:"(.*?)"/g));
-            return matches.map(match => match[1]);
-        };
-
-
-        const dhrpId = getValue("dhrp_status");
-        const depositsId = getValue("depository");
-
-        const dhrpValues = dhrpId ? parsePhpSerializedArray(dhrpId) : [];
-        const depositValues = depositsId ? parsePhpSerializedArray(depositsId) : [];
-
-
-        const annualReports: IFinancialResults[] = headers
-            .map((header, index) => {
-                if (header.startsWith("annual-report-")) {
-                    const periodMatch = header.match(/\d+/);
-                    const periodYear = periodMatch ? `20${periodMatch[0]}` : "2025";
-                    const document = values[index] || "";
-
-                    return document ? { title: "Annual Report", period: periodYear, document } : null;
-                }
-                return null;
-            })
-            .filter((report): report is IFinancialResults => report !== null);
-
-
-
-
-        return {
-            name: getValue("Title"),
-            ticker: getValue("Slug"),
-            isin: getValue("isin"),
-            metaTitle: getValue("_yoast_wpseo_title"),
-            metaDescription: getValue("_yoast_wpseo_metadesc"),
-            seoHeader: getValue("seo-header"),
-            seoContent: getValue("seo-content"),
-            keywords: getValue("seo-header") ? getValue("seo-header").split(",") : [],
-            pan: getValue("pan"),
-            location: getValue("location"),
-            rating: getValue("rating") ? Number(getValue("rating")) : undefined,
-            price: getValue("price") ? Number(getValue("price")) : undefined,
-            email: getValue("email"),
-            phone: getValue("phone"),
-            website: getValue("website"),
-            videoLink: getValue("company-profile-video"),
-            aboutus: getValue("about"),
-            categoryId: getValue("Category"),
-            ipoPrice: getValue("price"),
-            ipoDate: getValue("Date"),
-            preIpoDate: getValue("period"),
-            industryId: getValue("Industry"),
-            sectorId: getValue("Market"),
-            dhrpId: dhrpValues[0] || "",
-            depositsId: depositValues,
-            financialResults: annualReports,
-            slug: getValue("Slug"),
-            logo: getValue("Image URL") ? getValue("Image URL").split("|")[0] : undefined,
-            logoAlt: getValue("Image Alt Text") ? getValue("Image URL").split("|")[0] : undefined,
-
-            status: true,
-        };
-    };
-
+    const [uploadType, setUploadType] = useState<'company' | 'financial'>('company');
     const extractShareholders = (data: any[][]): IShareholder[] => {
         const shareholders: IShareholder[] = [];
         const headers = data[0]; // Column headers (first row)
@@ -164,7 +49,6 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,
 
         return shareholders;
     };
-
     const extractFaq = (data: any[][]) => {
         const faq: { question: string; answer: string }[] = [];
         const headers = data[0];
@@ -188,18 +72,100 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,
         return faq;
     };
 
-    const processExcelData = (data: any[][], oldData: Partial<ICompanyFull>): Partial<ICompanyFull> => {
-        const result: Partial<ICompanyFull> = {
-            company: oldData.company,
+    const processCompanyData = (data: any[][]): Partial<ICompanyFull> => {
+        // Your existing company data processing logic from ExcelUploader
+        const extractCompanyData = (data: any[][]): Partial<ICompany> => {
+            const headers = data[0]; // Extract headers (first row)
+            const values = data[1]; // Extract values (second row)
+
+            console.log("Header", headers);
+            console.log("values", values);
+
+            const shareHolders = extractShareholders(data);
+            const faq = extractFaq(data);
+
+            const getValue = (field: string): any => {
+                const index = headers.indexOf(field);
+                return index !== -1 ? values[index] : undefined;
+            };
+
+            const parsePhpSerializedArray = (str: string): string[] => {
+                const matches = Array.from(str.matchAll(/s:\d+:"(.*?)"/g));
+                return matches.map(match => match[1]);
+            };
+
+
+            const dhrpId = getValue("dhrp_status");
+            const depositsId = getValue("depository");
+
+            const dhrpValues = dhrpId ? parsePhpSerializedArray(dhrpId) : [];
+            const depositValues = depositsId ? parsePhpSerializedArray(depositsId) : [];
+
+
+            const annualReports: IFinancialResults[] = headers
+                .map((header, index) => {
+                    if (header.startsWith("annual-report-")) {
+                        const periodMatch = header.match(/\d+/);
+                        const periodYear = periodMatch ? `20${periodMatch[0]}` : "2025";
+                        const document = values[index] || "";
+
+                        return document ? { title: "Annual Report", period: periodYear, document } : null;
+                    }
+                    return null;
+                })
+                .filter((report): report is IFinancialResults => report !== null);
+
+
+
+
+            return {
+                name: getValue("Title"),
+                ticker: getValue("Slug"),
+                isin: getValue("isin"),
+                metaTitle: getValue("_yoast_wpseo_title"),
+                metaDescription: getValue("_yoast_wpseo_metadesc"),
+                seoHeader: getValue("seo-header"),
+                seoContent: getValue("seo-content"),
+                keywords: getValue("seo-header") ? getValue("seo-header").split(",") : [],
+                pan: getValue("pan"),
+                location: getValue("location"),
+                rating: getValue("rating") ? Number(getValue("rating")) : undefined,
+                price: getValue("price") ? Number(getValue("price")) : undefined,
+                email: getValue("email"),
+                phone: getValue("phone"),
+                website: getValue("website"),
+                videoLink: getValue("company-profile-video"),
+                aboutus: getValue("about"),
+                categoryId: getValue("Category"),
+                ipoPrice: getValue("price"),
+                ipoDate: getValue("Date"),
+                preIpoDate: getValue("period"),
+                industryId: getValue("Industry"),
+                sectorId: getValue("Market"),
+                dhrpId: dhrpValues[0] || "",
+                depositsId: depositValues,
+                financialResults: annualReports,
+                shareHolders,
+                faq,
+                slug: getValue("Slug"),
+                logo: getValue("Image URL") ? getValue("Image URL").split("|")[0] : undefined,
+                logoAlt: getValue("Image Alt Text") ? getValue("Image URL").split("|")[0] : undefined,
+
+                status: true,
+            };
         };
 
-        console.log("processExcelData", data);
-        const faq = extractFaq(data);
-        const shareHolders = extractShareholders(data);
-        const companyDataExtracted = extractCompanyData(data);
-        const findRow = (header: string) => data.find((row) => row[0]?.toString().trim() === header.trim());
+        const companyData = extractCompanyData(data) as ICompany;
+        return { company: companyData };
+    };
 
-        console.log("companyDataExtracted", companyDataExtracted);
+    const processFinancialData = (data: any[][]): Partial<ICompanyFull> => {
+        const result: Partial<ICompanyFull> = {
+            profitLoss: oldData.profitLoss || [],
+            balanceSheet: oldData.balanceSheet || [],
+            cashFlow: oldData.cashFlow || [],
+            keyIndicators: oldData.keyIndicators || []
+        };
         const getValue = (header: string, index: number, defaultValue: string = "0", isPercentage: boolean = false, isFloat: boolean = false) => {
             const row = findRow(header);
             if (!row) {
@@ -231,21 +197,9 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,
             return value.toString();
         };
 
+        const findRow = (header: string) => data.find((row) => row[0]?.toString().trim() === header.trim());
 
-
-        const companyData: Partial<ICompany> = {
-            ...oldData.company,
-            ...companyDataExtracted,
-            faq,
-            shareHolders
-        };
-
-
-
-        
-        
-
-        result.company = companyData as ICompany;
+        // Process profit & loss data
         const profitLossHeader = findRow("PROFIT & LOSS");
         if (profitLossHeader) {
             const years = profitLossHeader.slice(1);
@@ -334,18 +288,81 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,
 
             result.keyIndicators = keyIndicatorsData;
         }
-        console.log("RESULT", result);
+
         return result;
     };
 
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
 
+        setLoading(true);
+        setError(null);
 
+        try {
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data);
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+                header: 1,
+                defval: "",
+            });
+
+            let processedData: Partial<ICompanyFull>;
+
+            if (uploadType === 'company') {
+                processedData = processCompanyData(jsonData as any[][]);
+            } else {
+                processedData = processFinancialData(jsonData as any[][]);
+            }
+
+            // Merge with existing data to preserve other data
+            const mergedData = {
+                ...oldData,
+                ...processedData,
+                company: {
+                    ...oldData.company,
+                    ...(processedData.company || {})
+                }
+            } as ICompanyFull;
+
+            onUpload(mergedData, uploadType);
+            toast.success(`${uploadType === 'company' ? 'Company' : 'Financial'} data uploaded successfully`);
+        } catch (err) {
+            setError("Failed to process the file. Please check the format.");
+            toast.error("Error processing file");
+            console.error(err);
+        } finally {
+            setLoading(false);
+            // Reset the file input
+            event.target.value = '';
+        }
+    };
 
     return (
-        <Box sx={{ mt: 3, my: 3 }} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+        <Box sx={{ mt: 3, my: 3 }} display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap={2}>
             <Typography variant="h6" gutterBottom>
-                Upload Excel File For  Company Details
+                Excel Data Uploader
             </Typography>
+
+            <FormControl sx={{ minWidth: 200, mb: 2 }}>
+                <InputLabel>Upload Type</InputLabel>
+                <Select
+                    value={uploadType}
+                    label="Upload Type"
+                    onChange={(e) => setUploadType(e.target.value as 'company' | 'financial')}
+                >
+                    <MenuItem value="company">Company Information</MenuItem>
+                    <MenuItem value="financial">Financial Data</MenuItem>
+                </Select>
+            </FormControl>
+
+            <Typography variant="body2" color="textSecondary" gutterBottom>
+                {uploadType === 'company'
+                    ? 'Upload company details, shareholders, and FAQ information'
+                    : 'Upload financial data including profit & loss, balance sheet, and key indicators'}
+            </Typography>
+
             <input
                 type="file"
                 accept=".xlsx, .xls"
@@ -387,3 +404,4 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,
     );
 };
 
+export default CombinedExcelUploader;

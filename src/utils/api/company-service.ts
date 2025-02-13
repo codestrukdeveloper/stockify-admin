@@ -40,13 +40,18 @@ export const companyService = {
     return response.data.data;
   },
 
-  createCompany: async (company: ICompanyFullExtended) => {
+  createCompany: async (company: any) => {
+    console.log("comapnyUPdateDatafinancialResults", company.company?.financialResults)
+
     const response = await axiosServices.post(API_URL + "/new", company);
     return response;
   },
-  updateCompany: async (id: string, company: Partial<ICompanyFull>) => {
-    console.log("comapnyUPdateData", company)
-    const response = await axiosServices.put(`${API_URL}/${id}`, company);
+  updateCompany: async (id: string, company: Partial<ICompanyFullExtended>) => {
+    console.log("comapnyUPdateDatafinancialResults", company.financialResults)
+    const response = await axiosServices.put(`${API_URL}/${id}`, {
+      ...company,
+      balanceSheets:company.balanceSheet
+    });
     return response;
   },
   updateCompanyLogo: async (id: string, logo: string) => {

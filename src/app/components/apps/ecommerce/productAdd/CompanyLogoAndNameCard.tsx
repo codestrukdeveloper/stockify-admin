@@ -399,6 +399,7 @@ const CompanyLogoAndNameCard: React.FC<CompanyLogoAndNameCardProps> = ({
                   <CustomMultiSelect
                     name="depositsId"
                     id={'company.depositsId'}
+                    value={company?.depositsId||[]}
                     onChange={(value) => onChange("depositsId", value)}
                     options={deposits}
                     error={!!validationErrors["company.depositsId"]}

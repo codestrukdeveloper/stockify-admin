@@ -1,37 +1,21 @@
-// Interfaces.ts
 import React, { useState } from "react";
 import { Box, Button, Typography, CircularProgress } from "@mui/material";
 import * as XLSX from "xlsx";
-import toast from "react-hot-toast";
-import { ICompany, ICompanyFull, IFaq, IFinancialResults } from "@/app/(DashboardLayout)/types/apps/ICompany";
-
-import { IShareholder } from "@/app/(DashboardLayout)/types/apps/IShareholder";
+import { ICompanyFull } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { IProfitLosses } from "@/app/(DashboardLayout)/types/apps/IProfitLoss";
 import { IBalanceSheet } from "@/app/(DashboardLayout)/types/apps/IBalanceSheet";
 import { ICashflowSum } from "@/app/(DashboardLayout)/types/apps/ICashflowSum";
 import { IKeyIndicators } from "@/app/(DashboardLayout)/types/apps/IKeyIndicators";
+import toast from "react-hot-toast";
 
-
-
-const YEAR_MAPPING: Record<string, string> = {
-    "twenty-twenty-four": "2024",
-    "twenty-twenty-three": "2023",
-    "twenty-twenty-two": "2022",
-    "twenty-twenty-one": "2021",
-    "twenty-twenty": "2020",
-    "twenty-nineteen": "2019",
-    "twenty-eighteen": "2018",
-};
-
-interface ExcelUploaderProps {
+interface DataExcelUploaderProps {
     onUpload: (data: Partial<ICompanyFull>) => void;
-    oldData: Partial<ICompanyFull>;
+    oldData: Partial<ICompanyFull>
 }
 
-export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,  }) => {
+export const CompanyOtherUploadData: React.FC<DataExcelUploaderProps> = ({ onUpload, oldData }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -49,157 +33,29 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,
                 defval: "",
             });
 
-            const processedData = processExcelData(jsonData as any[][], oldData);
+            // Process the Excel data
+            const processedData = processExcelData(jsonData as unknown as any[][], oldData);
             onUpload(processedData);
         } catch (err) {
             setError("Failed to process the file. Please check the format.");
-            console.error(err);
             toast.error("Error processing file");
+            console.error(err);
         } finally {
             setLoading(false);
         }
     };
 
-    const extractCompanyData = (data: any[][]): Partial<ICompany> => {
-        const headers = data[0]; // Extract headers (first row)
-        const values = data[1]; // Extract values (second row)
-
-        const getValue = (field: string): any => {
-            const index = headers.indexOf(field);
-            return index !== -1 ? values[index] : undefined;
-        };
-
-        const parsePhpSerializedArray = (str: string): string[] => {
-            const matches = Array.from(str.matchAll(/s:\d+:"(.*?)"/g));
-            return matches.map(match => match[1]);
-        };
-
-
-        const dhrpId = getValue("dhrp_status");
-        const depositsId = getValue("depository");
-
-        const dhrpValues = dhrpId ? parsePhpSerializedArray(dhrpId) : [];
-        const depositValues = depositsId ? parsePhpSerializedArray(depositsId) : [];
-
-
-        const annualReports: IFinancialResults[] = headers
-            .map((header, index) => {
-                if (header.startsWith("annual-report-")) {
-                    const periodMatch = header.match(/\d+/);
-                    const periodYear = periodMatch ? `20${periodMatch[0]}` : "2025";
-                    const document = values[index] || "";
-
-                    return document ? { title: "Annual Report", period: periodYear, document } : null;
-                }
-                return null;
-            })
-            .filter((report): report is IFinancialResults => report !== null);
-
-
-
-
-        return {
-            name: getValue("Title"),
-            ticker: getValue("Slug"),
-            isin: getValue("isin"),
-            metaTitle: getValue("_yoast_wpseo_title"),
-            metaDescription: getValue("_yoast_wpseo_metadesc"),
-            seoHeader: getValue("seo-header"),
-            seoContent: getValue("seo-content"),
-            keywords: getValue("seo-header") ? getValue("seo-header").split(",") : [],
-            pan: getValue("pan"),
-            location: getValue("location"),
-            rating: getValue("rating") ? Number(getValue("rating")) : undefined,
-            price: getValue("price") ? Number(getValue("price")) : undefined,
-            email: getValue("email"),
-            phone: getValue("phone"),
-            website: getValue("website"),
-            videoLink: getValue("company-profile-video"),
-            aboutus: getValue("about"),
-            categoryId: getValue("Category"),
-            ipoPrice: getValue("price"),
-            ipoDate: getValue("Date"),
-            preIpoDate: getValue("period"),
-            industryId: getValue("Industry"),
-            sectorId: getValue("Market"),
-            dhrpId: dhrpValues[0] || "",
-            depositsId: depositValues,
-            financialResults: annualReports,
-            slug: getValue("Slug"),
-            logo: getValue("Image URL") ? getValue("Image URL").split("|")[0] : undefined,
-            logoAlt: getValue("Image Alt Text") ? getValue("Image URL").split("|")[0] : undefined,
-
-            status: true,
-        };
-    };
-
-    const extractShareholders = (data: any[][]): IShareholder[] => {
-        const shareholders: IShareholder[] = [];
-        const headers = data[0]; // Column headers (first row)
-        const values = data[1]; // Corresponding values (second row)
-        const currentYear = new Date().getFullYear().toString();
-
-        for (let i = 0; i < headers.length; i++) {
-            const header = headers[i]?.toString().trim().toLowerCase();
-
-            if (header.endsWith("-shareholder-name")) {
-                const number = header.split("-")[0]; // Extracts "first", "second", etc.
-                const percentIndex = headers.indexOf(`${number}-shareholder-percent`);
-
-                if (percentIndex !== -1) {
-                    const name = values[i]?.trim();
-                    const percent = values[percentIndex];
-
-                    if (name.toLowerCase() !== "all others") {
-                        shareholders.push({
-                            name,
-                            percent,
-                            asOf: currentYear,
-                        });
-                    }
-
-                }
-            }
-        }
-
-        return shareholders;
-    };
-
-    const extractFaq = (data: any[][]) => {
-        const faq: { question: string; answer: string }[] = [];
-        const headers = data[0];
-        const values = data[1];
-
-        for (let i = 0; i < headers.length; i++) {
-            const header = headers[i]?.toString().trim().toLowerCase();
-
-            if (header.startsWith("comp_faq_q")) {
-                const answerIndex = headers.indexOf(`comp_faq_a${header.replace("comp_faq_q", "")}`);
-
-                if (answerIndex !== -1) {
-                    faq.push({
-                        question: values[i],
-                        answer: values[answerIndex],
-                    });
-                }
-            }
-        }
-
-        return faq;
-    };
-
     const processExcelData = (data: any[][], oldData: Partial<ICompanyFull>): Partial<ICompanyFull> => {
         const result: Partial<ICompanyFull> = {
-            company: oldData.company,
+            profitLoss: oldData.profitLoss || [],
+            balanceSheet: oldData.balanceSheet || [],
+            cashFlow: oldData.cashFlow || [],
+            keyIndicators: oldData.keyIndicators || [],
+            priceTrend: oldData.priceTrend || []
         };
 
-        console.log("processExcelData", data);
-        const faq = extractFaq(data);
-        const shareHolders = extractShareholders(data);
-        const companyDataExtracted = extractCompanyData(data);
         const findRow = (header: string) => data.find((row) => row[0]?.toString().trim() === header.trim());
 
-        console.log("companyDataExtracted", companyDataExtracted);
         const getValue = (header: string, index: number, defaultValue: string = "0", isPercentage: boolean = false, isFloat: boolean = false) => {
             const row = findRow(header);
             if (!row) {
@@ -232,20 +88,6 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,
         };
 
 
-
-        const companyData: Partial<ICompany> = {
-            ...oldData.company,
-            ...companyDataExtracted,
-            faq,
-            shareHolders
-        };
-
-
-
-        
-        
-
-        result.company = companyData as ICompany;
         const profitLossHeader = findRow("PROFIT & LOSS");
         if (profitLossHeader) {
             const years = profitLossHeader.slice(1);
@@ -334,17 +176,14 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,
 
             result.keyIndicators = keyIndicatorsData;
         }
-        console.log("RESULT", result);
+
         return result;
     };
 
-
-
-
     return (
-        <Box sx={{ mt: 3, my: 3 }} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+        <Box sx={{ mt: 3, my: 3 }} display={"flex"} flexDirection={"column"} alignItems={"center"} justifyContent={"center"}>
             <Typography variant="h6" gutterBottom>
-                Upload Excel File For  Company Details
+                Upload Excel File For Other Data ex:profitloss,keyIndicators...
             </Typography>
             <input
                 type="file"
@@ -355,27 +194,8 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onUpload, oldData,
                 id="excel-upload"
             />
             <label htmlFor="excel-upload">
-                <Button
-                    variant="contained"
-                    component="span"
-                    disabled={loading}
-                    sx={{
-                        minWidth: '120px',
-                        position: 'relative'
-                    }}
-                >
-                    {loading ? (
-                        <CircularProgress
-                            size={24}
-                            sx={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                marginTop: '-12px',
-                                marginLeft: '-12px'
-                            }}
-                        />
-                    ) : "Upload"}
+                <Button variant="contained" component="span" disabled={loading}>
+                    {loading ? <CircularProgress size={24} /> : "Upload"}
                 </Button>
             </label>
             {error && (

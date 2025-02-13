@@ -89,7 +89,7 @@ const headCells: readonly HeadCell[] = [
     disablePadding: false,
     label: 'Link',
   },
- 
+
   {
     id: 'action',
     numeric: false,
@@ -220,6 +220,7 @@ interface Props {
 }
 
 export default function ProductTableList({ initialNewss, totalPages }: Props) {
+
   const [newss, setNewss] = React.useState<INews[]>(initialNewss);
   const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState(1);
@@ -233,18 +234,17 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
   const [error, setError] = React.useState<string | null>(null);
 
   const router = useRouter();
-  const searchParams = useSearchParams();
 
+  console.log("TotalPage", totalPage);
 
-  
   const fetchNewssWithPage = async (pageNo: number) => {
     setLoading(true);
     try {
 
-      const data = await fetchNewss(pageNo, rowsPerPage);
+      const data = await searchNewss(pageNo, rowsPerPage, search);
 
       if (isServerError(data)) {
-        return <ServerErrorRender error={data.error}/>
+        return <ServerErrorRender error={data.error} />
       }
 
       setNewss(data.data);
@@ -261,16 +261,7 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
 
   const onSearch = async (search: string) => {
 
-
-    const data = await searchNewss(1, 20, search);
-
-    if (isServerError(data)) {
-      return <ServerErrorRender error={data.error}/>
-
-    }
-
-    setNewss(data.data);
-    setTotalPages(data.totalPage);
+    const data = await fetchNewssWithPage(page);
 
   }
 
@@ -321,7 +312,7 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
   };
 
 
-  const edit = (id:string) => {
+  const edit = (id: string) => {
     router.push(`/apps/news/edit/${id}`);
   };
 
@@ -341,7 +332,7 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
   const theme = useTheme();
   const borderColor = theme.palette.divider;
 
-  console.log("newss",newss);
+  console.log("newss", newss);
 
   if (loading) {
     return <Loading />;
@@ -416,7 +407,7 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
                         </Typography>
                       </TableCell> */}
                       <TableCell>
-                        <Tooltip onClick={()=>edit(row._id!)} title="Action">
+                        <Tooltip onClick={() => edit(row._id!)} title="Action">
                           <IconButton size="small">
                             <IconDotsVertical size="1.1rem" />
                           </IconButton>
@@ -425,20 +416,21 @@ export default function ProductTableList({ initialNewss, totalPages }: Props) {
                     </TableRow>
                   );
                 })}
-                {emptyRows > 0 && (
+                {/* {emptyRows > 0 && (
                   <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
                     <TableCell colSpan={6} />
                   </TableRow>
-                )}
+                )} */}
               </TableBody>
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={totalPage * 1}
-            rowsPerPage={rowsPerPage}
-            page={page}
+            rowsPerPageOptions={[10]}
+
+            count={totalPage * 10}
+            rowsPerPage={10}
+            page={page - 1}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />

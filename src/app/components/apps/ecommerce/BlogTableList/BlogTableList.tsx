@@ -433,20 +433,21 @@ export default function ProductTableList({ initialBlogs, totalPages }: Props) {
                     </TableRow>
                   );
                 })}
-                {emptyRows > 0 && (
+                {/* {emptyRows > 0 && (
                   <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
                     <TableCell colSpan={6} />
                   </TableRow>
-                )}
+                )} */}
               </TableBody>
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={totalPage * 1}
-            rowsPerPage={rowsPerPage}
-            page={page}
+            rowsPerPageOptions={[10]}
+
+            count={totalPage * 10}
+            rowsPerPage={10}
+            page={page - 1}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />

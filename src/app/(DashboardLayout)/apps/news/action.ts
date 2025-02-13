@@ -4,7 +4,7 @@ import { newsService } from "@/utils/api/news-service";
 import { companyService } from "@/utils/api/company-service";
 const API_URL = + "/admin/news";
 
-export async function fetchNewss(page: number, limit: number): Promise<
+export async function fetchNewss(page: number, limit: number,search:string=""): Promise<
     IServerResponse<{
         data: INews[];
         totalPage: number;

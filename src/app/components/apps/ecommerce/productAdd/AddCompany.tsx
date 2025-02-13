@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Button, Grid, Stack } from "@mui/material";
+import { Box, Button, Grid, Stack, Typography } from "@mui/material";
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/components/container/PageContainer";
 import CompanyLogoAndNameCard from "@/app/components/apps/ecommerce/productAdd/CompanyLogoAndNameCard";
@@ -12,16 +12,14 @@ import AboutTheCompany from "@/app/components/apps/ecommerce/productAdd/AboutThe
 import React, { useEffect, useState } from "react";
 import { ICompany, ICompanyFull, ICompanyFullExtended, IFaq, IFinancialResults, IFinancialResultsWithFile } from "@/app/(DashboardLayout)/types/apps/ICompany";
 import { ISector } from "@/app/(DashboardLayout)/types/apps/sector";
-import { IDeposit, IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
+import { IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
 import { IPerformance } from "@/app/(DashboardLayout)/types/apps/peformance";
 import { ICategory } from "@/app/(DashboardLayout)/types/apps/category";
 import EditableAddressAndManagement from "./EditableAddressManagement";
 import { createCompanyAction, updateCompany, updateCompanyLogo, uploadImages } from "@/app/(DashboardLayout)/apps/company/action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import { IError } from "@/app/(DashboardLayout)/types/apps/error";
-import ErrorMessage from "@/app/components/shared/ErrorMessage";
 import { createCompanyDto, updateCompanyDto } from "@/schema/company.dto";
-import ExcelUploader from "./ExcelUploader";
 import FinancialResultUploader from "./FinancialResultUpload";
 import { IShareholder } from "@/app/(DashboardLayout)/types/apps/IShareholder";
 import ShareHolder from "./ShareHolders";
@@ -31,6 +29,10 @@ import toast, { Toaster } from "react-hot-toast";
 import ValidationErrors from "@/app/components/shared/ValidationError";
 import { uploadFile } from "@/utils/api/uploadAction";
 import SEOMetaFields from "./SeoMetaFields";
+import { IDeposit } from "@/app/(DashboardLayout)/types/apps/deposit";
+import { ExcelUploader } from "./ExcelUploader";
+import { CompanyOtherUploadData } from "./CompanyOtherUploadData";
+import CombinedExcelUploader from "./CombineUploader";
 
 
 
@@ -182,7 +184,18 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
   }, [validationErrors]);
 
 
-
+  useEffect(() => {
+    if (companyData && (!companyData.company.aboutus || !companyData.company.videoLink)) {
+      setFormData((prev) => ({
+        ...prev,
+        company: {
+          ...prev.company,
+          aboutus: prev.company.aboutus || "",
+          videoLink: prev.company.videoLink || "",
+        },
+      }));
+    }
+  }, [companyData]);
 
 
   const onChangeCompany = <K extends keyof ICompanyFull["company"]>(
@@ -236,13 +249,13 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
 
     console.log("formData", formData)
 
-    if (!logo && !formData.company._id) {
+    if (!logo && !formData.company.logo?.startsWith("https")) {
       setValidationErrors({ "company.logo": "logo is required" })
       toast.error("logo is required");
       return
     }
 
-    if (financialResults.length < 1 && !formData.company._id) {
+    if (financialResults.length < 1 && formData.company.financialResults.length < 1) {
       setValidationErrors({ "company.financialResults": "Financial Results is required" })
       toast.error("Financial Results is required");
       return
@@ -270,56 +283,62 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
 
     setValidationErrors({});
 
-    if (!logo) {
 
-      return;
-    }
 
     try {
+      let uploadedLogo = formData.company.logo;
+      if (logo) {
+        const uploadLogo = await uploadFile([logo], "stocks");
+        console.log("uploadedLogo created", uploadLogo);
+        if (isServerError(uploadLogo) || !uploadLogo?.length) {
+          toast.error("Failed to upload logo");
+        }
 
-      const uploadedLogo = await uploadFile([logo], "stocks");
-      console.log("uploadedLogo created", uploadedLogo);
-      if (isServerError(uploadedLogo) || !uploadedLogo?.length) {
-        toast.error("Failed to upload logo");
-        return null; // Explicitly return null instead of undefined
+        uploadedLogo = uploadLogo[0];
+
       }
-      
 
       console.log("financialResults:", financialResults);
 
-      // Upload financial results
-      // Upload financial results
-      const uploadedFinancialResults: any[] = await Promise.all(
-        financialResults.map(async (result) => {
-          const uploadedFile = await uploadFile([result.document], "financial-results");
+      let financialResultsUploaded = formData.company.financialResults;
 
-          if (isServerError(uploadedFile) || !uploadedFile?.length) {
-            toast.error("Failed to upload financial result document");
-            return null; // Explicitly return null instead of undefined
-          }
+      if (financialResults) {
 
-          return {
-            title: result.title,
-            period: result.period,
-            document: uploadedFile[0], // Assuming uploadFile returns an array of URLs
-          };
-        })
-      );
 
-      // Filter out any `null` values in case of upload failures
-      const validFinancialResults = uploadedFinancialResults.filter(Boolean);
 
+        const uploadedFinancialResults: any[] = await Promise.all(
+          financialResults.map(async (result) => {
+            const uploadedFile = await uploadFile([result.document], "financial-results");
+
+            if (isServerError(uploadedFile) || !uploadedFile?.length) {
+              toast.error("Failed to upload financial result document");
+              return null;
+            }
+
+            return {
+              title: result.title,
+              period: result.period,
+              document: uploadedFile[0], // Assuming uploadFile returns an array of URLs
+            };
+          })
+        );
+
+        // Filter out any `null` values in case of upload failures
+        const validUploadedResults = uploadedFinancialResults.filter(Boolean);
+        financialResultsUploaded = [...financialResultsUploaded, ...validUploadedResults];
+
+      }
       // console.log("Company updated with financial results:", uploadedFinancialResults);
 
 
       const data = validationResult.data.company as unknown as ICompany;
-      const formData: ICompanyFullExtended = {
+      const formDataT: ICompanyFullExtended = {
         ...data,
-        logo:uploadedLogo[0]+"",
-        financialResults: uploadedFinancialResults,
+        logo: uploadedLogo + "",
+        financialResults: financialResultsUploaded,
         profitLoss: validationResult.data.profitLoss || [],
         keyIndicators: validationResult.data.keyIndicators || [],
-        balanceSheets: validationResult.data.balanceSheet || [],
+        balanceSheet: validationResult.data.balanceSheet || [],
         cashFlow: validationResult.data.cashFlow || [],
         priceTrend: validationResult.data.priceTrend || [],
       };
@@ -327,14 +346,9 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       let created;
       console.log("formData", formData)
 
-      if (formData._id) {
 
-        created = await updateCompany(formData._id, formData);
 
-      } else {
-
-        created = await createCompanyAction(formData);
-      }
+      created = await createCompanyAction(formDataT);
 
       console.log("created", created)
       if (isServerError(created)) {
@@ -377,9 +391,62 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       console.log("ERROR", error);
     }
   };
-
   const handleExcelUpload = (data: Partial<ICompanyFull>) => {
     console.log("Excel Data:", data);
+
+    if (data.company) {
+      const dhrpName = Array.isArray(data.company.dhrpId) ? data.company.dhrpId[0] : data.company.dhrpId;
+      const industryName = Array.isArray(data.company.industryId) ? data.company.industryId[0] : data.company.industryId;
+      const sectorName = Array.isArray(data.company.sectorId) ? data.company.sectorId[0] : data.company.sectorId;
+      const categoryName = Array.isArray(data.company.categoryId) ? data.company.categoryId[0] : data.company.categoryId;
+
+      const depositsNames = Array.isArray(data.company.depositsId) ? data.company.depositsId : [data.company.depositsId];
+
+      console.log("categoryName", categoryName);
+
+      const dhrpId = dhrps?.find((d) => d.name.toLowerCase() === dhrpName?.toLowerCase())?._id;
+      const sectorId = sectors?.find((d) => d.name.toLowerCase() === sectorName?.toLowerCase())?._id;
+      const industryId = industries?.find((d) => d.name.toLowerCase() === industryName?.toLowerCase())?._id;
+      const categoryId = categories?.find((d) => d.name.toLowerCase() === categoryName?.toLowerCase())?._id;
+
+      const depositsIds = depositsNames
+        .map((name) => deposits?.find((d) => d.name.toLowerCase() === name?.toLowerCase())?._id)
+        .filter((id): id is string => Boolean(id));
+
+
+
+      console.log("categoryId", categoryId);
+
+      if (!dhrpId && dhrpName) {
+        toast.error("DHRP not found. Create DHRP first, then select it.");
+      } else {
+        data.company.dhrpId = dhrpId;
+      }
+
+      if (!industryId && industryName) {
+        toast.error("Industry not found. Create Industry first, then select it.");
+      } else {
+        data.company.industryId = industryId;
+      }
+
+      if (!sectorId && sectorName) {
+        toast.error("Sector not found. Create Sector first, then select it.");
+      } else {
+        data.company.sectorId = sectorId;
+      }
+
+      if (!depositsIds.length && depositsNames.some(name => name)) {
+        toast.error("Deposits not found. Create deposits first, then select them.");
+      } else {
+        data.company.depositsId = depositsIds;
+      }
+
+      if (!categoryId && !categoryName) {
+        toast.error("Category not found. Create category first, then select them.");
+      } else {
+        data.company.categoryId = categoryId;
+      }
+    }
 
     setFormData((prev) => {
       const updatedFormData = {
@@ -388,6 +455,24 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           ...prev.company,
           ...data.company,
         },
+        // profitLoss: data.profitLoss || prev.profitLoss,
+        // balanceSheet: data.balanceSheet || prev.balanceSheet,
+        // cashFlow: data.cashFlow || prev.cashFlow,
+        // keyIndicators: data.keyIndicators || prev.keyIndicators,
+      };
+
+      console.log("Updated FormData:", updatedFormData);
+      return updatedFormData;
+    });
+
+    setValidationErrors({});
+  };
+
+  const handleExcelUploadData = (data: Partial<ICompanyFull>) => {
+    console.log("ECECCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+    setFormData((prev) => {
+      const updatedFormData = {
+        ...prev,
         profitLoss: data.profitLoss || prev.profitLoss,
         balanceSheet: data.balanceSheet || prev.balanceSheet,
         cashFlow: data.cashFlow || prev.cashFlow,
@@ -397,9 +482,10 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       console.log("Updated FormData:", updatedFormData);
       return updatedFormData;
     });
-    setValidationErrors({})
 
+    setValidationErrors({});
   };
+
 
   const handleFinancialResultUpload = (data: { title: string; period: string; document: File }) => {
     setFinancialResults((prev) => {
@@ -421,6 +507,16 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     setValidationErrors({})
 
   };
+  const handleRemoveFinancialResults = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: {
+        ...prev.company,
+        financialResults: prev.company.financialResults?.filter((_, i) => i !== index) || [],
+      },
+    }));
+  };
+
 
   const handleFaqChange = (faqs: IFaq[]) => {
     setFormData((prev) => ({
@@ -448,6 +544,21 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     }));
     setValidationErrors({})
   };
+  const handleSeoHeaderChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: { ...prev.company, seoHeader: value },
+    }));
+    setValidationErrors({})
+  };
+
+  const handleSeoContentChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      company: { ...prev.company, seoContent: value },
+    }));
+    setValidationErrors({})
+  };
 
   const handleKeywordsChange = (value: string[]) => {
     setFormData((prev) => ({
@@ -458,13 +569,24 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
 
   };
 
-
+  useEffect(() => {
+    console.log("formData updated:", formData);
+  }, [formData]);
   return (
     <PageContainer title="Add Product" description="this is Add Product">
       <Toaster />
       <Breadcrumb title="Add Product" items={BCrumb} />
       <form onSubmit={onSubmit} className="flex flex-col gap-5">
-        <ExcelUploader onUpload={handleExcelUpload} fileFor="company_details" oldData={formData} /> {/* Add the ExcelUploader component */}
+
+        <CombinedExcelUploader
+          onUpload={(data, type) => {
+            if (type === 'company') {
+              handleExcelUpload(data);
+            } else {
+              handleExcelUploadData(data);
+            }
+          }}
+          oldData={formData} />
 
         <CompanyLogoAndNameCard
           company={formData.company}
@@ -479,9 +601,7 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           categories={categories}
           validationErrors={validationErrors}
           id="company-section"
-
         />
-        <ExcelUploader onUpload={handleExcelUpload} fileFor="key_indicators" oldData={formData} /> 
 
         <KeyIndicators
           data={formData.keyIndicators}
@@ -571,7 +691,9 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
         <FinancialResultUploader
           onUpload={handleFinancialResultUpload}
           onRemove={handleRemove}
+          handleRemoveFinancialResults={handleRemoveFinancialResults}
           financialResults={financialResults}
+          uploaded={formData.company.financialResults}
           id="financial-result-section"
           validationErrors={validationErrors}
 
@@ -592,13 +714,17 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           metaTitle={formData.company.metaTitle || ""}
           metaDescription={formData.company.metaDescription || ""}
           keywords={formData.company.keywords || []}
+          seoHeader={formData.company.seoHeader || ""}
+          seoContent={formData.company.seoContent || ""}
           onMetaTitleChange={handleMetaTitleChange}
           onMetaDescriptionChange={handleMetaDescriptionChange}
           onKeywordsChange={handleKeywordsChange}
+          onSeoHeaderChange={handleSeoHeaderChange}
+          onSeoContentChange={handleSeoContentChange}
           validationErrors={validationErrors}
           id="seo-section"
-
         />
+
         <ValidationErrors errors={validationErrors} />
 
         <Button variant="contained" color="primary" type="submit">
