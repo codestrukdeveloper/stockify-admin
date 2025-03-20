@@ -182,7 +182,7 @@ const PricingTrend: React.FC<PricingTrendProps> = ({ data }) => {
                 <Box mt={3}>
 
 
-                    <ResponsiveTable initialData={tableData} />
+                    <ResponsiveTable handleFileUpload={handleFileUpload}  initialData={tableData} />
                     <Button
                         variant="contained"
                         sx={{ mt: 2 }}

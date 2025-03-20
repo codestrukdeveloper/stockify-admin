@@ -517,12 +517,6 @@ const Menuitems: MenuitemsType[] = [
   // },
   // {
   //   id: uniqueId(),
-  //   title: "Tickets",
-  //   icon: IconTicket,
-  //   href: "/apps/tickets",
-  // },
-  // {
-  //   id: uniqueId(),
   //   title: "Kanban",
   //   icon: IconNotebook,
   //   href: "/apps/kanban",

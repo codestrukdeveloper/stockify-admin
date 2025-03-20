@@ -8,11 +8,11 @@ import {
   Divider,
   Button,
   IconButton,
+  Stack
 } from '@mui/material';
 import * as dropdownData from './data';
 
 import { IconMail } from '@tabler/icons-react';
-import { Stack } from '@mui/system';
 import Image from 'next/image';
 
 

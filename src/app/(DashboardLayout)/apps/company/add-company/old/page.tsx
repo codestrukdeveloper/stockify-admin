@@ -2,14 +2,14 @@ import { Box, Button, Grid, Stack } from "@mui/material";
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/components/container/PageContainer";
 
-import GeneralCard from "@/app/components/apps/ecommerce/productAdd/GeneralCard";
-import MediaCard from "@/app/components/apps/ecommerce/productAdd/Media";
-import VariationCard from "@/app/components/apps/ecommerce/productAdd/VariationCard";
-import PricingCard from "@/app/components/apps/ecommerce/productAdd/Pricing";
-import Thumbnail from "@/app/components/apps/ecommerce/productAdd/Thumbnail";
-import StatusCard from "@/app/components/apps/ecommerce/productAdd/Status";
-import ProductDetails from "@/app/components/apps/ecommerce/productAdd/ProductDetails";
-import ProductTemplate from "@/app/components/apps/ecommerce/productAdd/ProductTemplate";
+import GeneralCard from "@/app/components/apps/stocks/productAdd/GeneralCard";
+import MediaCard from "@/app/components/apps/stocks/productAdd/Media";
+import VariationCard from "@/app/components/apps/stocks/productAdd/VariationCard";
+import PricingCard from "@/app/components/apps/stocks/productAdd/Pricing";
+import Thumbnail from "@/app/components/apps/stocks/productAdd/Thumbnail";
+import StatusCard from "@/app/components/apps/stocks/productAdd/Status";
+import ProductDetails from "@/app/components/apps/stocks/productAdd/ProductDetails";
+import ProductTemplate from "@/app/components/apps/stocks/productAdd/ProductTemplate";
 import BlankCard from "@/app/components/shared/BlankCard";
 
 const BCrumb = [

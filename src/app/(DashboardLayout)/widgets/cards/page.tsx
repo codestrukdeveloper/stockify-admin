@@ -9,7 +9,6 @@ import UpcomingAcitivity from "@/app/components/widgets/cards/UpcomingActivity";
 import ComplexCard from "@/app/components/widgets/cards/ComplexCard";
 import MusicCard from "@/app/components/widgets/cards/MusicCard";
 import EcommerceCard from "@/app/components/widgets/cards/EcommerceCard";
-import FollowerCard from "@/app/components/widgets/cards/FollowerCard";
 import FriendCard from "@/app/components/widgets/cards/FriendCard";
 import ProfileCard from "@/app/components/widgets/cards/ProfileCard";
 import Settings from "@/app/components/widgets/cards/Settings";
@@ -43,9 +42,6 @@ const WidgetCards = () => {
         </Grid>
         <Grid item xs={12}>
           <MusicCard />
-        </Grid>
-        <Grid item xs={12}>
-          <FollowerCard />
         </Grid>
         <Grid item xs={12}>
           <FriendCard />

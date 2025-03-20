@@ -5,11 +5,6 @@ import { useSelector } from "./hooks";
 import { loginDetails } from "@/store/apps/auth/auth-action";
 import { AppDispatch } from "./store";
 import { hasError } from "./apps/auth/AuthSlice";
-import { fetchCompanys } from "@/utils/api/company-action";
-import { fetchSectors } from "@/utils/api/sector-api";
-import { fetchIndustries } from "@/utils/api/industry-api";
-import { fetchDhrps } from "@/utils/api/dhrps-api";
-import { fetchDeposits } from "@/store/apps/deposits/deposits-action";
 
 const WithAuth = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch<AppDispatch>();

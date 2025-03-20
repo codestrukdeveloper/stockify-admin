@@ -14,10 +14,10 @@ import {
   IconButton,
   ListItemIcon,
   TableHead,
+  Box
 } from '@mui/material';
 import BlankCard from '../shared/BlankCard';
-import { Box, Stack } from '@mui/system';
-import { IconDots, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { Stack } from "@mui/material";import { IconDots, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 
 const rows = [
   {

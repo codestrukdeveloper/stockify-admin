@@ -5,7 +5,7 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useTheme } from '@mui/material/styles';
 import { CardContent, Typography, MenuItem } from '@mui/material';
 import BlankCard from '../../shared/BlankCard';
-import { Stack, Box } from '@mui/system';
+import { Box, Stack } from "@mui/material";
 import CustomSelect from '../../forms/theme-elements/CustomSelect';
 
 const MostVisited = () => {

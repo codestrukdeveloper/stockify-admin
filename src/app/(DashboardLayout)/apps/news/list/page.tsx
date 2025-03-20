@@ -1,7 +1,7 @@
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/components/container/PageContainer";
 import BlankCard from "@/app/components/shared/BlankCard";
-import NewsTableList from "@/app/components/apps/ecommerce/NewsTableList/NewsTableList";
+import NewsTableList from "@/app/components/apps/stocks/NewsTableList/NewsTableList";
 import { newsService } from "@/utils/api/news-service";
 import { fetchNewss } from "../action";
 import { isServerError } from "@/app/(DashboardLayout)/action";

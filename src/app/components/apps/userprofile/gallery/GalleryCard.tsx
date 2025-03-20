@@ -15,7 +15,6 @@ import { useSelector, useDispatch } from "@/store/hooks";
 import { fetchPhotos } from "@/store/apps/userProfile/UserProfileSlice";
 import { IconDotsVertical, IconSearch } from "@tabler/icons-react";
 import { format } from "date-fns";
-import { GallaryType } from "../../../../(DashboardLayout)/types/apps/users";
 
 import FsLightbox from "fslightbox-react";
 
@@ -25,7 +24,7 @@ const GalleryCard = () => {
     dispatch(fetchPhotos());
   }, [dispatch]);
 
-  const filterPhotos = (photos: GallaryType[], cSearch: string) => {
+  const filterPhotos = (photos: any[], cSearch: string) => {
     if (photos)
       return photos.filter((t) =>
         t.name.toLocaleLowerCase().includes(cSearch.toLocaleLowerCase())

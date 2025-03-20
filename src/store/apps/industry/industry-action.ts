@@ -1,7 +1,6 @@
 import { deleteIndustryById, getIndustry, getIndustryById, hasError, startLoading, updateIndustry } from "@/store/apps/industry/IndustrySlice";
 import { AppDispatch } from "@/store/store";
 import { IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
-import { useUpdateIndustry } from "@/hooks/useIndustry";
 import { BASE_URL } from "@/utils/api";
 import axiosServices from "@/utils/axios";
 

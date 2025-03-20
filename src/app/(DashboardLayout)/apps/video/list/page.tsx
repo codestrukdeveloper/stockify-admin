@@ -1,7 +1,7 @@
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/components/container/PageContainer";
 import BlankCard from "@/app/components/shared/BlankCard";
-import VideoTableList from "@/app/components/apps/ecommerce/VideoTableList/VideoTableList";
+import VideoTableList from "@/app/components/apps/stocks/VideoTableList/VideoTableList";
 import { fetchVideos } from "../action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";

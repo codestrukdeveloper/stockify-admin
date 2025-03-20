@@ -8,7 +8,7 @@ import {
   Button,
 } from "@mui/material";
 import ParentCard from "../../shared/ParentCard";
-import { Box, Stack } from "@mui/system";
+import { Box, Stack } from "@mui/material";
 import { IconMessage, IconVolume } from "@tabler/icons-react";
 
 import CustomSlider from "../../forms/theme-elements/CustomSlider";

@@ -13,8 +13,9 @@ import {
   Box,
   AvatarGroup,
   Grid,
+  Stack
 } from "@mui/material";
-import { Stack } from "@mui/system";
+
 import DownloadCard from "@/app/components/shared/DownloadCard";
 import {
   basicsTableData,
@@ -36,7 +37,7 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+// import { CSS } from "@dnd-kit/utilities/dist/css";
 import { IconGripVertical } from "@tabler/icons-react";
 
 import {
@@ -156,7 +157,7 @@ const DraggableRow = ({ row }: any) => {
     });
 
   const style: any = {
-    transform: CSS.Translate.toString(transform),
+    // transform: CSS.Translate.toString(transform),
     transition,
     cursor: "move",
   };

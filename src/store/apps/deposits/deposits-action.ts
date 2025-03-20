@@ -2,7 +2,7 @@ import { AppDispatch } from "@/store/store";
 import axios from "../../../utils/axios";
 import { BASE_URL } from "../../../utils/api";
 import { deleteDepositById, getDepositById, getDeposits, hasError, startLoading, updateDeposit } from "@/store/apps/deposits/DepositsSlice";
-import { IDeposit } from "@/app/(DashboardLayout)/types/apps/industry";
+import { IDeposit } from "@/app/(DashboardLayout)/types/apps/deposit";
 
 
 const API_URL=BASE_URL+"/admin/deposits"

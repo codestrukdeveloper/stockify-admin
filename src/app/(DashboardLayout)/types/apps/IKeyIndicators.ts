@@ -3,7 +3,6 @@ export interface IKeyIndicators {
   companyId?: string;
   period: string;
   rowc: string; // Ensure this is a string
-
   bookValuePerShare: string;
   currentSharePrice: string;
   debtToEquity: string;

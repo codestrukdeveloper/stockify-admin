@@ -24,7 +24,7 @@ import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 
 import ParentCard from "@/app/components/shared/ParentCard";
-import { Stack } from "@mui/system";
+import { Stack } from "@mui/material";
 import BlankCard from "@/app/components/shared/BlankCard";
 
 interface TablePaginationActionsProps {

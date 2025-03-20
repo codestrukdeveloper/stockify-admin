@@ -17,7 +17,7 @@ import {
 import ParentCard from "@/app/components/shared/ParentCard";
 import BlankCard from "@/app/components/shared/BlankCard";
 import { IconTrash } from "@tabler/icons-react";
-import { Stack } from "@mui/system";
+import { Stack } from "@mui/material";
 
 const columns = [
   { id: "pname", label: "Products", minWidth: 170 },

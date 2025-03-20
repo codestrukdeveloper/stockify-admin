@@ -4,7 +4,7 @@ import React from "react";
 import { Slider } from "@mui/material";
 import ChildCard from "@/app/components/shared/ChildCard";
 import { IconVolume, IconVolume2 } from "@tabler/icons-react";
-import { Stack } from "@mui/system";
+import { Stack } from "@mui/material";
 
 import VolumesliderCode from "@/app/components/forms/form-elements/slider/code/VolumesliderCode";
 

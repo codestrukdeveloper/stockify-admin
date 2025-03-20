@@ -20,7 +20,7 @@ import CustomFormLabel from '../theme-elements/CustomFormLabel';
 import CustomTextField from '../theme-elements/CustomTextField';
 import CustomRadio from '../theme-elements/CustomRadio';
 import CustomOutlinedInput from '../theme-elements/CustomOutlinedInput';
-import { Box } from '@mui/system';
+import { Box } from '@mui/material';
 
 const CollapsibleForm = () => {
   // address type

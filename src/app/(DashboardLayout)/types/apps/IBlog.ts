@@ -17,7 +17,7 @@ export interface IBlog {
     seoTitle: string;
     seoDescription: string;
     seoKeywords: string[];
-    status: string;
+    status: 'draft' | 'published'|string;
     publishedAt?: Date;
     relatedStocks?: string[];
     updatedAt?: Date;

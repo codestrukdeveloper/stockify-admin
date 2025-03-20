@@ -1,8 +1,7 @@
 import React from 'react';
-import { Avatar, IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import { Avatar, IconButton, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { useSelector, useDispatch } from '@/store/hooks';
 import { setLanguage } from '@/store/customizer/CustomizerSlice';
-import { Stack } from '@mui/system';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { AppState } from '@/store/store';

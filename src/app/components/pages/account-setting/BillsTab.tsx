@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import BlankCard from '../../shared/BlankCard';
 import CustomTextField from '../../forms/theme-elements/CustomTextField';
 import CustomFormLabel from '../../forms/theme-elements/CustomFormLabel';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 import { IconCirclePlus, IconCreditCard, IconPackage, IconPencilMinus } from '@tabler/icons-react';
 
 const BillsTab = () => {

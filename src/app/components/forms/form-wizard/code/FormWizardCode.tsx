@@ -21,7 +21,7 @@ import { styled } from '@mui/material/styles';
 import { TextField } from '@mui/material';
 import Checkbox, { CheckboxProps } from '@mui/material/Checkbox';
 import { Typography } from '@mui/material';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 
 const steps = ['Account', 'Profile', 'Finish'];
 

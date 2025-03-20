@@ -2,7 +2,7 @@ import axios from '../../../utils/axios';
 import { filter, map } from 'lodash';
 import { createSlice } from '@reduxjs/toolkit';
 import { AppDispatch } from '../../store';
-import { IDeposit } from '@/app/(DashboardLayout)/types/apps/industry';
+import { IDeposit } from '@/app/(DashboardLayout)/types/apps/deposit';
 
 const API_URL = 'http://13.232.10.252:3000/api/v1/admin/deposit/';
 

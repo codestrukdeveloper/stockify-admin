@@ -6,7 +6,7 @@ const FriendCardCode = () => {
             <CodeDialog>
                 {`
 import { CardContent, Typography, Grid, Button, Box, AvatarGroup, Avatar, Card } from '@mui/material';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 
 const followerCard = [
   {

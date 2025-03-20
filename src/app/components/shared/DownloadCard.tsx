@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import PropTypes from "prop-types";
 import { useTheme } from "@mui/material/styles";
 import { Card, CardHeader, Tooltip, Divider, IconButton } from "@mui/material";
 import { useSelector } from "react-redux";
@@ -39,9 +38,9 @@ const DownloadCard = ({ title, children, onDownload }: any) => {
     </Card>
   );
 };
-DownloadCard.propTypes = {
-  title: PropTypes.string.isRequired,
-  children: PropTypes.node,
-  onDownload: PropTypes.func,
-};
+// DownloadCard.propTypes = {
+//   title: PropTypes.string.isRequired,
+//   children: PropTypes.node,
+//   onDownload: PropTypes.func,
+// };
 export default DownloadCard;

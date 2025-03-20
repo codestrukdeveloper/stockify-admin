@@ -1,7 +1,7 @@
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/components/container/PageContainer";
 import BlankCard from "@/app/components/shared/BlankCard";
-import ProductTableList from "@/app/components/apps/ecommerce/ProductTableList/ProductTableList";
+import ProductTableList from "@/app/components/apps/stocks/ProductTableList/ProductTableList";
 import { searchCompanies } from "../action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";

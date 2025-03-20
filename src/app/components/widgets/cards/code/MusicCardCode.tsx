@@ -6,7 +6,7 @@ const MusicCardCode = () => {
             <CodeDialog>
                 {`
 import { CardContent, Typography, Grid, Card, CardMedia, Box, IconButton } from '@mui/material';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 import { IconPlayerPlay, IconPlayerSkipBack, IconPlayerSkipForward } from '@tabler/icons-react';
 
 const musicCard = [

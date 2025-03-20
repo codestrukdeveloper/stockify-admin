@@ -6,7 +6,7 @@ const FollowerCardCode = () => {
             <CodeDialog>
                 {`
 import { CardContent, Typography, Grid, Button, Avatar, Box, Card } from '@mui/material';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 import { IconMapPin } from '@tabler/icons-react';
 
 const followerCard = [

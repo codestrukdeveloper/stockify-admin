@@ -13,7 +13,7 @@ import BlankCard from '../../shared/BlankCard';
 import CustomTextField from '../../forms/theme-elements/CustomTextField';
 import CustomFormLabel from '../../forms/theme-elements/CustomFormLabel';
 import CustomSwitch from '../../forms/theme-elements/CustomSwitch';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 import {
   IconArticle,
   IconCheckbox,

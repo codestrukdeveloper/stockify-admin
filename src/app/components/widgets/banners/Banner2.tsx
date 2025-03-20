@@ -1,8 +1,7 @@
 "use client";
 import { CardContent, Typography, Button } from "@mui/material";
 import ParentCard from "../../shared/ParentCard";
-import { Box } from "@mui/system";
-import Image from "next/image";
+import { Box } from "@mui/material";import Image from "next/image";
 
 import NotificationCode from "./code/NotificationCode";
 

@@ -18,7 +18,7 @@ import {
   IconButton,
   LinearProgress,
 } from "@mui/material";
-import { Stack } from "@mui/system";
+import { Stack } from "@mui/material";
 
 import DownloadCard from "@/app/components/shared/DownloadCard";
 import {

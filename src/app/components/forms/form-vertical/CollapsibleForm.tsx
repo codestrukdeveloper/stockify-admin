@@ -13,6 +13,7 @@ import {
   Stack,
   Button,
   MenuItem,
+  Box
 } from '@mui/material';
 import { IconChevronDown, IconHelp } from '@tabler/icons-react';
 
@@ -21,7 +22,6 @@ import CustomFormLabel from '../theme-elements/CustomFormLabel';
 import CustomTextField from '../theme-elements/CustomTextField';
 import CustomRadio from '../theme-elements/CustomRadio';
 import CustomOutlinedInput from '../theme-elements/CustomOutlinedInput';
-import { Box } from '@mui/system';
 import CustomSelect from '../theme-elements/CustomSelect';
 
 const states = [

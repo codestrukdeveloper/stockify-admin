@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 
 // components
 import BlankCard from '../../shared/BlankCard';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 import { IconDeviceLaptop, IconDeviceMobile, IconDotsVertical } from '@tabler/icons-react';
 
 const SecurityTab = () => {

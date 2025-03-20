@@ -6,7 +6,7 @@ const GiftCardCode = () => {
             <CodeDialog>
                 {`
 import { CardContent, Typography, Grid, Button, CardMedia, IconButton, Card } from '@mui/material';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 import { IconGift } from '@tabler/icons-react';
 
 const giftCard = [

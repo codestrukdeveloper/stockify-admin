@@ -5,7 +5,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import { Box } from '@mui/system';
+import { Box } from '@mui/material';
 import { IconChevronDown } from '@tabler/icons-react';
 
 const Questions = () => {

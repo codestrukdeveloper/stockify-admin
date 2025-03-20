@@ -16,7 +16,7 @@ import CustomTextField from '@/app/components/forms/theme-elements/CustomTextFie
 import CustomCheckbox from '@/app/components/forms/theme-elements/CustomCheckbox';
 import CustomFormLabel from '@/app/components/forms/theme-elements/CustomFormLabel';
 import ParentCard from '@/app/components/shared/ParentCard';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 
 const steps = ['Account', 'Profile', 'Finish'];
 

@@ -1,7 +1,7 @@
 "use client";
 import { CardContent, Typography, Button, Avatar, Badge } from "@mui/material";
 import ParentCard from "../../shared/ParentCard";
-import { Box, Stack } from "@mui/system";
+import { Box, Stack } from "@mui/material";
 
 import FriendCardCode from "./code/FriendCardCode";
 

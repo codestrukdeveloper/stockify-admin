@@ -15,9 +15,10 @@ import {
   MenuItem,
   IconButton,
   ListItemIcon,
+  Box
 } from '@mui/material';
 import BlankCard from '../shared/BlankCard';
-import { Box, Stack } from '@mui/system';
+import { Stack } from "@mui/material";
 import {
   IconArrowBackUp,
   IconCheck,

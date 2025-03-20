@@ -8,7 +8,7 @@ const ProfileCardCode = () => {
 import React from 'react';
 import { CardContent, Typography, Grid, IconButton, Divider, Avatar, Box, Card } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 import {
   IconBrandFacebook,
   IconBrandGithub,

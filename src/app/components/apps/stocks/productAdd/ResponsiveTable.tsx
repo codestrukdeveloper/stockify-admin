@@ -35,10 +35,10 @@ export interface DataTableProps {
 interface ResponsiveTableProps {
   initialData: DataTableProps;
   handleFileUpload: (data: any) => void;
-  fileFor:FILE_FOR
+  fileFor?:FILE_FOR
 }
 
-const ResponsiveTable: React.FC<ResponsiveTableProps> = ({ initialData,fileFor,handleFileUpload }) => {
+const ResponsiveTable: React.FC<ResponsiveTableProps> = ({ initialData,handleFileUpload }) => {
   const [tableData, setTableData] = useState<DataTableProps>(initialData);
   const [isEditable, setIsEditable] = useState(false);
 
@@ -49,7 +49,7 @@ const ResponsiveTable: React.FC<ResponsiveTableProps> = ({ initialData,fileFor,h
     Object.keys(updatedData).forEach((key) => {
       updatedData[key] = [...updatedData[key], "0"];
     });
-    setTableData({ year: updatedYears, data: updatedData });
+    setTableData({ year: updatedYears, data: updatedData,name:"" });
   };
 
   const handleDeleteYear = (index: number) => {
@@ -58,7 +58,7 @@ const ResponsiveTable: React.FC<ResponsiveTableProps> = ({ initialData,fileFor,h
     Object.keys(updatedData).forEach((key) => {
       updatedData[key] = updatedData[key].filter((_, i) => i !== index);
     });
-    setTableData({ year: updatedYears, data: updatedData });
+    setTableData({ year: updatedYears, data: updatedData,name:"" });
   };
 
   const handleEditCell = (rowKey: string, colIndex: number, newValue: string) => {

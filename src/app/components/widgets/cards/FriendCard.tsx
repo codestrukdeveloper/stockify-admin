@@ -8,7 +8,7 @@ import {
   AvatarGroup,
   Avatar,
 } from "@mui/material";
-import { Stack } from "@mui/system";
+import { Stack } from "@mui/material";
 import BlankCard from "../../shared/BlankCard";
 
 import ParentCard from "../../shared/ParentCard";

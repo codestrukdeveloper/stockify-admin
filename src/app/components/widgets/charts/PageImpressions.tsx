@@ -4,7 +4,7 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useTheme } from '@mui/material/styles';
 import { CardContent, Typography, Avatar, Grid } from '@mui/material';
 import BlankCard from '../../shared/BlankCard';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 import { IconArrowDownRight } from '@tabler/icons-react';
 
 const PageImpressions = () => {

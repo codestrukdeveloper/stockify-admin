@@ -8,7 +8,7 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
-import { Stack } from "@mui/system";
+import { Stack } from "@mui/material";
 import {
   IconPlayerPlay,
   IconPlayerSkipBack,

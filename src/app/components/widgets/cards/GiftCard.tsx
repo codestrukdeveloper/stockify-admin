@@ -7,7 +7,7 @@ import {
   CardMedia,
   IconButton,
 } from "@mui/material";
-import { Stack } from "@mui/system";
+import { Stack } from "@mui/material";
 import BlankCard from "../../shared/BlankCard";
 import { IconGift } from "@tabler/icons-react";
 

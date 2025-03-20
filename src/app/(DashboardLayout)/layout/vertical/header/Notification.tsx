@@ -9,12 +9,12 @@ import {
   Typography,
   Button,
   Chip,
+  Stack,
 } from '@mui/material';
 import * as dropdownData from './data';
 import Scrollbar from '@/app/components/custom-scroll/Scrollbar';
 
 import { IconBellRinging } from '@tabler/icons-react';
-import { Stack } from '@mui/system';
 import Link from 'next/link';
 
 const Notifications = () => {

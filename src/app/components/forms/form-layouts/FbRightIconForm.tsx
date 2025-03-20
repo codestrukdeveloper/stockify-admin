@@ -11,7 +11,7 @@ import CustomCheckbox from '../theme-elements/CustomCheckbox';
 import CustomFormLabel from '../theme-elements/CustomFormLabel';
 import ParentCard from '../../shared/ParentCard';
 import { IconLock, IconUser, IconMail } from '@tabler/icons-react';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 
 const FbRightIconForm = () => {
   const [state, setState] = React.useState({

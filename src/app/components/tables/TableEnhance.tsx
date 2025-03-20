@@ -27,7 +27,7 @@ import CustomCheckbox from "@/app/components/forms/theme-elements/CustomCheckbox
 import CustomSwitch from "@/app/components/forms/theme-elements/CustomSwitch";
 import ParentCard from "@/app/components/shared/ParentCard";
 import { IconTrash, IconFilter } from "@tabler/icons-react";
-import { Stack } from "@mui/system";
+import { Stack } from "@mui/material";
 import {
   EnhancedTableData,
   EnTableType,

@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { Box } from '@mui/system';
+import { Box } from '@mui/material';
 import React from 'react';
 
 const StillQuestions = () => {

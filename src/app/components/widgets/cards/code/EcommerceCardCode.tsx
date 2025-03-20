@@ -7,7 +7,7 @@ const EcommerceCardCode = () => {
                 {`
 import  Link  from 'next/link';
 import { CardContent, Typography, Grid, Rating, Tooltip, Fab, Card } from '@mui/material';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 import { IconBasket } from '@tabler/icons-react';
 import Image from 'next/image';
 

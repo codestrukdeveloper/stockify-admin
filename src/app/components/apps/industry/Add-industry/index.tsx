@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useContext, useEffect } from "react";
-import { IndustryContext } from "@/app/context/IndustryContext";
 import {
   Alert,
   Button,
@@ -22,18 +21,13 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { format, isValid } from "date-fns";
-import {
-  IconPlus,
-  IconSquareRoundedPlus,
-  IconTrash,
-} from "@tabler/icons-react";
-import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
 import CustomTextField from "@/app/components/forms/theme-elements/CustomTextField";
 import { createIndustry } from "@/app/(DashboardLayout)/apps/industry/action";
 import toast from "react-hot-toast";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import { ServerErrorRender } from "@/app/components/shared/ServerErrorRender";
 import { IError } from "@/app/(DashboardLayout)/types/apps/error";
+import CustomFormLabel from "@/app/components/forms/theme-elements/CustomFormLabel";
 
 const CreateIndustry = () => {
   const [showAlert, setShowAlert] = useState(false);

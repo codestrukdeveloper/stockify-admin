@@ -71,7 +71,7 @@ const MainFileUpload: React.FC<FileUploadProps> = ({
                 }
             }
 
-            const mappedData = mapDataToInterface(jsonData, interfaceMap);
+            const mappedData = mapDataToInterface(jsonData as unknown as  any, interfaceMap);
             onFileUpload(mappedData);
         };
         reader.readAsBinaryString(file);

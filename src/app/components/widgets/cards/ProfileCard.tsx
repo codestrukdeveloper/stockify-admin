@@ -10,7 +10,7 @@ import {
   Box,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Stack } from "@mui/system";
+import { Stack } from "@mui/material";
 import {
   IconBrandFacebook,
   IconBrandGithub,

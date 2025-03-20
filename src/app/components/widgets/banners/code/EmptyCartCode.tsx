@@ -6,7 +6,7 @@ const EmptyCartCode = () => {
             <CodeDialog>
                 {`
 import { CardContent, Typography, Button, Card } from '@mui/material';
-import { Box } from '@mui/system';
+import { Box } from '@mui/material';
 import React from 'react';
 import Image from 'next/image';
 

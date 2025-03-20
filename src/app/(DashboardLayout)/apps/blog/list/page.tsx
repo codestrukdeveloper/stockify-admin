@@ -1,7 +1,7 @@
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/components/container/PageContainer";
 import BlankCard from "@/app/components/shared/BlankCard";
-import BlogTableList from "@/app/components/apps/ecommerce/BlogTableList/BlogTableList";
+import BlogTableList from "@/app/components/apps/stocks/BlogTableList/BlogTableList";
 import { blogService } from "@/utils/api/blog-service";
 import { fetchBlogs } from "../action";
 import { isServerError } from "@/app/(DashboardLayout)/action";

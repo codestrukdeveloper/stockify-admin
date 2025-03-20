@@ -7,7 +7,7 @@ import {
   Avatar,
   Box,
 } from "@mui/material";
-import { Stack } from "@mui/system";
+import { Stack } from "@mui/material";
 import { IconMapPin } from "@tabler/icons-react";
 import BlankCard from "../../shared/BlankCard";
 

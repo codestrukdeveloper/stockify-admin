@@ -7,8 +7,7 @@ const SettingsCode = () => {
                 {`
 import React from 'react';
 import { CardContent, Typography, Avatar, Divider, Button, Card } from '@mui/material';
-import { Box, Stack } from '@mui/system';
-import { IconMessage, IconVolume } from '@tabler/icons-react';
+import { Stack } from "@mui/material";import { IconMessage, IconVolume } from '@tabler/icons-react';
 import { styled } from '@mui/material/styles';
 import { Slider } from '@mui/material';
 import { Switch } from '@mui/material';

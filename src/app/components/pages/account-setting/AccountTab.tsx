@@ -14,7 +14,7 @@ import CustomFormLabel from '../../forms/theme-elements/CustomFormLabel';
 import CustomSelect from '../../forms/theme-elements/CustomSelect';
 
 // images
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 
 // locations
 const locations = [

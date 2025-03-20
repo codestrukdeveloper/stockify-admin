@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import BlankCard from '../shared/BlankCard';
 import { basicsTableData, TableType } from './tableData';
-import { Stack } from '@mui/system';
+import { Stack } from '@mui/material';
 
 const basics: TableType[] = basicsTableData;
 

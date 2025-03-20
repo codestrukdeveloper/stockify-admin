@@ -6,8 +6,7 @@ const FriendCard = () => {
             <CodeDialog>
                 {`
 import { CardContent, Typography, Button, Avatar, Badge, Card } from '@mui/material';
-import { Box, Stack } from '@mui/system';
-
+import { Stack } from "@mui/material";
 const Banner3 = () => {
   return (
     <Card>

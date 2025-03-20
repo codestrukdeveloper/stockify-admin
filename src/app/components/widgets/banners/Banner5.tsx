@@ -1,8 +1,7 @@
 "use client";
 import { CardContent, Typography, Button } from "@mui/material";
 import ParentCard from "../../shared/ParentCard";
-import { Box } from "@mui/system";
-import React from "react";
+import { Box } from "@mui/material";import React from "react";
 import Image from "next/image";
 
 import EmptyCartCode from "./code/EmptyCartCode";

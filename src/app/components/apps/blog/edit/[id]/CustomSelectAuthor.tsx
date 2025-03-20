@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from "react";
-import { IAuthor } from "@/app/(DashboardLayout)/types/apps/author";
 import { Box, FormControl, InputLabel, TextField, Autocomplete, FormHelperText } from "@mui/material";
 import { fetchAuthors } from "@/app/(DashboardLayout)/apps/author/action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
+import { IAuthor } from "@/app/(DashboardLayout)/types/apps/IAuthor";
 
 export interface SelectProps {
     name: string;

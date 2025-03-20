@@ -30,7 +30,6 @@ import { IBlog } from '@/app/(DashboardLayout)/types/apps/IBlog';
 import toast from 'react-hot-toast';
 import { uploadFile } from '@/utils/api/uploadAction';
 import ReactQuill from 'react-quill';
-import Image from 'next/image';
 
 interface EditProps {
     data: IBlog;
@@ -48,7 +47,7 @@ const EditBlogClient: React.FC<EditProps> = ({ data }) => {
     const [categoryInput, setCategoryInput] = useState('');
     const [tags, setTags] = useState<string[]>(data.tags || []);
     const [tagInput, setTagInput] = useState('');
-    const [status, setStatus] = useState<'draft' | 'published'>(data.status || 'draft');
+    const [status, setStatus] = useState<'draft' | 'published'|string>(data.status  || 'draft');
     const [relatedStocks, setRelatedStocks] = useState<string[]>(data.relatedStocks || []);
     const [author, setAuthor] = useState('');
     const [featuredImageUrl, setFeaturedImageUrl] = useState(data.featuredImage || '');
@@ -83,13 +82,6 @@ const EditBlogClient: React.FC<EditProps> = ({ data }) => {
         }
     };
 
-    const handleAddCategory = () => {
-        const category = categoryInput.trim();
-        if (category && !categories.includes(category)) {
-            setCategories([...categories, category]);
-            setCategoryInput('');
-        }
-    };
 
     const handleAddTag = () => {
         const tag = tagInput.trim();
