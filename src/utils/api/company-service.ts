@@ -54,6 +54,12 @@ export const companyService = {
     });
     return response;
   },
+
+  getPriceTrends: async (company: string) => {
+    const response = await axiosServices.get(`/admin/priceTrend/price?company=${company}`);
+    return response;
+  },
+
   updateCompanyLogo: async (id: string, logo: string) => {
     const response = await axiosServices.put(`${API_URL}/${id}`, { logo });
     return response;

@@ -16,7 +16,7 @@ import { IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
 import { IPerformance } from "@/app/(DashboardLayout)/types/apps/peformance";
 import { ICategory } from "@/app/(DashboardLayout)/types/apps/category";
 import EditableAddressAndManagement from "./EditableAddressManagement";
-import { createCompanyAction, updateCompany, updateCompanyLogo, uploadImages } from "@/app/(DashboardLayout)/apps/company/action";
+import { createCompanyAction, fetchPriceTrendsBySlug, updateCompany, updateCompanyLogo, uploadImages } from "@/app/(DashboardLayout)/apps/company/action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import { IError } from "@/app/(DashboardLayout)/types/apps/error";
 import ErrorMessage from "@/app/components/shared/ErrorMessage";
@@ -41,6 +41,7 @@ import { UpdateBalanceSheetDto } from "@/schema/balanceSheet.dto";
 import { ExcelUploader } from "./ExcelUploader";
 import { CompanyOtherUploadData } from "./CompanyOtherUploadData";
 import CombinedExcelUploader from "./CombineUploader";
+import PriceTrends from "./PriceTrends";
 
 
 
@@ -263,6 +264,54 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
     }));
   };
 
+  const handleFetchPriceTrends = async () => {
+    setLoading(true);
+    try {
+      console.log("SLUG", name);
+      const response = await fetchPriceTrendsBySlug(formData.company.name || "");
+      console.log("Response PriceTrends", response);
+
+      if (isServerError(response)) {
+        toast.error(response.error?.message || "Error getting");
+        return;
+      }
+      console.log("Response PriceTrends", response);
+      if (response.length < 0) {
+        toast.error(`Price Trend not found for:${name} `)
+      }
+      setFormData((prev) => {
+        const existingPriceTrends = prev.priceTrend || [];
+  
+        // Merge old and new price trends, avoiding duplicates
+        const updatedPriceTrends = [
+          ...existingPriceTrends, 
+          ...response.map((res) => ({
+            period: res.period,
+            price: res.price,
+            label: res.period,
+          })),
+        ].filter((trend, index, self) =>
+          index === self.findIndex((t) => t.period === trend.period) // Remove duplicates based on `period`
+        );
+  
+        const updatedFormData: ICompanyFull = {
+          ...prev,
+          priceTrend: updatedPriceTrends,
+        };
+  
+        console.log("Updated FormData:", updatedFormData);
+        return updatedFormData;
+      });
+  
+
+      setValidationErrors({});
+    } catch (error) {
+      console.error("Failed to fetch price trends:", error);
+    }
+    setLoading(false);
+  };
+
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
     e.preventDefault();
@@ -287,7 +336,6 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
       validationResult.error.errors.forEach((err) => {
-
         errors[err.path.join(".")] = err.message;
       });
       console.log("errors", errors)
@@ -308,16 +356,21 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
 
       const data = validationResult.data.company as unknown as ICompany;
       console.log("updatedDataformData", data);
-      const validatedProfitLoss = z.array(updateProfitLossesDto).parse(validationResult.data.profitLoss || [initialProfitLosses]);
-      const validatedKeyIndicators = z.array(UpdateKeyIndicatorsDto).parse(validationResult.data.keyIndicators || [keyIndicatorsInitialValue]);
-      const validatedCashFlow = z.array(updateCashflowSumDto).parse(validationResult.data.cashFlow || [initialCashflowSum]);
-      const validatedPriceTrend = z.array(updatePriceTrendDto).parse(validationResult.data.priceTrend || [initialPriceTrend]);
-      const validatedBalanceSheet = z.array(UpdateBalanceSheetDto).parse(validationResult.data.balanceSheet || [initialBalanceSheet]);
+      const validatedProfitLoss = z.array(updateProfitLossesDto).parse(validationResult.data.profitLoss || []);
+      const validatedKeyIndicators = z.array(UpdateKeyIndicatorsDto).parse(validationResult.data.keyIndicators || []);
+      const validatedCashFlow = z.array(updateCashflowSumDto).parse(validationResult.data.cashFlow || []);
+      const validatedPriceTrend = z.array(updatePriceTrendDto).parse(validationResult.data.priceTrend || []);
+      const validatedBalanceSheet = z.array(UpdateBalanceSheetDto).parse(validationResult.data.balanceSheet || []);
 
-      
+
+      console.log("validationResult.data.priceTrend",validationResult.data.priceTrend);
+      console.log("validatedPriceTrend",validatedPriceTrend);
+      console.log("formData.data.priceTrend",formData.priceTrend);
+
+
       const updatedData: ICompanyFullExtended = {
         ...data,
-        financialResults:formData.company.financialResults,
+        financialResults: formData.company.financialResults,
         _id: formData.company._id,
         profitLoss: validatedProfitLoss,
         keyIndicators: validatedKeyIndicators,
@@ -345,7 +398,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
         );
         const validateFinancialResults = z.array(financialResultsSchema).parse(uploadedFinancialResults);
 
-        updatedData.financialResults = [ ...formData.company.financialResults, ...validateFinancialResults];
+        updatedData.financialResults = [...formData.company.financialResults, ...validateFinancialResults];
       }
 
       const created = await updateCompany(formData.company._id!, updatedData);
@@ -614,7 +667,7 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
       <Toaster />
       <Breadcrumb title="Add Product" items={BCrumb} />
       <form onSubmit={onSubmit} className="flex flex-col gap-5">
-        <CombinedExcelUploader
+      <CombinedExcelUploader
           onUpload={(data, type) => {
             if (type === 'company') {
               handleExcelUpload(data);
@@ -659,6 +712,15 @@ const EditCompanyClient: React.FC<AddCompanyProps> = ({
           }
           validationErrors={validationErrors}
           id="company-about-section"
+        />
+
+        <PriceTrends
+          data={formData.priceTrend}
+          onChange={(priceTrend) =>
+            handleInputChange("priceTrend", priceTrend)
+          }
+          validationErrors={validationErrors}
+          id="priceTrends-section"
         />
 
         <ProfitLossSummary

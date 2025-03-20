@@ -16,7 +16,7 @@ import { IIndustry } from "@/app/(DashboardLayout)/types/apps/industry";
 import { IPerformance } from "@/app/(DashboardLayout)/types/apps/peformance";
 import { ICategory } from "@/app/(DashboardLayout)/types/apps/category";
 import EditableAddressAndManagement from "./EditableAddressManagement";
-import { createCompanyAction, updateCompany, updateCompanyLogo, uploadImages } from "@/app/(DashboardLayout)/apps/company/action";
+import { createCompanyAction, fetchPriceTrendsBySlug, updateCompany, updateCompanyLogo, uploadImages } from "@/app/(DashboardLayout)/apps/company/action";
 import { isServerError } from "@/app/(DashboardLayout)/action";
 import { IError } from "@/app/(DashboardLayout)/types/apps/error";
 import { createCompanyDto, updateCompanyDto } from "@/schema/company.dto";
@@ -33,6 +33,7 @@ import { IDeposit } from "@/app/(DashboardLayout)/types/apps/deposit";
 import { ExcelUploader } from "./ExcelUploader";
 import { CompanyOtherUploadData } from "./CompanyOtherUploadData";
 import CombinedExcelUploader from "./CombineUploader";
+import PriceTrends from "./PriceTrends";
 
 
 
@@ -73,6 +74,8 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   const [logo, setLogo] = useState<File>();
+  const [name, setName] = useState<string>("");
+
   const [financialResults, setFinancialResults] = useState<IFinancialResultsWithFile[]>([]);
   const [formData, setFormData] = useState<ICompanyFull>(companyData);
 
@@ -119,6 +122,12 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       }
     }
 
+    if (validationErrors["priceTrend"]) {
+      const shareholderSection = document.getElementById("priceTrends-section");
+      if (shareholderSection) {
+        shareholderSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
 
 
     if (validationErrors["company.shareHolders"]) {
@@ -207,7 +216,9 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
       company: { ...prev.company, [key]: value },
     }));
 
-
+    if (key === "name" && typeof value === "string") {
+      setName(value);
+    }
   };
 
 
@@ -265,7 +276,6 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     let validationResult = createCompanyDto.safeParse(formData);
 
 
-    console.log("formData", formData)
 
     console.log("ValidationResult", validationResult)
 
@@ -332,6 +342,10 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
 
 
       const data = validationResult.data.company as unknown as ICompany;
+
+      console.log("priceTrend", validationResult.data.priceTrend)
+
+
       const formDataT: ICompanyFullExtended = {
         ...data,
         logo: uploadedLogo + "",
@@ -395,6 +409,9 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
     console.log("Excel Data:", data);
 
     if (data.company) {
+      if (data.company.name) {
+        setName(data.company.name);
+      }
       const dhrpName = Array.isArray(data.company.dhrpId) ? data.company.dhrpId[0] : data.company.dhrpId;
       const industryName = Array.isArray(data.company.industryId) ? data.company.industryId[0] : data.company.industryId;
       const sectorName = Array.isArray(data.company.sectorId) ? data.company.sectorId[0] : data.company.sectorId;
@@ -469,7 +486,6 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
   };
 
   const handleExcelUploadData = (data: Partial<ICompanyFull>) => {
-    console.log("ECECCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
     setFormData((prev) => {
       const updatedFormData = {
         ...prev,
@@ -569,6 +585,53 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
 
   };
 
+  const handleFetchPriceTrends = async () => {
+    setLoading(true);
+    try {
+      console.log("SLUG", name);
+      const response = await fetchPriceTrendsBySlug(name || "");
+      console.log("Response PriceTrends", response);
+
+      if (isServerError(response)) {
+        toast.error(response.error?.message || "Error getting");
+        return;
+      }
+      console.log("Response PriceTrends", response);
+      if (response.length < 0) {
+        toast.error(`Price Trend not found for:${name} `)
+      }
+      setFormData((prev) => {
+        const existingPriceTrends = prev.priceTrend || [];
+  
+        // Merge old and new price trends, avoiding duplicates
+        const updatedPriceTrends = [
+          ...existingPriceTrends, 
+          ...response.map((res) => ({
+            period: res.period,
+            price: res.price,
+            label: res.period,
+          })),
+        ].filter((trend, index, self) =>
+          index === self.findIndex((t) => t.period === trend.period) // Remove duplicates based on `period`
+        );
+  
+        const updatedFormData: ICompanyFull = {
+          ...prev,
+          priceTrend: updatedPriceTrends,
+        };
+  
+        console.log("Updated FormData:", updatedFormData);
+        return updatedFormData;
+      });
+  
+
+      setValidationErrors({});
+    } catch (error) {
+      console.error("Failed to fetch price trends:", error);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     console.log("formData updated:", formData);
   }, [formData]);
@@ -623,6 +686,17 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           }
           validationErrors={validationErrors}
           id="company-about-section"
+        />
+
+
+        <PriceTrends
+          data={formData.priceTrend}
+          onChange={(priceTrend) =>
+            handleInputChange("priceTrend", priceTrend)
+          }
+          validationErrors={validationErrors}
+          handleFetchPriceTrends={handleFetchPriceTrends}
+          id="priceTrends-section"
         />
 
         <ProfitLossSummary
@@ -696,8 +770,6 @@ const AddCompanyClient: React.FC<AddCompanyProps> = ({
           uploaded={formData.company.financialResults}
           id="financial-result-section"
           validationErrors={validationErrors}
-
-
         />
         <br />
 

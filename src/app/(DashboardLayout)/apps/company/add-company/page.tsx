@@ -167,7 +167,7 @@ export default async function AddCompany() {
       shareHolders: [],
 
     },
-    priceTrend:[initialPriceTrend]
+    priceTrend:[]
 
   }
 

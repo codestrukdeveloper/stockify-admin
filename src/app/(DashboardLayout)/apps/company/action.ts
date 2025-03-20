@@ -3,6 +3,7 @@ import { ICompany, ICompanyFull, ICompanyFullExtended } from "@/app/(DashboardLa
 import { IServerError, IServerResponse } from "@/app/(DashboardLayout)/types/apps/error";
 import { companyService } from "@/utils/api/company-service";
 import { handleErrorResponse } from "../../action";
+import { IPriceTrend } from "../../types/apps/IPricingTrend.interface";
 const API_URL = + "/admin/company";
 
 export async function fetchCompanies(page: number, limit: number): Promise<
@@ -60,6 +61,17 @@ export async function fetchCompanyById(id: string): Promise<IServerResponse<ICom
         return response.data.data;
     } catch (error: any) {
         console.error("Error fetching company by ID:", error);
+        return handleErrorResponse(error);
+    }
+}
+
+export async function fetchPriceTrendsBySlug(slug: string): Promise<IServerResponse<IPriceTrend[]>> {
+    try {
+        const response = await companyService.getPriceTrends(slug);
+        console.log("fetchPriceTrendsBySlug",response.data.data);
+        return response.data.data;
+    } catch (error: any) {
+        console.error("Error fetching priceTrend by slug by ID:", error);
         return handleErrorResponse(error);
     }
 }

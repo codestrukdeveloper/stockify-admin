@@ -185,7 +185,7 @@ export default async function AddCompany({ params }: { params: { id: string } })
       faq: companyData.faq || [],
       shareHolders: companyData.shareHolders || [],
     },
-    priceTrend: [initialPriceTrend],
+    priceTrend: companyData.priceTrend||[],
   };
   console.log("balanceSheet", companyData.balanceSheet)
 
