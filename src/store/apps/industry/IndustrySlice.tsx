@@ -5,7 +5,7 @@ import { AppDispatch } from '../../store';
 import { IIndustry } from '@/app/(DashboardLayout)/types/apps/industry';
 import { IError } from '@/app/(DashboardLayout)/types/apps/error';
 
-const API_URL = 'http://13.232.10.252:3000/api/v1/admin/Industry/';
+const API_URL = 'https://production.stockifyfintech.co.in/api/v1/admin/Industry/';
 
 interface StateType {
   industries: IIndustry[];

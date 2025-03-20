@@ -4,7 +4,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { AppDispatch } from '../../store';
 import { IDeposit } from '@/app/(DashboardLayout)/types/apps/deposit';
 
-const API_URL = 'http://13.232.10.252:3000/api/v1/admin/deposit/';
+const API_URL = 'https://production.stockifyfintech.co.in/api/v1/admin/deposit/';
 
 interface StateType {
   deposits: IDeposit[];
