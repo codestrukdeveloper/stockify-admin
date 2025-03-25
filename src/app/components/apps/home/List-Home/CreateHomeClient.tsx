@@ -19,7 +19,8 @@ import {
     Grid,
     FormControl,
     Snackbar,
-    Alert
+    Alert,
+    Tooltip
 } from '@mui/material';
 import toast from 'react-hot-toast';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -28,7 +29,7 @@ import { IHome } from '@/app/(DashboardLayout)/types/apps/home';
 import { CustomSelect } from './CustomSelect';
 import { CustomSelectType } from './CustomSelectType';
 import { isServerError } from '@/app/(DashboardLayout)/action';
-import { createHome, fetchHome,deleteHome } from '@/app/(DashboardLayout)/apps/home/action';
+import { createHome, fetchHome, deleteHome } from '@/app/(DashboardLayout)/apps/home/action';
 import { HomeSchema } from '@/schema/home.dto';
 
 // Enum for Home Sections
@@ -106,7 +107,7 @@ const CreateHomeClient: React.FC<CreateHomeClientProps> = ({ initialHome }) => {
             if (isServerError(homeListResponse)) {
                 toast.error(homeListResponse.error.message || 'An error occurred');
             } else {
-                console.log('homeListResponse',homeListResponse);
+                console.log('homeListResponse', homeListResponse);
                 const records: Array<{ _id: string; companies: any[] }> = homeListResponse.data.data;
                 // Extract records for each HomeEnum section
                 const ipoData = records.find((item) => item._id === HomeEnum.IPO)?.companies || [];
@@ -138,7 +139,7 @@ const CreateHomeClient: React.FC<CreateHomeClientProps> = ({ initialHome }) => {
         }
     }, [initialHome]);
 
-    const handleDelete = async(category: HomeEnum, id: string) => {
+    const handleDelete = async (category: HomeEnum, id: string) => {
         // switch (category) {
         //     case HomeEnum.IPO:
         //         setIpoCompanies(prev => prev.filter((item) => item._id !== id));
@@ -152,7 +153,7 @@ const CreateHomeClient: React.FC<CreateHomeClientProps> = ({ initialHome }) => {
         // }
         try {
             // API Call to create Home
-            const response = await deleteHome(category,id);
+            const response = await deleteHome(category, id);
             if (isServerError(response)) {
                 toast.error(response.error.message || 'An error occurred');
             } else {
@@ -238,9 +239,15 @@ const CreateHomeClient: React.FC<CreateHomeClientProps> = ({ initialHome }) => {
 
             <Box mt={4}>
                 <Tabs value={tabIndex} onChange={(_, newIndex) => setTabIndex(newIndex)}>
-                    <Tab label="IPO" />
-                    <Tab label="Listed" />
-                    <Tab label="Unlisted" />
+                    <Tooltip title="Your Next Big Pre IPO Investment Starts Here..." >
+                        <Tab label="IPO" />
+                    </Tooltip>
+                    <Tooltip title="Here Are Some Success Stories From The Past Unlisted Shares: Now Listed" >
+                        <Tab label="Listed" />
+                    </Tooltip>
+                    <Tooltip title="Guess What? Investors Have Received Up To 25X Returns, While Still In Pre-IPO Stage!!!" >
+                        <Tab label="Unlisted" />
+                    </Tooltip>
                 </Tabs>
 
                 <Box mt={2}>
